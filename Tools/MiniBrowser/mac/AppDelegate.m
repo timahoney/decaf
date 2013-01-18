@@ -181,6 +181,9 @@ static void populateVisitedLinks(WKContextRef context, const void *clientInfo)
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    // Make sure we use the WebKit Web Inspector.
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"UseWebKitWebInspector"];
+    
     [self newWindow:self];
 }
 

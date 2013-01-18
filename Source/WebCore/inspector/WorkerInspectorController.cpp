@@ -107,7 +107,8 @@ WorkerInspectorController::WorkerInspectorController(WorkerContext* workerContex
 #if ENABLE(JAVASCRIPT_DEBUGGER)
     OwnPtr<InspectorDebuggerAgent> debuggerAgent = WorkerDebuggerAgent::create(m_instrumentingAgents.get(), m_state.get(), workerContext, m_injectedScriptManager.get());
     InspectorDebuggerAgent* debuggerAgentPtr = debuggerAgent.get();
-    m_runtimeAgent->setScriptDebugServer(&debuggerAgent->scriptDebugServer());
+    // FIXME: Do this for all ScriptTypes.
+    m_runtimeAgent->setScriptDebugServer(&debuggerAgent->scriptDebugServer(JSScriptType));
     m_agents.append(debuggerAgent.release());
 
     m_agents.append(InspectorProfilerAgent::create(m_instrumentingAgents.get(), consoleAgent.get(), workerContext, m_state.get(), m_injectedScriptManager.get()));

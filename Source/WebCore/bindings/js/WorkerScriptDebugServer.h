@@ -34,16 +34,18 @@
 #if ENABLE(JAVASCRIPT_DEBUGGER) && ENABLE(WORKERS)
 
 #include "ScriptDebugServer.h"
+#include "JSScriptDebugServer.h"
 
 namespace WebCore {
 
 class WorkerContext;
 
-class WorkerScriptDebugServer : public ScriptDebugServer {
+// FIXME: Implement WorkerScriptDebugServer for other languages.
+class WorkerScriptDebugServer : public virtual ScriptDebugServer, public virtual JSScriptDebugServer {
     WTF_MAKE_NONCOPYABLE(WorkerScriptDebugServer);
 public:
     WorkerScriptDebugServer(WorkerContext*, const String&);
-    ~WorkerScriptDebugServer() { }
+    virtual ~WorkerScriptDebugServer() { }
 
     void addListener(ScriptDebugListener*);
     void removeListener(ScriptDebugListener*);
@@ -53,9 +55,11 @@ public:
     void recompileAllJSFunctions(Timer<ScriptDebugServer>*);
 
 private:
+    virtual ListenerSet* getListenersForCurrentFrame() { return &m_listeners; }
     virtual ListenerSet* getListenersForGlobalObject(JSC::JSGlobalObject*) { return &m_listeners; }
-    virtual void didPause(JSC::JSGlobalObject*) { }
-    virtual void didContinue(JSC::JSGlobalObject*) { }
+
+    virtual void didPause() { }
+    virtual void didContinue() { }
 
     virtual bool isContentScript(JSC::ExecState*) { return false; }
 

@@ -119,7 +119,7 @@ public:
     String storageIdImpl(Storage*);
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
-    ScriptDebugServer& scriptDebugServer();
+    ScriptDebugServer& scriptDebugServer(ScriptType);
 #endif
 
 private:

@@ -36,6 +36,7 @@
 #include "JSEventSource.h"
 #include "JSMessageChannel.h"
 #include "JSMessagePort.h"
+#include "JSScheduledAction.h"
 #include "JSWorkerLocation.h"
 #include "JSWorkerNavigator.h"
 #include "JSXMLHttpRequest.h"
@@ -122,7 +123,7 @@ JSValue JSWorkerContext::importScripts(ExecState* exec)
 
 JSValue JSWorkerContext::setTimeout(ExecState* exec)
 {
-    OwnPtr<ScheduledAction> action = ScheduledAction::create(exec, currentWorld(exec), impl()->contentSecurityPolicy());
+    OwnPtr<ScheduledAction> action = JSScheduledAction::create(exec, currentWorld(exec), impl()->contentSecurityPolicy());
     if (exec->hadException())
         return jsUndefined();
     if (!action)
@@ -133,7 +134,7 @@ JSValue JSWorkerContext::setTimeout(ExecState* exec)
 
 JSValue JSWorkerContext::setInterval(ExecState* exec)
 {
-    OwnPtr<ScheduledAction> action = ScheduledAction::create(exec, currentWorld(exec), impl()->contentSecurityPolicy());
+    OwnPtr<ScheduledAction> action = JSScheduledAction::create(exec, currentWorld(exec), impl()->contentSecurityPolicy());
     if (exec->hadException())
         return jsUndefined();
     if (!action)

@@ -34,11 +34,11 @@
 
 #include "Frame.h"
 #include "GCController.h"
+#include "JSScriptController.h"
 #include "Page.h"
 #include "PageGroup.h"
 #include <heap/StrongInlines.h>
 #include <runtime/JSLock.h>
-#include "ScriptController.h"
 
 using namespace JSC;
 
@@ -48,11 +48,11 @@ ScriptCachedFrameData::ScriptCachedFrameData(Frame* frame)
 {
     JSLockHolder lock(JSDOMWindowBase::commonJSGlobalData());
 
-    ScriptController* scriptController = frame->script();
-    ScriptController::ShellMap& windowShells = scriptController->m_windowShells;
+    JSScriptController* scriptController = frame->script();
+    JSScriptController::ShellMap& windowShells = scriptController->m_windowShells;
 
-    ScriptController::ShellMap::iterator windowShellsEnd = windowShells.end();
-    for (ScriptController::ShellMap::iterator iter = windowShells.begin(); iter != windowShellsEnd; ++iter) {
+    JSScriptController::ShellMap::iterator windowShellsEnd = windowShells.end();
+    for (JSScriptController::ShellMap::iterator iter = windowShells.begin(); iter != windowShellsEnd; ++iter) {
         JSDOMWindow* window = iter->value->window();
         m_windows.add(iter->key.get(), Strong<JSDOMWindow>(window->globalData(), window));
     }
@@ -69,11 +69,11 @@ void ScriptCachedFrameData::restore(Frame* frame)
 {
     JSLockHolder lock(JSDOMWindowBase::commonJSGlobalData());
 
-    ScriptController* scriptController = frame->script();
-    ScriptController::ShellMap& windowShells = scriptController->m_windowShells;
+    JSScriptController* scriptController = frame->script();
+    JSScriptController::ShellMap& windowShells = scriptController->m_windowShells;
 
-    ScriptController::ShellMap::iterator windowShellsEnd = windowShells.end();
-    for (ScriptController::ShellMap::iterator iter = windowShells.begin(); iter != windowShellsEnd; ++iter) {
+    JSScriptController::ShellMap::iterator windowShellsEnd = windowShells.end();
+    for (JSScriptController::ShellMap::iterator iter = windowShells.begin(); iter != windowShellsEnd; ++iter) {
         DOMWrapperWorld* world = iter->key.get();
         JSDOMWindowShell* windowShell = iter->value.get();
 

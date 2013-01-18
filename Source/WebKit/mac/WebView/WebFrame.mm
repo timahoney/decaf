@@ -79,6 +79,7 @@
 #import <WebCore/HistoryItem.h>
 #import <WebCore/HitTestResult.h>
 #import <WebCore/JSNode.h>
+#import <WebCore/JSScriptController.h>
 #import <WebCore/LegacyWebArchive.h>
 #import <WebCore/Page.h>
 #import <WebCore/PlatformEventFactoryMac.h>
@@ -284,7 +285,7 @@ WebView *getWebView(WebFrame *webFrame)
 
 - (void)_attachScriptDebugger
 {
-    ScriptController* scriptController = _private->coreFrame->script();
+    JSScriptController* scriptController = _private->coreFrame->script();
 
     // Calling ScriptController::globalObject() would create a window shell, and dispatch corresponding callbacks, which may be premature
     // if the script debugger is attached before a document is created.  These calls use the debuggerWorld(), we will need to pass a world

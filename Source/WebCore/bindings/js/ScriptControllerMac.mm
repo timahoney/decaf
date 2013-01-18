@@ -27,7 +27,7 @@
  */
 
 #import "config.h"
-#import "ScriptController.h"
+#import "JSScriptController.h"
 
 #import "BridgeJSC.h"
 #import "DOMAbstractViewFrame.h"
@@ -60,7 +60,7 @@ using namespace JSC::Bindings;
 
 namespace WebCore {
 
-PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widget)
+PassScriptInstance JSScriptController::createScriptInstanceForWidget(Widget* widget)
 {
     NSView* widgetView = widget->platformWidget();
     if (!widgetView)
@@ -95,7 +95,7 @@ PassScriptInstance ScriptController::createScriptInstanceForWidget(Widget* widge
     return 0;
 }
 
-WebScriptObject* ScriptController::windowScriptObject()
+WebScriptObject* JSScriptController::windowScriptObject()
 {
     if (!canExecuteScripts(NotAboutToExecuteScript))
         return 0;
@@ -110,7 +110,7 @@ WebScriptObject* ScriptController::windowScriptObject()
     return m_windowScriptObject.get();
 }
 
-JSContext *ScriptController::javaScriptContext()
+JSContext *JSScriptController::javaScriptContext()
 {
 #if JSC_OBJC_API_ENABLED
     if (!canExecuteScripts(NotAboutToExecuteScript))
@@ -122,7 +122,7 @@ JSContext *ScriptController::javaScriptContext()
 #endif
 }
 
-void ScriptController::updatePlatformScriptObjects()
+void JSScriptController::updatePlatformScriptObjects()
 {
     if (m_windowScriptObject) {
         JSC::Bindings::RootObject* root = bindingRootObject();
@@ -130,7 +130,7 @@ void ScriptController::updatePlatformScriptObjects()
     }
 }
 
-void ScriptController::disconnectPlatformScriptObjects()
+void JSScriptController::disconnectPlatformScriptObjects()
 {
     if (m_windowScriptObject) {
         ASSERT([m_windowScriptObject.get() isKindOfClass:[DOMAbstractView class]]);

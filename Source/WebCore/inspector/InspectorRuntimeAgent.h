@@ -84,6 +84,10 @@ public:
     virtual void getProperties(ErrorString*, const String& objectId, const bool* ownProperties, RefPtr<TypeBuilder::Array<TypeBuilder::Runtime::PropertyDescriptor> >& result, RefPtr<TypeBuilder::Array<TypeBuilder::Runtime::InternalPropertyDescriptor> >& internalProperties);
     virtual void releaseObjectGroup(ErrorString*, const String& objectGroup);
     virtual void run(ErrorString*);
+    virtual void getCompletions(ErrorString*, const String& objectId, RefPtr<TypeBuilder::Array<String> >& result);
+    virtual void getPrimitiveTypeCompletions(ErrorString*, const String& type, int executionContextId, RefPtr<TypeBuilder::Array<String> >& result);
+    virtual void buildArrayFragment(ErrorString*, const String& objectId, int fromIndex, int toIndex, RefPtr<TypeBuilder::Runtime::RemoteObject>& result);
+    virtual void buildObjectFragment(ErrorString*, const String& objectId, RefPtr<TypeBuilder::Runtime::RemoteObject>& result);
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
     void setScriptDebugServer(ScriptDebugServer*);

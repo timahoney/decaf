@@ -31,6 +31,7 @@
 #include "HTMLCanvasElement.h"
 #include "InspectorCanvasInstrumentation.h"
 #include "JSCanvasRenderingContext2D.h"
+#include "JSScriptState.h"
 #include "ScriptObject.h"
 #if ENABLE(WEBGL)
 #include "JSWebGLRenderingContext.h"
@@ -79,7 +80,7 @@ JSValue JSHTMLCanvasElement::getContext(ExecState* exec)
         return jsNull();
     JSValue jsValue = toJS(exec, globalObject(), WTF::getPtr(context));
     if (InspectorInstrumentation::canvasAgentEnabled(canvas->document())) {
-        ScriptObject contextObject(exec, jsValue.getObject());
+        ScriptObject contextObject(JSScriptState::forExecState(exec), jsValue.getObject());
         ScriptObject wrapped;
         if (context->is2d())
             wrapped = InspectorInstrumentation::wrapCanvas2DRenderingContextForInstrumentation(canvas->document(), contextObject);

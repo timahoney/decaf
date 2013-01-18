@@ -52,6 +52,7 @@ public:
     const String& name() const { return m_name; }
     bool hasNoValue() const { return m_injectedScriptObject.hasNoValue(); }
     ScriptState* scriptState() const { return m_injectedScriptObject.scriptState(); }
+    ScriptType scriptType() const { return m_injectedScriptObject.scriptType(); }
 
 protected:
     typedef bool (*InspectedStateAccessCheck)(ScriptState*);

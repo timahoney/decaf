@@ -55,6 +55,7 @@
 #include "JSInt8Array.h"
 #include "JSNode.h"
 #include "JSNodeList.h"
+#include "JSScriptState.h"
 #include "JSStorage.h"
 #include "JSUint16Array.h"
 #include "JSUint32Array.h"
@@ -74,22 +75,6 @@ using namespace JSC;
 
 namespace WebCore {
 
-Node* InjectedScriptHost::scriptValueAsNode(ScriptValue value)
-{
-    if (!value.isObject() || value.isNull())
-        return 0;
-    return toNode(value.jsValue());
-}
-
-ScriptValue InjectedScriptHost::nodeAsScriptValue(ScriptState* state, Node* node)
-{
-    if (!shouldAllowAccessToNode(state, node))
-        return ScriptValue(state->globalData(), jsNull());
-
-    JSLockHolder lock(state);
-    return ScriptValue(state->globalData(), toJS(state, deprecatedGlobalObjectForPrototype(state), node));
-}
-
 JSValue JSInjectedScriptHost::inspectedObject(ExecState* exec)
 {
     if (exec->argumentCount() < 1)
@@ -100,7 +85,7 @@ JSValue JSInjectedScriptHost::inspectedObject(ExecState* exec)
         return jsUndefined();
 
     JSLockHolder lock(exec);
-    ScriptValue scriptValue = object->get(exec);
+    ScriptValue scriptValue = object->get(JSScriptState::forExecState(exec));
     if (scriptValue.hasNoValue())
         return jsUndefined();
 
@@ -258,7 +243,8 @@ JSValue JSInjectedScriptHost::inspect(ExecState* exec)
     if (exec->argumentCount() >= 2) {
         ScriptValue object(exec->globalData(), exec->argument(0));
         ScriptValue hints(exec->globalData(), exec->argument(1));
-        impl()->inspectImpl(object.toInspectorValue(exec), hints.toInspectorValue(exec));
+        JSScriptState* state = JSScriptState::forExecState(exec);
+        impl()->inspectImpl(object.toInspectorValue(state), hints.toInspectorValue(state));
     }
     return jsUndefined();
 }

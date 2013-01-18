@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
+ * Copyright (C) 1999 Lars Knoll (knoll@kd.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  *           (C) 2001 Dirk Mueller (mueller@kde.org)
  * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 Apple Inc. All rights reserved.
@@ -43,6 +43,7 @@
 #include "ScriptCallStack.h"
 #include "ScriptRunner.h"
 #include "ScriptSourceCode.h"
+#include "ScriptType.h"
 #include "ScriptValue.h"
 #include "ScriptableDocumentParser.h"
 #include "SecurityOrigin.h"
@@ -160,6 +161,8 @@ bool ScriptElement::isScriptTypeSupported(LegacyTypeSupport supportLegacyTypes) 
         type = "text/" + language.lower();
         if (MIMETypeRegistry::isSupportedJavaScriptMIMEType(type) || isLegacySupportedJavaScriptLanguage(language))
             return true;
+    } else if (isSupportedScriptMIMEType(type)) {
+        return true;
     } else if (MIMETypeRegistry::isSupportedJavaScriptMIMEType(type.stripWhiteSpace().lower()) || (supportLegacyTypes == AllowLegacyTypeInTypeAttribute && isLegacySupportedJavaScriptLanguage(type)))
         return true;
     return false;
@@ -309,7 +312,8 @@ void ScriptElement::executeScript(const ScriptSourceCode& sourceCode)
             // Create a script from the script element node, using the script
             // block's source and the script block's type.
             // Note: This is where the script is compiled and actually executed.
-            frame->script()->evaluate(sourceCode);
+            ScriptType type = scriptTypeFromMIMEType(typeAttributeValue());
+            frame->script(type)->evaluate(sourceCode);
         }
     }
 }

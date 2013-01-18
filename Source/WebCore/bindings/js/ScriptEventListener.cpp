@@ -36,6 +36,8 @@
 #include "Document.h"
 #include "EventListener.h"
 #include "JSNode.h"
+#include "JSScriptController.h"
+#include "JSScriptState.h"
 #include "Frame.h"
 #include <runtime/Executable.h>
 #include <runtime/JSFunction.h>
@@ -63,7 +65,7 @@ PassRefPtr<JSLazyEventListener> createAttributeEventListener(Node* node, const Q
     
     // FIXME: We should be able to provide accurate source information for frameless documents, too (e.g. for importing nodes from XMLHttpRequest.responseXML).
     if (Frame* frame = node->document()->frame()) {
-        ScriptController* scriptController = frame->script();
+        JSScriptController* scriptController = frame->script();
         if (!scriptController->canExecuteScripts(AboutToExecuteScript))
             return 0;
 
@@ -82,7 +84,7 @@ PassRefPtr<JSLazyEventListener> createAttributeEventListener(Frame* frame, const
     if (value.isNull())
         return 0;
 
-    ScriptController* scriptController = frame->script();
+    JSScriptController* scriptController = frame->script();
     if (!scriptController->canExecuteScripts(AboutToExecuteScript))
         return 0;
 
@@ -102,8 +104,8 @@ String eventListenerHandlerBody(Document* document, EventListener* eventListener
     JSC::JSObject* jsFunction = jsListener->jsFunction(document);
     if (!jsFunction)
         return "";
-    ScriptState* scriptState = scriptStateFromNode(jsListener->isolatedWorld(), document);
-    return jsFunction->toString(scriptState)->value(scriptState);
+    JSScriptState* scriptState = static_cast<JSScriptState*>(scriptStateFromNode(jsListener->isolatedWorld(), document));
+    return jsFunction->toString(scriptState->execState())->value(scriptState->execState());
 }
 
 ScriptValue eventListenerHandler(Document* document, EventListener* eventListener)
@@ -128,7 +130,7 @@ ScriptState* eventListenerHandlerScriptState(Frame* frame, EventListener* eventL
     if (!frame->script()->canExecuteScripts(NotAboutToExecuteScript))
         return 0;
     DOMWrapperWorld* world = jsListener->isolatedWorld();
-    return frame->script()->globalObject(world)->globalExec();
+    return JSScriptState::forExecState(frame->script()->globalObject(world)->globalExec());
 }
 
 bool eventListenerHandlerLocation(Document* document, EventListener* eventListener, String& sourceName, String& scriptId, int& lineNumber)

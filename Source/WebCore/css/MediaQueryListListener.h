@@ -43,6 +43,8 @@ public:
 
     bool operator==(const MediaQueryListListener& other) const { return m_value == other.m_value; }
 
+    ScriptType scriptType() const { return m_value.scriptType(); }
+
 private:
     MediaQueryListListener(const ScriptValue& value) : m_value(value) { }
 

@@ -50,6 +50,12 @@ public:
     static bool shouldAllowAccessToDOMWindow(BindingState*, DOMWindow*, SecurityReportingOption = ReportSecurityError);
     static bool shouldAllowAccessToFrame(BindingState*, Frame*, SecurityReportingOption = ReportSecurityError);
     static bool allowSettingFrameSrcToJavascriptUrl(BindingState*, HTMLFrameElementBase*, const String& value);
+    
+    // FIXME: Remove these and use the BindingState methods instead.
+    static bool shouldAllowAccessToNode(JSC::ExecState*, Node*);
+    static bool shouldAllowAccessToDOMWindow(JSC::ExecState*, DOMWindow*, SecurityReportingOption = ReportSecurityError);
+    static bool shouldAllowAccessToFrame(JSC::ExecState*, Frame*, SecurityReportingOption = ReportSecurityError);
+    static bool allowSettingFrameSrcToJavascriptUrl(JSC::ExecState*, HTMLFrameElementBase*, const String& value);
 };
 
 }

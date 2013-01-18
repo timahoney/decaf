@@ -30,6 +30,7 @@
 #include "ScriptState.h"
 #include <heap/Strong.h>
 #include <runtime/JSCJSValue.h>
+#include <Ruby/ruby.h>
 #include <wtf/ArrayBuffer.h>
 #include <wtf/Forward.h>
 #include <wtf/PassRefPtr.h>
@@ -73,6 +74,9 @@ public:
     static PassRefPtr<SerializedScriptValue> create(JSContextRef, JSValueRef, JSValueRef* exception);
 
     static PassRefPtr<SerializedScriptValue> create(const String&);
+    static PassRefPtr<SerializedScriptValue> create(VALUE);
+    static PassRefPtr<SerializedScriptValue> create(VALUE, MessagePortArray*, ArrayBufferArray*);
+    
     static PassRefPtr<SerializedScriptValue> adopt(Vector<uint8_t>& buffer)
     {
         return adoptRef(new SerializedScriptValue(buffer));
@@ -90,6 +94,7 @@ public:
     JSC::JSValue deserialize(JSC::ExecState*, JSC::JSGlobalObject*, MessagePortArray*, SerializationErrorMode = Throwing);
     JSValueRef deserialize(JSContextRef, JSValueRef* exception, MessagePortArray*);
     JSValueRef deserialize(JSContextRef, JSValueRef* exception);
+    VALUE deserializeRB(MessagePortArray* = 0);
 
 #if ENABLE(INSPECTOR)
     ScriptValue deserializeForInspector(ScriptState*);

@@ -128,6 +128,90 @@ void InspectorRuntimeAgent::callFunctionOn(ErrorString* errorString, const Strin
     }
 }
 
+void InspectorRuntimeAgent::getCompletions(ErrorString* errorString, const String& objectId, RefPtr<TypeBuilder::Array<String> >& result)
+{
+    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptForObjectId(objectId);
+    if (injectedScript.hasNoValue()) {
+        *errorString = "Inspected frame has gone";
+        return;
+    }
+    
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = ScriptDebugServer::DontPauseOnExceptions;
+#endif
+    muteConsole();
+    
+    injectedScript.getCompletions(errorString, objectId, &result);
+    
+    unmuteConsole();
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    setPauseOnExceptionsState(m_scriptDebugServer, previousPauseOnExceptionsState);
+#endif
+}
+
+void InspectorRuntimeAgent::getPrimitiveTypeCompletions(ErrorString* errorString, const String& type, int executionContextId, RefPtr<TypeBuilder::Array<String> >& result)
+{
+    InjectedScript injectedScript = injectedScriptForEval(errorString, &executionContextId);
+    if (injectedScript.hasNoValue()) {
+        *errorString = "Inspected frame has gone";
+        return;
+    }
+    
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = ScriptDebugServer::DontPauseOnExceptions;
+#endif
+    muteConsole();
+    
+    injectedScript.getPrimitiveTypeCompletions(errorString, type, &result);
+    
+    unmuteConsole();
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    setPauseOnExceptionsState(m_scriptDebugServer, previousPauseOnExceptionsState);
+#endif
+}
+
+void InspectorRuntimeAgent::buildArrayFragment(ErrorString* errorString, const String& objectId, int fromIndex, int toIndex, RefPtr<TypeBuilder::Runtime::RemoteObject>& result)
+{
+    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptForObjectId(objectId);
+    if (injectedScript.hasNoValue()) {
+        *errorString = "Inspected frame has gone";
+        return;
+    }
+    
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = ScriptDebugServer::DontPauseOnExceptions;
+#endif
+    muteConsole();
+    
+    injectedScript.buildArrayFragment(errorString, objectId, fromIndex, toIndex, &result);
+    
+    unmuteConsole();
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    setPauseOnExceptionsState(m_scriptDebugServer, previousPauseOnExceptionsState);
+#endif
+}
+
+void InspectorRuntimeAgent::buildObjectFragment(ErrorString* errorString, const String& objectId, RefPtr<TypeBuilder::Runtime::RemoteObject>& result)
+{
+    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptForObjectId(objectId);
+    if (injectedScript.hasNoValue()) {
+        *errorString = "Inspected frame has gone";
+        return;
+    }
+    
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = ScriptDebugServer::DontPauseOnExceptions;
+#endif
+    muteConsole();
+    
+    injectedScript.buildObjectFragment(errorString, objectId, &result);
+    
+    unmuteConsole();
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    setPauseOnExceptionsState(m_scriptDebugServer, previousPauseOnExceptionsState);
+#endif
+}
+
 void InspectorRuntimeAgent::getProperties(ErrorString* errorString, const String& objectId, const bool* const ownProperties, RefPtr<TypeBuilder::Array<TypeBuilder::Runtime::PropertyDescriptor> >& result, RefPtr<TypeBuilder::Array<TypeBuilder::Runtime::InternalPropertyDescriptor> >& internalProperties)
 {
     InjectedScript injectedScript = m_injectedScriptManager->injectedScriptForObjectId(objectId);

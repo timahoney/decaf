@@ -155,7 +155,7 @@ inline Frame::Frame(Page* page, HTMLFrameOwnerElement* ownerElement, FrameLoader
     , m_loader(this, frameLoaderClient)
     , m_navigationScheduler(this)
     , m_ownerElement(ownerElement)
-    , m_script(this)
+    , m_scriptManager(this)
     , m_editor(this)
     , m_selection(this)
     , m_eventHandler(this)
@@ -300,7 +300,7 @@ void Frame::setDocument(PassRefPtr<Document> newDoc)
         m_doc->attach();
 
     if (m_doc) {
-        m_script.updateDocument();
+        m_scriptManager.updateDocument();
         m_doc->updateViewportArguments();
     }
 
@@ -584,6 +584,7 @@ void Frame::injectUserScriptsForWorld(DOMWrapperWorld* world, const UserScriptVe
     if (!doc)
         return;
 
+    // FIXME: Run these for all script types.
     Vector<ScriptSourceCode> sourceCode;
     unsigned count = userScripts.size();
     for (unsigned i = 0; i < count; ++i) {
@@ -592,7 +593,7 @@ void Frame::injectUserScriptsForWorld(DOMWrapperWorld* world, const UserScriptVe
             continue;
 
         if (script->injectionTime() == injectionTime && UserContentURLPattern::matchesPatterns(doc->url(), script->whitelist(), script->blacklist()))
-            m_script.evaluateInWorld(ScriptSourceCode(script->source(), script->url()), world);
+            m_scriptManager.scriptController(JSScriptType)->evaluateInWorld(ScriptSourceCode(script->source(), script->url()), world);
     }
 }
 

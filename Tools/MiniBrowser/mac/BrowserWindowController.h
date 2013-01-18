@@ -50,6 +50,8 @@
 
 - (IBAction)find:(id)sender;
 
+- (IBAction)showWebInspector:(id)sender;
+
 @end
 
 @interface BrowserWindowController : NSWindowController {

@@ -72,6 +72,25 @@ public:
     virtual void didContinue() = 0;
 };
 
+inline void setScriptSourceLinesAndColumns(ScriptDebugListener::Script& script)
+{    
+    int sourceLength = script.source.length();
+    int lineCount = 1;
+    int lastLineStart = 0;
+    for (int i = 0; i < sourceLength; ++i) {
+        if (script.source[i] == '\n') {
+            lineCount += 1;
+            lastLineStart = i + 1;
+        }
+    }
+    
+    script.endLine = script.startLine + lineCount - 1;
+    if (lineCount == 1)
+        script.endColumn = script.startColumn + sourceLength;
+    else
+        script.endColumn = sourceLength - lastLineStart;
+}
+
 } // namespace WebCore
 
 #endif // ENABLE(JAVASCRIPT_DEBUGGER)

@@ -47,11 +47,18 @@
 #include "JSInt8Array.h"
 #include "JSMessagePort.h"
 #include "JSNavigator.h"
+#include "JSScriptState.h"
 #include "JSUint16Array.h"
 #include "JSUint32Array.h"
 #include "JSUint8Array.h"
 #include "JSUint8ClampedArray.h"
 #include "NotImplemented.h"
+#include "RBArrayBuffer.h"
+#include "RBConverters.h"
+#include "RBDOMBinding.h"
+#include "RBMessagePort.h"
+#include "RBScriptState.h"
+#include "RBScriptValue.h"
 #include "ScriptValue.h"
 #include "SharedBuffer.h"
 #include <limits>
@@ -1884,6 +1891,40 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(JSContextRef ori
 {
     return create(originContext, apiValue, 0, 0, exception);
 }
+    
+PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(VALUE value)
+{
+    return create(value, 0, 0);
+}
+
+PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(VALUE value, MessagePortArray*, ArrayBufferArray* arrayBuffers)
+{
+    // FIXME: Add the Blob/File URLs to the m_blobURLs vector.
+
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    VALUE serializedRB = rb_funcall(rb_mMarshal, rb_intern("dump"), 1, value);
+
+    if (!NIL_P(rb_errinfo())) {
+        RBDOMBinding::reportCurrentException(RBScriptState::current());
+        return 0;
+    }
+    
+    // We have to explicitly provide the length
+    // because Ruby's Marshal might write null characters at the end of a string.
+    // This would confuse the string length calculator.
+    String serializedString(RSTRING_PTR(serializedRB), RSTRING_LEN(serializedRB));
+    Vector<uint8_t> buffer;
+    if (!CloneSerializer::serialize(serializedString, buffer))
+        return 0;
+
+    SerializationReturnCode code;
+    OwnPtr<ArrayBufferContentsArray> arrayBufferContentsArray;
+    if (arrayBuffers)
+        arrayBufferContentsArray = transferArrayBuffers(*arrayBuffers, code);
+
+    Vector<String> blobURLs;
+    return adoptRef(new SerializedScriptValue(buffer, blobURLs, arrayBufferContentsArray.release()));
+}
 
 String SerializedScriptValue::toString()
 {
@@ -1903,8 +1944,18 @@ JSValue SerializedScriptValue::deserialize(ExecState* exec, JSGlobalObject* glob
 #if ENABLE(INSPECTOR)
 ScriptValue SerializedScriptValue::deserializeForInspector(ScriptState* scriptState)
 {
-    JSValue value = deserialize(scriptState, scriptState->lexicalGlobalObject(), 0);
-    return ScriptValue(scriptState->globalData(), value);
+    switch (scriptState->scriptType()) {
+        case JSScriptType: {
+            JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
+            JSValue value = deserialize(exec, exec->lexicalGlobalObject(), 0);
+            return ScriptValue(exec->globalData(), value);
+        }
+            
+        case RBScriptType: {
+            VALUE rbValue = deserializeRB();
+            return RBScriptValue::scriptValue(rbValue);
+        }
+    }
 }
 #endif
 
@@ -1923,10 +1974,59 @@ JSValueRef SerializedScriptValue::deserialize(JSContextRef destinationContext, J
     return toRef(exec, value);
 }
 
-
 JSValueRef SerializedScriptValue::deserialize(JSContextRef destinationContext, JSValueRef* exception)
 {
     return deserialize(destinationContext, exception, 0);
+}
+
+typedef struct {
+    size_t currentArrayBufferIndex = 0;
+    size_t currentMessagePortIndex = 0;
+    ArrayBufferContentsArray* arrayBufferContents;
+    MessagePortArray* messagePorts;
+} RBDeserializationInfo;
+
+static VALUE checkForTransferable(VALUE loadedObject, VALUE infoValue)
+{
+    RBDeserializationInfo* info = (RBDeserializationInfo*)infoValue;
+
+    if (IS_RB_KIND(loadedObject, ArrayBuffer)) {
+        if (info->currentArrayBufferIndex >= info->arrayBufferContents->size()) {
+            rb_raise(rb_eArgError, "Ruby currently does not support non-transferrable ArrayBuffers.");
+            return Qnil;
+        }
+            
+        VALUE buffer = toRB(ArrayBuffer::create(info->arrayBufferContents->at(info->currentArrayBufferIndex)));
+        info->currentArrayBufferIndex++;
+        return buffer;
+    }
+    
+    if (IS_RB_KIND(loadedObject, MessagePort)) {
+        if (info->currentMessagePortIndex >= info->messagePorts->size()) {
+            rb_raise(rb_eArgError, "Ruby currently does not support non-transferrable MessagePorts.");
+            return Qnil;
+        }
+        
+        VALUE port = toRB(info->messagePorts->at(info->currentMessagePortIndex).release());
+        info->currentMessagePortIndex++;
+        return port;
+    }
+
+    return loadedObject;
+}
+
+VALUE SerializedScriptValue::deserializeRB(MessagePortArray* messagePorts)
+{
+    String serializedString = CloneDeserializer::deserializeString(m_data);
+    VALUE serializedRB = rb_str_new(serializedString.utf8().data(), serializedString.length());
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    RBDeserializationInfo info;
+    info.arrayBufferContents = m_arrayBufferContentsArray.get();
+    info.messagePorts = messagePorts;
+    VALUE loadCallback = rb_proc_new(RUBY_METHOD_FUNC(&checkForTransferable), (VALUE)&info);
+    VALUE deserialized = rb_funcall(rb_mMarshal, rb_intern("load"), 2, serializedRB, loadCallback);
+
+    return deserialized;
 }
 
 PassRefPtr<SerializedScriptValue> SerializedScriptValue::nullValue()

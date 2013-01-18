@@ -48,6 +48,10 @@
 
 namespace WebCore {
 
+#define ALL_DEBUG_SERVERS_CALL(callSignature) \
+scriptDebugServer(JSScriptType).callSignature; \
+scriptDebugServer(RBScriptType).callSignature;
+
 class InjectedScriptManager;
 class InspectorFrontend;
 class InspectorArray;
@@ -130,7 +134,7 @@ public:
     };
     void setListener(Listener* listener) { m_listener = listener; }
 
-    virtual ScriptDebugServer& scriptDebugServer() = 0;
+    virtual ScriptDebugServer& scriptDebugServer(ScriptType) = 0;
 
     virtual void reportMemoryUsage(MemoryObjectInfo*) const;
 

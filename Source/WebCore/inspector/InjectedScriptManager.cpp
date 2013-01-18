@@ -36,8 +36,9 @@
 
 #include "InjectedScript.h"
 #include "InjectedScriptHost.h"
-#include "InjectedScriptSource.h"
 #include "InspectorValues.h"
+#include "JSInjectedScriptSource.h"
+#include "RBInjectedScriptSource.h"
 #include "ScriptObject.h"
 #include <wtf/PassOwnPtr.h>
 
@@ -155,9 +156,14 @@ void InjectedScriptManager::releaseObjectGroup(const String& objectGroup)
         it->value.releaseObjectGroup(objectGroup);
 }
 
-String InjectedScriptManager::injectedScriptSource()
+String InjectedScriptManager::injectedScriptSource(ScriptType type)
 {
-    return String(reinterpret_cast<const char*>(InjectedScriptSource_js), sizeof(InjectedScriptSource_js));
+    switch (type) {
+    case JSScriptType:
+        return String(reinterpret_cast<const char*>(InjectedScriptSource_js), sizeof(InjectedScriptSource_js));
+    case RBScriptType:
+        return String(reinterpret_cast<const char*>(InjectedScriptSource_rb), sizeof(InjectedScriptSource_rb));
+    }
 }
 
 InjectedScript InjectedScriptManager::injectedScriptFor(ScriptState* inspectedScriptState)
@@ -173,7 +179,7 @@ InjectedScript InjectedScriptManager::injectedScriptFor(ScriptState* inspectedSc
         return InjectedScript();
 
     int id = injectedScriptIdFor(inspectedScriptState);
-    ScriptObject injectedScriptObject = createInjectedScript(injectedScriptSource(), inspectedScriptState, id);
+    ScriptObject injectedScriptObject = createInjectedScript(injectedScriptSource(inspectedScriptState->scriptType()), inspectedScriptState, id);
     InjectedScript result(injectedScriptObject, m_inspectedStateAccessCheck);
     m_idToInjectedScript.set(id, result);
     return result;

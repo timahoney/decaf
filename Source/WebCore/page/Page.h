@@ -30,12 +30,14 @@
 #include "Pagination.h"
 #include "PlatformScreen.h"
 #include "Region.h"
+#include "ScriptDebugServer.h"
 #include "Supplementable.h"
 #include "ViewportArguments.h"
 #include <wtf/Forward.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
 #include <wtf/Noncopyable.h>
+#include <wtf/Vector.h>
 #include <wtf/text/WTFString.h>
 
 #if OS(SOLARIS)
@@ -45,10 +47,6 @@
 #if PLATFORM(MAC)
 #include <wtf/SchedulePair.h>
 #endif
-
-namespace JSC {
-class Debugger;
-}
 
 namespace WebCore {
 
@@ -310,9 +308,12 @@ public:
     void storageBlockingStateChanged();
     void privateBrowsingStateChanged();
 
-    static void setDebuggerForAllPages(JSC::Debugger*);
-    void setDebugger(JSC::Debugger*);
-    JSC::Debugger* debugger() const { return m_debugger; }
+    static void setDebuggerForAllPages(ScriptDebugServer*);
+    void setDebugger(ScriptDebugServer*);
+    ScriptDebugServer* debugger(ScriptType type) const { return m_debuggers.get(type); }
+    
+    // FIXME: Remove this and all consumers in favor of the version that takes a ScriptType.
+    ScriptDebugServer* debugger() const { return debugger(JSScriptType); }
 
     static void removeAllVisitedLinks();
 
@@ -474,8 +475,9 @@ private:
 
     OwnPtr<PageGroup> m_singlePageGroup;
     PageGroup* m_group;
-
-    JSC::Debugger* m_debugger;
+    
+    typedef HashMap<int, ScriptDebugServer*> ScriptDebugServerMap;
+    ScriptDebugServerMap m_debuggers;
 
     double m_customHTMLTokenizerTimeDelay;
     int m_customHTMLTokenizerChunkSize;

@@ -17,6 +17,7 @@ xcuserdata
 
 # Ignore common tool auto-generated files.
 .gdb_history
+.tags*
 tags
 *~
 .*.sw[a-p]

@@ -894,6 +894,97 @@ InjectedScript.prototype = {
     {
         // We don't use String(obj) because inspectedWindow.String is undefined if owning frame navigated to another page.
         return "" + obj;
+    },
+
+    /**
+     * @param {string} type
+     * @return {Array.<string>}
+     */
+    getPrimitiveTypeCompletions: function(type)
+    {
+        if (type === "string")
+            return this._getCompletions(new String(""));
+        else if (type === "number")
+            return this._getCompletions(new Number(0));
+        else if (type === "boolean")
+            return this._getCompletions(new Boolean(false));
+
+        return [];
+    },
+
+    /**
+     * @param {string} objectId
+     * @return {Array.<string>}
+     */
+    getCompletions: function(objectId)
+    {
+        var object = this.findObjectById(objectId);
+        return this._getCompletions(object);
+    },
+
+    /**
+     * @param {*} object
+     * @return {Array.<string>}
+     */
+    _getCompletions: function(object)
+    {   
+        var resultSet = {};
+        for (var o = object; o; o = o.__proto__) {
+            try {
+                var names = Object.getOwnPropertyNames(o);
+                for (var i = 0; i < names.length; ++i)
+                    resultSet[names[i]] = true;
+            } catch (e) {
+            }
+        }
+        
+        return Object.keys(resultSet);
+    },
+
+    /**
+     * @param {string} objectId
+     * @param {number=} fromIndex
+     * @param {number=} toIndex
+     */
+    buildArrayFragment: function(objectId, fromIndex, toIndex)
+    {
+        var object = this.findObjectById(objectId);
+        var result = Object.create(null);
+        if (toIndex - fromIndex < sparseIterationThreshold) {
+            for (var i = fromIndex; i <= toIndex; ++i) {
+                if (i in object)
+                    result[i] = object[i];
+            }
+        } else {
+            var ownPropertyNames = Object.getOwnPropertyNames(this);
+            for (var i = 0; i < ownPropertyNames.length; ++i) {
+                var name = ownPropertyNames[i];
+                var index = name >>> 0;
+                if (String(index) === name && fromIndex <= index && index <= toIndex)
+                    result[index] = object[index];
+            }
+        }
+        return this._wrapObject(result);
+    },
+
+    /** 
+     * @param {string} objectId
+     */
+    buildObjectFragment: function(objectId)
+    {
+        var object = this.findObjectById(objectId);
+        var result = Object.create(object.__proto__);
+        var names = Object.getOwnPropertyNames(this);
+        for (var i = 0; i < names.length; ++i) {
+            var name = names[i];
+            // Array index check according to the ES5-15.4.
+            if (String(name >>> 0) === name && name >>> 0 !== 0xffffffff)
+                continue;
+            var descriptor = Object.getOwnPropertyDescriptor(this, name);
+            if (descriptor)
+                Object.defineProperty(result, name, descriptor);
+        }
+        return this._wrapObject(result);
     }
 }
 

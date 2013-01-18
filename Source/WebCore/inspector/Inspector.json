@@ -670,7 +670,8 @@
                     { "name": "id", "$ref": "ExecutionContextId", "description": "Unique id of the execution context. It can be used to specify in which execution context script evaluation should be performed." },
                     { "name": "isPageContext", "type": "boolean", "description": "True if this is a context where inpspected web page scripts run. False if it is a content script isolated context.", "hidden": true },
                     { "name": "name", "type": "string", "description": "Human readable name describing given context.", "hidden": true},
-                    { "name": "frameId", "$ref": "Network.FrameId", "description": "Id of the owning frame." }
+                    { "name": "frameId", "$ref": "Network.FrameId", "description": "Id of the owning frame." },
+                    { "name": "scriptType", "type": "string", "description": "The type of script that this execution context is for (JS, RB)." }
                 ]
             }
 
@@ -734,6 +735,49 @@
                     { "name": "objectGroup", "type": "string", "description": "Symbolic object group name." }
                 ],
                 "description": "Releases all remote objects that belong to a given group."
+            },
+            {
+                "name": "getCompletions",
+                "parameters": [
+                    { "name": "objectId", "$ref": "RemoteObjectId", "description": "Identifier of the object to return completions for." }
+                ],
+                "returns": [
+                    { "name": "result", "type": "array", "items": { "type": "string"}, "description": "Completions for the object." }
+                ],
+                "description": "Returns the completions for a given object. These are possible commands that can be executed on the object."
+            },
+            {
+                "name": "getPrimitiveTypeCompletions",
+                "parameters": [
+                    { "name": "type", "type": "string", "description": "The primitive type to get completions for." },
+                    { "name": "contextId", "$ref": "Runtime.ExecutionContextId", "description": "Specifies in which isolated context to get the completions. This must be present so that we know in which language to get the type completions." }
+                ],
+                "returns": [
+                    { "name": "result", "type": "array", "items": { "type": "string"}, "description": "Completions for the primitive type." }
+                ],
+                "description": "Returns the completions for a given primitive type."
+            },
+            {
+                "name": "buildArrayFragment",
+                "parameters": [
+                    { "name": "objectId", "$ref": "RemoteObjectId", "description": "Identifier of the object to return an array fragment for." },
+                    { "name": "fromIndex", "type": "integer", "description": "The index in the original array for the first element of the array fragment." },
+                    { "name": "toIndex", "type": "integer", "description": "The index in the original array for the last element of the array fragment." }
+                ],
+                "returns": [
+                    { "name": "result", "$ref": "RemoteObject", "description": "The resulting array fragment." }
+                ],
+                "description": "Builds a fragment of this array."
+            },
+            {
+                "name": "buildObjectFragment",
+                "parameters": [
+                    { "name": "objectId", "$ref": "RemoteObjectId", "description": "Identifier of the object to return an object fragment for." }
+                ],
+                "returns": [
+                    { "name": "result", "$ref": "RemoteObject", "description": "The resulting object fragment." }
+                ],
+                "description": "Builds a fragment of this object."
             },
             {
                 "name": "run",

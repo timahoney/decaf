@@ -138,10 +138,11 @@ void InspectorCanvasAgent::hasUninstrumentedCanvases(ErrorString* errorString, b
 
 void InspectorCanvasAgent::captureFrame(ErrorString* errorString, const FrameId* frameId, TraceLogId* traceLogId)
 {
+    // FIXME: Make this work for all ScriptTypes.
     Frame* frame = frameId ? m_pageAgent->assertFrame(errorString, *frameId) : m_pageAgent->mainFrame();
     if (!frame)
         return;
-    InjectedScriptCanvasModule module = injectedScriptCanvasModule(errorString, mainWorldScriptState(frame));
+    InjectedScriptCanvasModule module = injectedScriptCanvasModule(errorString, mainWorldScriptState(frame, JSScriptType));
     if (!module.hasNoValue())
         module.captureFrame(errorString, traceLogId);
 }
@@ -151,7 +152,7 @@ void InspectorCanvasAgent::startCapturing(ErrorString* errorString, const FrameI
     Frame* frame = frameId ? m_pageAgent->assertFrame(errorString, *frameId) : m_pageAgent->mainFrame();
     if (!frame)
         return;
-    InjectedScriptCanvasModule module = injectedScriptCanvasModule(errorString, mainWorldScriptState(frame));
+    InjectedScriptCanvasModule module = injectedScriptCanvasModule(errorString, mainWorldScriptState(frame, JSScriptType));
     if (!module.hasNoValue())
         module.startCapturing(errorString, traceLogId);
 }
@@ -341,7 +342,8 @@ void InspectorCanvasAgent::didBeginFrame()
         return;
     ErrorString error;
     for (FramesWithUninstrumentedCanvases::iterator it = m_framesWithUninstrumentedCanvases.begin(); it != m_framesWithUninstrumentedCanvases.end(); ++it) {
-        InjectedScriptCanvasModule module = injectedScriptCanvasModule(&error, mainWorldScriptState(it->key));
+        // FIXME: Make this work for all ScriptTypes.
+        InjectedScriptCanvasModule module = injectedScriptCanvasModule(&error, mainWorldScriptState(it->key, JSScriptType));
         if (!module.hasNoValue())
             module.markFrameEnd();
     }

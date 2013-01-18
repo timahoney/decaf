@@ -628,6 +628,13 @@ HashSet<String>& MIMETypeRegistry::getSupportedImageMIMETypesForEncoding()
     return *supportedImageMIMETypesForEncoding;
 }
 
+HashSet<String>& MIMETypeRegistry::getSupportedJavaScriptMIMETypes()
+{
+    if (!supportedJavaScriptMIMETypes)
+        initializeMIMETypeRegistry();
+    return *supportedJavaScriptMIMETypes;
+}
+
 HashSet<String>& MIMETypeRegistry::getSupportedNonImageMIMETypes()
 {
     if (!supportedNonImageMIMETypes)

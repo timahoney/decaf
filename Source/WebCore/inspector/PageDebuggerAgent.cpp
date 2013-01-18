@@ -37,9 +37,11 @@
 #include "InspectorOverlay.h"
 #include "InspectorPageAgent.h"
 #include "InstrumentingAgents.h"
+#include "JSPageScriptDebugServer.h"
 #include "Page.h"
 #include "PageConsole.h"
 #include "PageScriptDebugServer.h"
+#include "RBPageScriptDebugServer.h"
 
 namespace WebCore {
 
@@ -73,17 +75,22 @@ void PageDebuggerAgent::disable()
 
 void PageDebuggerAgent::startListeningScriptDebugServer()
 {
-    scriptDebugServer().addListener(this, m_pageAgent->page());
+    ALL_DEBUG_SERVERS_CALL(addListener(this, m_pageAgent->page()));
 }
 
 void PageDebuggerAgent::stopListeningScriptDebugServer()
 {
-    scriptDebugServer().removeListener(this, m_pageAgent->page());
+    ALL_DEBUG_SERVERS_CALL(removeListener(this, m_pageAgent->page()));
 }
 
-PageScriptDebugServer& PageDebuggerAgent::scriptDebugServer()
+PageScriptDebugServer& PageDebuggerAgent::scriptDebugServer(ScriptType type)
 {
-    return PageScriptDebugServer::shared();
+    switch (type) {
+    case JSScriptType:
+        return JSPageScriptDebugServer::shared();
+    case RBScriptType:
+        return RBPageScriptDebugServer::shared();
+    }
 }
 
 void PageDebuggerAgent::muteConsole()
@@ -99,7 +106,8 @@ void PageDebuggerAgent::unmuteConsole()
 InjectedScript PageDebuggerAgent::injectedScriptForEval(ErrorString* errorString, const int* executionContextId)
 {
     if (!executionContextId) {
-        ScriptState* scriptState = mainWorldScriptState(m_pageAgent->mainFrame());
+        // FIXME: Determine which ScriptType to use here.
+        ScriptState* scriptState = mainWorldScriptState(m_pageAgent->mainFrame(), JSScriptType);
         return injectedScriptManager()->injectedScriptFor(scriptState);
     }
     InjectedScript injectedScript = injectedScriptManager()->injectedScriptForId(*executionContextId);
@@ -116,7 +124,7 @@ void PageDebuggerAgent::setOverlayMessage(ErrorString*, const String* message)
 void PageDebuggerAgent::didClearMainFrameWindowObject()
 {
     reset();
-    scriptDebugServer().setScriptPreprocessor(m_pageAgent->scriptPreprocessor());
+    ALL_DEBUG_SERVERS_CALL(setScriptPreprocessor(m_pageAgent->scriptPreprocessor()));
 }
 
 } // namespace WebCore

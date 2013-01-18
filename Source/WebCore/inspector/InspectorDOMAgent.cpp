@@ -1062,7 +1062,8 @@ void InspectorDOMAgent::focusNode()
     if (!frame)
         return;
 
-    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptFor(mainWorldScriptState(frame));
+    // FIXME: Do we need to make this work for other ScriptTypes?
+    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptFor(mainWorldScriptState(frame, JSScriptType));
     if (injectedScript.hasNoValue())
         return;
 
@@ -1774,7 +1775,8 @@ PassRefPtr<TypeBuilder::Runtime::RemoteObject> InspectorDOMAgent::resolveNode(No
     if (!frame)
         return 0;
 
-    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptFor(mainWorldScriptState(frame));
+    // FIXME: Do we need to make this work for other ScriptTypes?
+    InjectedScript injectedScript = m_injectedScriptManager->injectedScriptFor(mainWorldScriptState(frame, JSScriptType));
     if (injectedScript.hasNoValue())
         return 0;
 

@@ -48,7 +48,11 @@
 #include "InspectorDebuggerAgent.h"
 #include "InspectorFrontend.h"
 #include "InspectorValues.h"
+#include "JSNode.h"
+#include "JSScriptState.h"
 #include "Pasteboard.h"
+#include "RBNode.h"
+#include "RBScriptValue.h"
 #include "Storage.h"
 
 #if ENABLE(SQL_DATABASE)
@@ -164,12 +168,44 @@ String InjectedScriptHost::storageIdImpl(Storage* storage)
 }
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
-ScriptDebugServer& InjectedScriptHost::scriptDebugServer()
+ScriptDebugServer& InjectedScriptHost::scriptDebugServer(ScriptType type)
 {
-    return m_debuggerAgent->scriptDebugServer();
+    return m_debuggerAgent->scriptDebugServer(type);
 }
 #endif
 
+Node* InjectedScriptHost::scriptValueAsNode(ScriptValue value)
+{
+    switch (value.scriptType()) {
+    case JSScriptType:
+        if (!value.isObject() || value.isNull())
+            return 0;
+        return toNode(value.jsValue());
+        
+    case RBScriptType:
+        return impl<Node>(static_cast<RBScriptValue*>(value.delegate())->rbValue());
+    }
+
+}
+
+ScriptValue InjectedScriptHost::nodeAsScriptValue(ScriptState* scriptState, Node* node)
+{
+    switch (scriptState->scriptType()) {
+    case JSScriptType:
+    {
+        JSC::ExecState* state = static_cast<JSScriptState*>(scriptState)->execState();
+        
+        if (!shouldAllowAccessToNode(state, node))
+            return ScriptValue(state->globalData(), JSC::jsNull());
+        
+        JSC::JSLockHolder lock(state);
+        return ScriptValue(state->globalData(), toJS(state, deprecatedGlobalObjectForPrototype(state), node));
+    }
+        
+    case RBScriptType:
+        return RBScriptValue::scriptValue(toRB(node));
+    }
+}
 
 } // namespace WebCore
 

@@ -30,6 +30,7 @@
 
 #include "DOMWrapperWorld.h"
 #include "Document.h"
+#include "JSScriptState.h"
 #include "ScriptState.h"
 #if ENABLE(WORKERS)
 #include "WorkerContext.h"
@@ -49,11 +50,13 @@ public:
     {
         if (m_scriptExecutionContext->isDocument()) {
             Document* document = toDocument(m_scriptExecutionContext);
-            m_exec = scriptStateFromPage(mainThreadNormalWorld(), document->page());
+            ScriptState* state = scriptStateFromPage(mainThreadNormalWorld(), document->page());
+            m_exec = static_cast<JSScriptState*>(state)->execState();
         } else {
 #if ENABLE(WORKERS)
             WorkerContext* workerContext = static_cast<WorkerContext*>(m_scriptExecutionContext);
-            m_exec = scriptStateFromWorkerContext(workerContext);
+            ScriptState* state = scriptStateFromWorkerContext(workerContext);
+            m_exec = static_cast<JSScriptState*>(state)->execState();
 #endif
         }
     }

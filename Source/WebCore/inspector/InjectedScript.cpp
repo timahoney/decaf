@@ -300,6 +300,64 @@ void InjectedScript::releaseObjectGroup(const String& objectGroup)
     ASSERT(!hadException);
 }
 
+void InjectedScript::getCompletions(ErrorString* errorString, const String& objectId, RefPtr<TypeBuilder::Array<String> >* completions)
+{
+    ScriptFunctionCall function(injectedScriptObject(), "getCompletions");
+    function.appendArgument(objectId);
+    
+    RefPtr<InspectorValue> result;
+    makeCall(function, &result);
+    if (!result || result->type() != InspectorValue::TypeArray) {
+        *errorString = "Internal error";
+        return;
+    }
+    *completions = Array<String>::runtimeCast(result);
+}
+
+void InjectedScript::getPrimitiveTypeCompletions(ErrorString* errorString, const String& type, RefPtr<TypeBuilder::Array<String> >* completions)
+{
+    ScriptFunctionCall function(injectedScriptObject(), "getPrimitiveTypeCompletions");
+    function.appendArgument(type);
+    
+    RefPtr<InspectorValue> result;
+    makeCall(function, &result);
+    if (!result || result->type() != InspectorValue::TypeArray) {
+        *errorString = "Internal error";
+        return;
+    }
+    *completions = Array<String>::runtimeCast(result);
+}
+
+void InjectedScript::buildArrayFragment(ErrorString* errorString, const String& objectId, int fromIndex, int toIndex, RefPtr<TypeBuilder::Runtime::RemoteObject>* fragment)
+{
+    ScriptFunctionCall function(injectedScriptObject(), "buildArrayFragment");
+    function.appendArgument(objectId);
+    function.appendArgument(fromIndex);
+    function.appendArgument(toIndex);
+    
+    RefPtr<InspectorValue> result;
+    makeCall(function, &result);
+    if (!result || result->type() != InspectorValue::TypeObject) {
+        *errorString = "Internal error";
+        return;
+    }
+    *fragment = TypeBuilder::Runtime::RemoteObject::runtimeCast(result);
+}
+
+void InjectedScript::buildObjectFragment(ErrorString* errorString, const String& objectId, RefPtr<TypeBuilder::Runtime::RemoteObject>* fragment)
+{
+    ScriptFunctionCall function(injectedScriptObject(), "buildObjectFragment");
+    function.appendArgument(objectId);
+    
+    RefPtr<InspectorValue> result;
+    makeCall(function, &result);
+    if (!result || result->type() != InspectorValue::TypeObject) {
+        *errorString = "Internal error";
+        return;
+    }
+    *fragment = TypeBuilder::Runtime::RemoteObject::runtimeCast(result);
+}
+
 ScriptValue InjectedScript::nodeAsScriptValue(Node* node)
 {
     return InjectedScriptHost::nodeAsScriptValue(scriptState(), node);

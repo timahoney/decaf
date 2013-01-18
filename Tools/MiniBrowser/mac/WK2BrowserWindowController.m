@@ -825,4 +825,9 @@ static void runOpenPanel(WKPageRef page, WKFrameRef frame, WKOpenPanelParameters
     WKPageFindString(_webView.pageRef, string, kWKFindOptionsCaseInsensitive | kWKFindOptionsWrapAround | kWKFindOptionsShowFindIndicator | kWKFindOptionsShowOverlay, 100);
 }
 
+- (IBAction)showWebInspector:(id)sender
+{
+    // FIXME: Implement this.
+}
+
 @end

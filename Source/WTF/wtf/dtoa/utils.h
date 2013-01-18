@@ -33,7 +33,9 @@
 #include <string.h>
 
 #define UNIMPLEMENTED ASSERT_NOT_REACHED
+#ifndef UNREACHABLE
 #define UNREACHABLE ASSERT_NOT_REACHED
+#endif
 
 // Double operations detection based on target architecture.
 // Linux uses a 80bit wide floating point stack on x86. This induces double

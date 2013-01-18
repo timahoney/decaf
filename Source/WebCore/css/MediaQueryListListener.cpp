@@ -25,6 +25,7 @@
 
 #if USE(JSC)
 #include "JSMediaQueryList.h"
+#include "JSScriptState.h"
 #else
 #include "V8MediaQueryList.h"
 #endif
@@ -33,9 +34,12 @@ namespace WebCore {
 
 void MediaQueryListListener::queryChanged(ScriptState* state, MediaQueryList* query)
 {
+    // FIXME: Make this work for RBScriptType.
+    
     ScriptCallback callback(state, m_value);
 #if USE(JSC)
-    callback.appendArgument(toJS(state, deprecatedGlobalObjectForPrototype(state), query));
+    JSC::ExecState* exec = static_cast<JSScriptState*>(state)->execState();
+    callback.appendArgument(toJS(exec, deprecatedGlobalObjectForPrototype(exec), query));
 #else
     v8::HandleScope handleScope;
     v8::Handle<v8::Context> context = state->context();

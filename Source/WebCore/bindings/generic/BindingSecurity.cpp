@@ -37,6 +37,7 @@
 #include "Frame.h"
 #include "HTMLFrameElementBase.h"
 #include "HTMLParserIdioms.h"
+#include "JSScriptState.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
 
@@ -78,6 +79,26 @@ bool BindingSecurity::shouldAllowAccessToNode(BindingState* state, Node* target)
 bool BindingSecurity::allowSettingFrameSrcToJavascriptUrl(BindingState* state, HTMLFrameElementBase* frame, const String& value)
 {
     return !protocolIsJavaScript(stripLeadingAndTrailingHTMLSpaces(value)) || canAccessDocument(state, frame->contentDocument());
+}
+    
+bool BindingSecurity::shouldAllowAccessToNode(JSC::ExecState* exec, Node* target)
+{
+    return shouldAllowAccessToNode(JSScriptState::forExecState(exec), target);
+}
+
+bool BindingSecurity::shouldAllowAccessToDOMWindow(JSC::ExecState* exec, DOMWindow* target, SecurityReportingOption reportingOption)
+{
+    return shouldAllowAccessToDOMWindow(JSScriptState::forExecState(exec), target, reportingOption);
+}
+
+bool BindingSecurity::shouldAllowAccessToFrame(JSC::ExecState* exec, Frame* frame, SecurityReportingOption reportingOption)
+{
+    return shouldAllowAccessToFrame(JSScriptState::forExecState(exec), frame, reportingOption);
+}
+
+bool BindingSecurity::allowSettingFrameSrcToJavascriptUrl(JSC::ExecState* exec, HTMLFrameElementBase* frame, const String& value)
+{
+    return allowSettingFrameSrcToJavascriptUrl(JSScriptState::forExecState(exec), frame, value);
 }
 
 }

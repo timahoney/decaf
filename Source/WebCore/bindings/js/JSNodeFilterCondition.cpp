@@ -23,6 +23,7 @@
 #include "JSMainThreadExecState.h"
 #include "JSNode.h"
 #include "JSNodeFilter.h"
+#include "JSScriptState.h"
 #include "NodeFilter.h"
 #include <runtime/Error.h>
 #include <runtime/JSLock.h>
@@ -36,8 +37,9 @@ JSNodeFilterCondition::JSNodeFilterCondition(JSGlobalData&, NodeFilter* owner, J
 {
 }
 
-short JSNodeFilterCondition::acceptNode(JSC::ExecState* exec, Node* filterNode) const
+short JSNodeFilterCondition::acceptNode(ScriptState* scriptState, Node* filterNode) const
 {
+    JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
     JSLockHolder lock(exec);
 
     if (!m_filter)

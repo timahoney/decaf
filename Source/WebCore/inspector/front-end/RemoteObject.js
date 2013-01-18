@@ -424,6 +424,75 @@ WebInspector.RemoteObject.prototype = {
         if (!matches)
             return 0;
         return parseInt(matches[1], 10);
+    },
+
+    /**
+     * @param {function(*)} callback
+     */
+    getCompletions: function(callback)
+    {
+        /**
+         * @param {?Protocol.Error} error
+         * @param {RuntimeAgent.RemoteObject} result
+         */
+        function mycallback(error, result)
+        {
+            if (error || !result)
+                callback(null)
+            else
+                callback(result);
+        }
+
+        if (this.type === "object" || this.type === "function") {
+            RuntimeAgent.getCompletions(this._objectId, mycallback);
+        } else if (this.type === "string" || this.type === "number" || this.type === "boolean") {
+            var currentExecutionContext = WebInspector.runtimeModel.currentExecutionContext();
+            RuntimeAgent.getPrimitiveTypeCompletions(this.type, currentExecutionContext ? currentExecutionContext.id : undefined, mycallback);
+        } else {
+            callback(null);
+        }
+    },
+
+    /**
+     * @param {number=} fromIndex // must declare optional
+     * @param {number=} toIndex // must declare optional
+     * @param {function(*)} callback
+     */
+    buildArrayFragment: function(fromIndex, toIndex, callback)
+    {
+        /**
+         * @param {?Protocol.Error} error
+         * @param {RuntimeAgent.RemoteObject} result
+         */
+        function mycallback(error, result)
+        {
+            if (error || !result)
+                callback(null)
+            else
+                callback(WebInspector.RemoteObject.fromPayload(result));
+        }
+
+        RuntimeAgent.buildArrayFragment(this._objectId, fromIndex, toIndex, mycallback);
+    },
+
+    /**
+     * @param {function(*)} callback
+     */
+    buildObjectFragment: function(callback)
+    {
+        /**
+         * @param {?Protocol.Error} error
+         * @param {RuntimeAgent.RemoteObject} result
+         */
+        function mycallback(error, result)
+        {
+            if (error || !result)
+                callback(null)
+            else
+                callback(WebInspector.RemoteObject.fromPayload(result));
+        }
+
+        RuntimeAgent.buildObjectFragment(this._objectId, mycallback);
     }
 }
 

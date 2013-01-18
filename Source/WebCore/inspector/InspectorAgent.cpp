@@ -86,11 +86,12 @@ void InspectorAgent::didClearWindowObjectInWorld(Frame* frame, DOMWrapperWorld* 
     if (m_injectedScriptForOrigin.isEmpty())
         return;
 
+    // FIXME: Do this for all script types.
     String origin = frame->document()->securityOrigin()->toRawString();
     String script = m_injectedScriptForOrigin.get(origin);
     if (script.isEmpty())
         return;
-    int injectedScriptId = m_injectedScriptManager->injectedScriptIdFor(mainWorldScriptState(frame));
+    int injectedScriptId = m_injectedScriptManager->injectedScriptIdFor(mainWorldScriptState(frame, JSScriptType));
     StringBuilder scriptSource;
     scriptSource.append(script);
     scriptSource.append("(");

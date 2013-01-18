@@ -44,6 +44,7 @@
 #include "JSLocation.h"
 #include "JSMessageChannel.h"
 #include "JSMessagePortCustom.h"
+#include "JSScheduledAction.h"
 #include "JSUint16Array.h"
 #include "JSUint32Array.h"
 #include "JSUint8Array.h"
@@ -696,7 +697,7 @@ JSValue JSDOMWindow::postMessage(ExecState* exec)
 JSValue JSDOMWindow::setTimeout(ExecState* exec)
 {
     ContentSecurityPolicy* contentSecurityPolicy = impl()->document() ? impl()->document()->contentSecurityPolicy() : 0;
-    OwnPtr<ScheduledAction> action = ScheduledAction::create(exec, currentWorld(exec), contentSecurityPolicy);
+    OwnPtr<ScheduledAction> action = JSScheduledAction::create(exec, currentWorld(exec), contentSecurityPolicy);
     if (exec->hadException())
         return jsUndefined();
 
@@ -715,7 +716,7 @@ JSValue JSDOMWindow::setTimeout(ExecState* exec)
 JSValue JSDOMWindow::setInterval(ExecState* exec)
 {
     ContentSecurityPolicy* contentSecurityPolicy = impl()->document() ? impl()->document()->contentSecurityPolicy() : 0;
-    OwnPtr<ScheduledAction> action = ScheduledAction::create(exec, currentWorld(exec), contentSecurityPolicy);
+    OwnPtr<ScheduledAction> action = JSScheduledAction::create(exec, currentWorld(exec), contentSecurityPolicy);
     if (exec->hadException())
         return jsUndefined();
     int delay = exec->argument(1).toInt32(exec);

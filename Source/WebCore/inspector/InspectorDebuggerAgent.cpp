@@ -86,7 +86,7 @@ void InspectorDebuggerAgent::enable()
     m_instrumentingAgents->setInspectorDebuggerAgent(this);
 
     // FIXME(WK44513): breakpoints activated flag should be synchronized between all front-ends
-    scriptDebugServer().setBreakpointsActivated(true);
+    ALL_DEBUG_SERVERS_CALL(setBreakpointsActivated(true))
     startListeningScriptDebugServer();
 
     if (m_listener)
@@ -100,8 +100,8 @@ void InspectorDebuggerAgent::disable()
     m_instrumentingAgents->setInspectorDebuggerAgent(0);
 
     stopListeningScriptDebugServer();
-    scriptDebugServer().clearBreakpoints();
-    scriptDebugServer().clearCompiledScripts();
+    ALL_DEBUG_SERVERS_CALL(clearBreakpoints())
+    ALL_DEBUG_SERVERS_CALL(clearCompiledScripts())
     clear();
 
     if (m_listener)
@@ -115,17 +115,20 @@ bool InspectorDebuggerAgent::enabled()
 
 void InspectorDebuggerAgent::causesRecompilation(ErrorString*, bool* result)
 {
-    *result = scriptDebugServer().causesRecompilation();
+    // FIXME: Call this on the correct server.
+    *result = scriptDebugServer(JSScriptType).causesRecompilation();
 }
 
 void InspectorDebuggerAgent::canSetScriptSource(ErrorString*, bool* result)
 {
-    *result = scriptDebugServer().canSetScriptSource();
+    // FIXME: Call this on the correct server.
+    *result = scriptDebugServer(JSScriptType).canSetScriptSource();
 }
 
 void InspectorDebuggerAgent::supportsSeparateScriptCompilationAndExecution(ErrorString*, bool* result)
 {
-    *result = scriptDebugServer().supportsSeparateScriptCompilationAndExecution();
+    // FIXME: Call this on the correct server.
+    *result = scriptDebugServer(JSScriptType).supportsSeparateScriptCompilationAndExecution();
 }
 
 void InspectorDebuggerAgent::enable(ErrorString*)
@@ -181,25 +184,29 @@ void InspectorDebuggerAgent::clearFrontend()
 
 void InspectorDebuggerAgent::setBreakpointsActive(ErrorString*, bool active)
 {
-    if (active)
-        scriptDebugServer().activateBreakpoints();
-    else
-        scriptDebugServer().deactivateBreakpoints();
+    if (active) {
+        ALL_DEBUG_SERVERS_CALL(activateBreakpoints())
+    } else {
+        ALL_DEBUG_SERVERS_CALL(deactivateBreakpoints())
+    }
 }
 
 bool InspectorDebuggerAgent::isPaused()
 {
-    return scriptDebugServer().isPaused();
+    // FIXME: Make this more generic.
+    return scriptDebugServer(JSScriptType).isPaused() || scriptDebugServer(RBScriptType).isPaused();
 }
 
 bool InspectorDebuggerAgent::runningNestedMessageLoop()
 {
-    return scriptDebugServer().runningNestedMessageLoop();
+    // FIXME: Make this more generic.
+    return scriptDebugServer(JSScriptType).runningNestedMessageLoop() || scriptDebugServer(RBScriptType).runningNestedMessageLoop();
 }
 
 void InspectorDebuggerAgent::addMessageToConsole(MessageSource source, MessageType type)
 {
-    if (scriptDebugServer().pauseOnExceptionsState() != ScriptDebugServer::DontPauseOnExceptions && source == ConsoleAPIMessageSource && type == AssertMessageType)
+    // FIXME: Make this generic for ScriptType.
+    if (scriptDebugServer(JSScriptType).pauseOnExceptionsState() != ScriptDebugServer::DontPauseOnExceptions && source == ConsoleAPIMessageSource && type == AssertMessageType)
         breakProgram(InspectorFrontend::Debugger::Reason::Assert, 0);
 }
 
@@ -302,15 +309,16 @@ void InspectorDebuggerAgent::removeBreakpoint(ErrorString*, const String& breakp
     BreakpointIdToDebugServerBreakpointIdsMap::iterator debugServerBreakpointIdsIterator = m_breakpointIdToDebugServerBreakpointIds.find(breakpointId);
     if (debugServerBreakpointIdsIterator == m_breakpointIdToDebugServerBreakpointIds.end())
         return;
-    for (size_t i = 0; i < debugServerBreakpointIdsIterator->value.size(); ++i)
-        scriptDebugServer().removeBreakpoint(debugServerBreakpointIdsIterator->value[i]);
+    for (size_t i = 0; i < debugServerBreakpointIdsIterator->value.size(); ++i) {
+        ALL_DEBUG_SERVERS_CALL(removeBreakpoint(debugServerBreakpointIdsIterator->value[i]))
+    }
     m_breakpointIdToDebugServerBreakpointIds.remove(debugServerBreakpointIdsIterator);
 }
 
 void InspectorDebuggerAgent::continueToLocation(ErrorString* errorString, const RefPtr<InspectorObject>& location)
 {
     if (!m_continueToLocationBreakpointId.isEmpty()) {
-        scriptDebugServer().removeBreakpoint(m_continueToLocationBreakpointId);
+        ALL_DEBUG_SERVERS_CALL(removeBreakpoint(m_continueToLocationBreakpointId))
         m_continueToLocationBreakpointId = "";
     }
 
@@ -322,7 +330,7 @@ void InspectorDebuggerAgent::continueToLocation(ErrorString* errorString, const 
         return;
 
     ScriptBreakpoint breakpoint(lineNumber, columnNumber, "");
-    m_continueToLocationBreakpointId = scriptDebugServer().setBreakpoint(scriptId, breakpoint, &lineNumber, &columnNumber);
+    m_continueToLocationBreakpointId = ALL_DEBUG_SERVERS_CALL(setBreakpoint(scriptId, breakpoint, &lineNumber, &columnNumber))
     resume(errorString);
 }
 
@@ -337,7 +345,7 @@ PassRefPtr<TypeBuilder::Debugger::Location> InspectorDebuggerAgent::resolveBreak
 
     int actualLineNumber;
     int actualColumnNumber;
-    String debugServerBreakpointId = scriptDebugServer().setBreakpoint(scriptId, breakpoint, &actualLineNumber, &actualColumnNumber);
+    String debugServerBreakpointId = ALL_DEBUG_SERVERS_CALL(setBreakpoint(scriptId, breakpoint, &actualLineNumber, &actualColumnNumber))
     if (debugServerBreakpointId.isEmpty())
         return 0;
 
@@ -379,7 +387,8 @@ void InspectorDebuggerAgent::setScriptSource(ErrorString* error, const String& s
 {
     bool previewOnly = preview && *preview;
     ScriptObject resultObject;
-    if (!scriptDebugServer().setScriptSource(scriptId, newContent, previewOnly, error, &m_currentCallStack, &resultObject))
+    // FIXME: Make this work for all ScriptTypes.
+    if (!scriptDebugServer(JSScriptType).setScriptSource(scriptId, newContent, previewOnly, error, &m_currentCallStack, &resultObject))
         return;
     newCallFrames = currentCallFrames();
     RefPtr<InspectorObject> object = scriptToInspectorObject(resultObject);
@@ -395,7 +404,8 @@ void InspectorDebuggerAgent::restartFrame(ErrorString* errorString, const String
     }
 
     injectedScript.restartFrame(errorString, m_currentCallStack, callFrameId, &result);
-    scriptDebugServer().updateCallStack(&m_currentCallStack);
+    // FIXME: Make this work for all ScriptTypes.
+    scriptDebugServer(JSScriptType).updateCallStack(&m_currentCallStack);
     newCallFrames = currentCallFrames();
 }
 
@@ -424,7 +434,7 @@ void InspectorDebuggerAgent::schedulePauseOnNextStatement(InspectorFrontend::Deb
         return;
     m_breakReason = breakReason;
     m_breakAuxData = data;
-    scriptDebugServer().setPauseOnNextStatement(true);
+    ALL_DEBUG_SERVERS_CALL(setPauseOnNextStatement(true))
 }
 
 void InspectorDebuggerAgent::cancelPauseOnNextStatement()
@@ -432,7 +442,7 @@ void InspectorDebuggerAgent::cancelPauseOnNextStatement()
     if (m_javaScriptPauseScheduled)
         return;
     clearBreakDetails();
-    scriptDebugServer().setPauseOnNextStatement(false);
+    ALL_DEBUG_SERVERS_CALL(setPauseOnNextStatement(false))
 }
 
 void InspectorDebuggerAgent::pause(ErrorString*)
@@ -440,7 +450,7 @@ void InspectorDebuggerAgent::pause(ErrorString*)
     if (m_javaScriptPauseScheduled)
         return;
     clearBreakDetails();
-    scriptDebugServer().setPauseOnNextStatement(true);
+    ALL_DEBUG_SERVERS_CALL(setPauseOnNextStatement(true))
     m_javaScriptPauseScheduled = true;
 }
 
@@ -449,7 +459,7 @@ void InspectorDebuggerAgent::resume(ErrorString* errorString)
     if (!assertPaused(errorString))
         return;
     m_injectedScriptManager->releaseObjectGroup(InspectorDebuggerAgent::backtraceObjectGroup);
-    scriptDebugServer().continueProgram();
+    ALL_DEBUG_SERVERS_CALL(continueProgram())
 }
 
 void InspectorDebuggerAgent::stepOver(ErrorString* errorString)
@@ -457,7 +467,7 @@ void InspectorDebuggerAgent::stepOver(ErrorString* errorString)
     if (!assertPaused(errorString))
         return;
     m_injectedScriptManager->releaseObjectGroup(InspectorDebuggerAgent::backtraceObjectGroup);
-    scriptDebugServer().stepOverStatement();
+    ALL_DEBUG_SERVERS_CALL(stepOverStatement())
 }
 
 void InspectorDebuggerAgent::stepInto(ErrorString* errorString)
@@ -465,7 +475,7 @@ void InspectorDebuggerAgent::stepInto(ErrorString* errorString)
     if (!assertPaused(errorString))
         return;
     m_injectedScriptManager->releaseObjectGroup(InspectorDebuggerAgent::backtraceObjectGroup);
-    scriptDebugServer().stepIntoStatement();
+    ALL_DEBUG_SERVERS_CALL(stepIntoStatement())
     m_listener->stepInto();
 }
 
@@ -474,7 +484,7 @@ void InspectorDebuggerAgent::stepOut(ErrorString* errorString)
     if (!assertPaused(errorString))
         return;
     m_injectedScriptManager->releaseObjectGroup(InspectorDebuggerAgent::backtraceObjectGroup);
-    scriptDebugServer().stepOutOfFunction();
+    ALL_DEBUG_SERVERS_CALL(stepOutOfFunction())
 }
 
 void InspectorDebuggerAgent::setPauseOnExceptions(ErrorString* errorString, const String& stringPauseState)
@@ -495,8 +505,9 @@ void InspectorDebuggerAgent::setPauseOnExceptions(ErrorString* errorString, cons
 
 void InspectorDebuggerAgent::setPauseOnExceptionsImpl(ErrorString* errorString, int pauseState)
 {
-    scriptDebugServer().setPauseOnExceptionsState(static_cast<ScriptDebugServer::PauseOnExceptionsState>(pauseState));
-    if (scriptDebugServer().pauseOnExceptionsState() != pauseState)
+    ALL_DEBUG_SERVERS_CALL(setPauseOnExceptionsState(static_cast<ScriptDebugServer::PauseOnExceptionsState>(pauseState)))
+    // FIXME: Do this more generically.
+    if (scriptDebugServer(JSScriptType).pauseOnExceptionsState() != pauseState || scriptDebugServer(RBScriptType).pauseOnExceptionsState() != pauseState)
         *errorString = "Internal error. Could not change pause on exceptions state";
     else
         m_state->setLong(DebuggerAgentState::pauseOnExceptionsState, pauseState);
@@ -510,10 +521,11 @@ void InspectorDebuggerAgent::evaluateOnCallFrame(ErrorString* errorString, const
         return;
     }
 
-    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = scriptDebugServer().pauseOnExceptionsState();
+    ScriptType scriptType = injectedScript.scriptType();
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = scriptDebugServer(scriptType).pauseOnExceptionsState();
     if (doNotPauseOnExceptionsAndMuteConsole ? *doNotPauseOnExceptionsAndMuteConsole : false) {
         if (previousPauseOnExceptionsState != ScriptDebugServer::DontPauseOnExceptions)
-            scriptDebugServer().setPauseOnExceptionsState(ScriptDebugServer::DontPauseOnExceptions);
+            scriptDebugServer(scriptType).setPauseOnExceptionsState(ScriptDebugServer::DontPauseOnExceptions);
         muteConsole();
     }
 
@@ -521,13 +533,14 @@ void InspectorDebuggerAgent::evaluateOnCallFrame(ErrorString* errorString, const
 
     if (doNotPauseOnExceptionsAndMuteConsole ? *doNotPauseOnExceptionsAndMuteConsole : false) {
         unmuteConsole();
-        if (scriptDebugServer().pauseOnExceptionsState() != previousPauseOnExceptionsState)
-            scriptDebugServer().setPauseOnExceptionsState(previousPauseOnExceptionsState);
+        if (scriptDebugServer(scriptType).pauseOnExceptionsState() != previousPauseOnExceptionsState)
+            scriptDebugServer(scriptType).setPauseOnExceptionsState(previousPauseOnExceptionsState);
     }
 }
 
 void InspectorDebuggerAgent::compileScript(ErrorString* errorString, const String& expression, const String& sourceURL, TypeBuilder::OptOutput<ScriptId>* scriptId, TypeBuilder::OptOutput<String>* syntaxErrorMessage)
 {
+    // FIXME: Get the correct injected script for the correct ScriptType.
     InjectedScript injectedScript = injectedScriptForEval(errorString, 0);
     if (injectedScript.hasNoValue()) {
         *errorString = "Inspected frame has gone";
@@ -536,7 +549,7 @@ void InspectorDebuggerAgent::compileScript(ErrorString* errorString, const Strin
 
     String scriptIdValue;
     String exceptionMessage;
-    scriptDebugServer().compileScript(injectedScript.scriptState(), expression, sourceURL, &scriptIdValue, &exceptionMessage);
+    scriptDebugServer(injectedScript.scriptType()).compileScript(injectedScript.scriptState(), expression, sourceURL, &scriptIdValue, &exceptionMessage);
     if (!scriptIdValue && !exceptionMessage) {
         *errorString = "Script compilation failed";
         return;
@@ -553,17 +566,18 @@ void InspectorDebuggerAgent::runScript(ErrorString* errorString, const ScriptId&
         return;
     }
 
-    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = scriptDebugServer().pauseOnExceptionsState();
+    ScriptType scriptType = injectedScript.scriptType();
+    ScriptDebugServer::PauseOnExceptionsState previousPauseOnExceptionsState = scriptDebugServer(scriptType).pauseOnExceptionsState();
     if (doNotPauseOnExceptionsAndMuteConsole && *doNotPauseOnExceptionsAndMuteConsole) {
         if (previousPauseOnExceptionsState != ScriptDebugServer::DontPauseOnExceptions)
-            scriptDebugServer().setPauseOnExceptionsState(ScriptDebugServer::DontPauseOnExceptions);
+            scriptDebugServer(scriptType).setPauseOnExceptionsState(ScriptDebugServer::DontPauseOnExceptions);
         muteConsole();
     }
 
     ScriptValue value;
     bool wasThrownValue;
     String exceptionMessage;
-    scriptDebugServer().runScript(injectedScript.scriptState(), scriptId, &value, &wasThrownValue, &exceptionMessage);
+    scriptDebugServer(scriptType).runScript(injectedScript.scriptState(), scriptId, &value, &wasThrownValue, &exceptionMessage);
     *wasThrown = wasThrownValue;
     if (value.hasNoValue()) {
         *errorString = "Script execution failed";
@@ -575,8 +589,8 @@ void InspectorDebuggerAgent::runScript(ErrorString* errorString, const ScriptId&
 
     if (doNotPauseOnExceptionsAndMuteConsole && *doNotPauseOnExceptionsAndMuteConsole) {
         unmuteConsole();
-        if (scriptDebugServer().pauseOnExceptionsState() != previousPauseOnExceptionsState)
-            scriptDebugServer().setPauseOnExceptionsState(previousPauseOnExceptionsState);
+        if (scriptDebugServer(scriptType).pauseOnExceptionsState() != previousPauseOnExceptionsState)
+            scriptDebugServer(scriptType).setPauseOnExceptionsState(previousPauseOnExceptionsState);
     }
 }
 
@@ -610,7 +624,8 @@ void InspectorDebuggerAgent::setVariableValue(ErrorString* errorString, int scop
 
 void InspectorDebuggerAgent::scriptExecutionBlockedByCSP(const String& directiveText)
 {
-    if (scriptDebugServer().pauseOnExceptionsState() != ScriptDebugServer::DontPauseOnExceptions) {
+    // FIXME: Make this generic for ScriptTypes.
+    if (scriptDebugServer(JSScriptType).pauseOnExceptionsState() != ScriptDebugServer::DontPauseOnExceptions) {
         RefPtr<InspectorObject> directive = InspectorObject::create();
         directive->setString("directiveText", directiveText);
         breakProgram(InspectorFrontend::Debugger::Reason::CSPViolation, directive.release());
@@ -714,7 +729,7 @@ void InspectorDebuggerAgent::didPause(ScriptState* scriptState, const ScriptValu
     m_javaScriptPauseScheduled = false;
 
     if (!m_continueToLocationBreakpointId.isEmpty()) {
-        scriptDebugServer().removeBreakpoint(m_continueToLocationBreakpointId);
+        scriptDebugServer(scriptState->scriptType()).removeBreakpoint(m_continueToLocationBreakpointId);
         m_continueToLocationBreakpointId = "";
     }
     if (m_listener)
@@ -733,7 +748,7 @@ void InspectorDebuggerAgent::breakProgram(InspectorFrontend::Debugger::Reason::E
 {
     m_breakReason = breakReason;
     m_breakAuxData = data;
-    scriptDebugServer().breakProgram();
+    ALL_DEBUG_SERVERS_CALL(breakProgram())
 }
 
 void InspectorDebuggerAgent::clear()

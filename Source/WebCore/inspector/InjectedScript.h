@@ -87,6 +87,10 @@ public:
     void getInternalProperties(ErrorString*, const String& objectId, RefPtr<TypeBuilder::Array<TypeBuilder::Runtime::InternalPropertyDescriptor> >* result);
     Node* nodeForObjectId(const String& objectId);
     void releaseObject(const String& objectId);
+    void getCompletions(ErrorString* errorString, const String& objectId, RefPtr<TypeBuilder::Array<String> >* result);
+    void getPrimitiveTypeCompletions(ErrorString* errorString, const String& type, RefPtr<TypeBuilder::Array<String> >* result);
+    void buildArrayFragment(ErrorString*, const String& objectId, int fromIndex, int toIndex, RefPtr<TypeBuilder::Runtime::RemoteObject>* result);
+    void buildObjectFragment(ErrorString*, const String& objectId, RefPtr<TypeBuilder::Runtime::RemoteObject>* result);
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
     PassRefPtr<TypeBuilder::Array<TypeBuilder::Debugger::CallFrame> > wrapCallFrames(const ScriptValue&);

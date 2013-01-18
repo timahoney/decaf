@@ -68,7 +68,7 @@ public:
 private:
     explicit InjectedScriptManager(InspectedStateAccessCheck);
 
-    String injectedScriptSource();
+    String injectedScriptSource(ScriptType);
     ScriptObject createInjectedScript(const String& source, ScriptState*, int id);
 
     static bool canAccessInspectedWindow(ScriptState*);

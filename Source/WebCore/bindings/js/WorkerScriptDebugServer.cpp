@@ -43,7 +43,7 @@
 namespace WebCore {
 
 WorkerScriptDebugServer::WorkerScriptDebugServer(WorkerContext* context, const String& mode)
-    : ScriptDebugServer()
+    : ScriptDebugServer(JSScriptType)
     , m_workerContext(context)
     , m_debuggerTaskMode(mode)
 {

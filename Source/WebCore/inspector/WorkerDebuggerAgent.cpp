@@ -119,7 +119,7 @@ void WorkerDebuggerAgent::stopListeningScriptDebugServer()
     scriptDebugServer().removeListener(this);
 }
 
-WorkerScriptDebugServer& WorkerDebuggerAgent::scriptDebugServer()
+WorkerScriptDebugServer& WorkerDebuggerAgent::scriptDebugServer(ScriptType)
 {
     return m_scriptDebugServer;
 }

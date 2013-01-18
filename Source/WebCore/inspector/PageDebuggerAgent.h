@@ -58,7 +58,7 @@ protected:
 private:
     virtual void startListeningScriptDebugServer();
     virtual void stopListeningScriptDebugServer();
-    virtual PageScriptDebugServer& scriptDebugServer();
+    virtual PageScriptDebugServer& scriptDebugServer(ScriptType);
     virtual void muteConsole();
     virtual void unmuteConsole();
 

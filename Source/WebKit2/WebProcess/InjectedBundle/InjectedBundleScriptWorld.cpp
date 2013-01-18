@@ -27,7 +27,7 @@
 #include "InjectedBundleScriptWorld.h"
 
 #include <WebCore/DOMWrapperWorld.h>
-#include <WebCore/ScriptController.h>
+#include <WebCore/JSScriptController.h>
 #include <wtf/HashMap.h>
 
 using namespace WebCore;
@@ -44,7 +44,7 @@ static WorldMap& allWorlds()
 
 PassRefPtr<InjectedBundleScriptWorld> InjectedBundleScriptWorld::create()
 {
-    return adoptRef(new InjectedBundleScriptWorld(ScriptController::createWorld()));
+    return adoptRef(new InjectedBundleScriptWorld(JSScriptController::createWorld()));
 }
 
 PassRefPtr<InjectedBundleScriptWorld> InjectedBundleScriptWorld::getOrCreate(DOMWrapperWorld* world)

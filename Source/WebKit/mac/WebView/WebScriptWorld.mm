@@ -26,7 +26,7 @@
 
 #import "WebScriptWorldInternal.h"
 #import <WebCore/JSDOMBinding.h>
-#import <WebCore/ScriptController.h>
+#import <WebCore/JSScriptController.h>
 #import <JavaScriptCore/APICast.h>
 #import <JavaScriptCore/JSContextInternal.h>
 
@@ -73,7 +73,7 @@ static WorldMap& allWorlds()
 
 - (id)init
 {
-    return [self initWithWorld:ScriptController::createWorld()];
+    return [self initWithWorld:JSScriptController::createWorld()];
 }
 
 - (void)unregisterWorld

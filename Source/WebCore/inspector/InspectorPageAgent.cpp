@@ -846,6 +846,7 @@ void InspectorPageAgent::didClearWindowObjectInWorld(Frame* frame, DOMWrapperWor
     if (!m_frontend)
         return;
 
+    // FIXME: Inject page agent scripts from other ScriptTypes.
     RefPtr<InspectorObject> scripts = m_state->getObject(PageAgentState::pageAgentScriptsToEvaluateOnLoad);
     if (scripts) {
         InspectorObject::const_iterator end = scripts->end();

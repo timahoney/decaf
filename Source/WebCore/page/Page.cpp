@@ -154,7 +154,6 @@ Page::Page(PageClients& pageClients)
     , m_didLoadUserStyleSheet(false)
     , m_userStyleSheetModificationTime(0)
     , m_group(0)
-    , m_debugger(0)
     , m_customHTMLTokenizerTimeDelay(-1)
     , m_customHTMLTokenizerChunkSize(-1)
     , m_canStartMedia(true)
@@ -1060,7 +1059,7 @@ void Page::visitedStateChanged(PageGroup* group, LinkHash linkHash)
     }
 }
 
-void Page::setDebuggerForAllPages(JSC::Debugger* debugger)
+void Page::setDebuggerForAllPages(ScriptDebugServer* debugger)
 {
     ASSERT(allPages);
 
@@ -1069,15 +1068,29 @@ void Page::setDebuggerForAllPages(JSC::Debugger* debugger)
         (*it)->setDebugger(debugger);
 }
 
-void Page::setDebugger(JSC::Debugger* debugger)
+void Page::setDebugger(ScriptDebugServer* newDebugger)
 {
-    if (m_debugger == debugger)
-        return;
+    if (newDebugger) {
+        ScriptType scriptType = newDebugger->scriptType();
+        ScriptDebugServer* previous = debugger(scriptType);
+        if (previous == newDebugger)
+            return;
+        m_debuggers.set(scriptType, newDebugger);
+        
+        for (Frame* frame = m_mainFrame.get(); frame; frame = frame->tree()->traverseNext())
+            frame->script(scriptType)->attachDebugger(newDebugger);
+        
+    } else {
+        m_debuggers.clear();
+        
+        ScriptTypeVector types = scriptTypeVector();
+        for (Frame* frame = m_mainFrame.get(); frame; frame = frame->tree()->traverseNext()) {
+            for (ScriptTypeVector::const_iterator it = types.begin(); it != types.end(); ++it)
+                frame->script(*it)->attachDebugger(newDebugger);
+        }
+    }
 
-    m_debugger = debugger;
 
-    for (Frame* frame = m_mainFrame.get(); frame; frame = frame->tree()->traverseNext())
-        frame->script()->attachDebugger(m_debugger);
 }
 
 StorageNamespace* Page::sessionStorage(bool optionalCreate)
@@ -1514,7 +1527,7 @@ void Page::reportMemoryUsage(MemoryObjectInfo* memoryObjectInfo) const
     info.addMember(m_seenPlugins, "seenPlugins");
     info.addMember(m_seenMediaEngines, "seenMediaEngines");
 
-    info.ignoreMember(m_debugger);
+    info.ignoreMember(m_debuggers);
     info.ignoreMember(m_alternativeTextClient);
     info.ignoreMember(m_editorClient);
     info.ignoreMember(m_plugInClient);

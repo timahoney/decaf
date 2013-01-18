@@ -43,6 +43,7 @@
 #include "InspectorState.h"
 #include "InspectorValues.h"
 #include "InstrumentingAgents.h"
+#include "JSPageScriptDebugServer.h"
 #include "KURL.h"
 #include "Page.h"
 #include "PageScriptDebugServer.h"
@@ -79,7 +80,8 @@ public:
 private:
     virtual void recompileScript()
     {
-        PageScriptDebugServer::shared().recompileAllJSFunctionsSoon();
+        // FIXME: Make this generic. Do we need to recompile for every script type?
+        JSPageScriptDebugServer::shared().recompileAllJSFunctionsSoon();
     }
 
     virtual void startProfiling(const String& title)
@@ -380,7 +382,8 @@ void InspectorProfilerAgent::start(ErrorString*)
         return;
     if (!enabled()) {
         enable(true);
-        PageScriptDebugServer::shared().recompileAllJSFunctions(0);
+        // FIXME: Make this generic for all script types.
+        JSPageScriptDebugServer::shared().recompileAllJSFunctions(0);
     }
     m_recordingCPUProfile = true;
     String title = getCurrentUserInitiatedProfileName(true);

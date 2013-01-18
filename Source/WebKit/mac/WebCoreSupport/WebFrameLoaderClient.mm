@@ -103,6 +103,7 @@
 #import <WebCore/HistoryItem.h>
 #import <WebCore/HitTestResult.h>
 #import <WebCore/IconDatabase.h>
+#import <WebCore/JSScriptController.h>
 #import <WebCore/LoaderNSURLExtras.h>
 #import <WebCore/MIMETypeRegistry.h>
 #import <WebCore/MouseEvent.h>
@@ -114,7 +115,6 @@
 #import <WebCore/ResourceLoader.h>
 #import <WebCore/ResourceRequest.h>
 #import <WebCore/RunLoop.h>
-#import <WebCore/ScriptController.h>
 #import <WebCore/SharedBuffer.h>
 #import <WebCore/WebCoreObjCExtras.h>
 #import <WebCore/WebScriptObjectPrivate.h>
@@ -1955,7 +1955,7 @@ void WebFrameLoaderClient::dispatchDidClearWindowObjectInWorld(DOMWrapperWorld* 
         return;
 
     Frame *frame = core(m_webFrame.get());
-    ScriptController *script = frame->script();
+    JSScriptController *script = frame->script();
 
 #if JSC_OBJC_API_ENABLED
     if (implementations->didCreateJavaScriptContextForFrameFunc) {

@@ -182,7 +182,8 @@ InspectorController::InspectorController(Page* page, InspectorClient* inspectorC
     );
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
-    runtimeAgent->setScriptDebugServer(&m_debuggerAgent->scriptDebugServer());
+    // FIXME: Set the script debug server for each ScriptType.
+    runtimeAgent->setScriptDebugServer(&m_debuggerAgent->scriptDebugServer(JSScriptType));
 #endif
 }
 

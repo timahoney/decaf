@@ -60,6 +60,7 @@
 #include "JSHTMLElementWrapperFactory.h"
 #include "JSNotation.h"
 #include "JSProcessingInstruction.h"
+#include "JSScriptState.h"
 #include "JSText.h"
 #include "Node.h"
 #include "Notation.h"
@@ -278,12 +279,13 @@ JSValue toJSNewlyCreated(ExecState* exec, JSDOMGlobalObject* globalObject, Node*
 
 void willCreatePossiblyOrphanedTreeByRemovalSlowCase(Node* root)
 {
-    ScriptState* scriptState = mainWorldScriptState(root->document()->frame());
+    JSScriptState* scriptState = static_cast<JSScriptState*>(mainWorldScriptState(root->document()->frame(), JSScriptType));
     if (!scriptState)
         return;
-
-    JSLockHolder lock(scriptState);
-    toJS(scriptState, static_cast<JSDOMGlobalObject*>(scriptState->lexicalGlobalObject()), root);
+    
+    JSC::ExecState* exec = scriptState->execState();
+    JSLockHolder lock(exec);
+    toJS(exec, static_cast<JSDOMGlobalObject*>(exec->lexicalGlobalObject()), root);
 }
 
 } // namespace WebCore

@@ -55,7 +55,9 @@ private:
 
     virtual void startListeningScriptDebugServer();
     virtual void stopListeningScriptDebugServer();
-    virtual WorkerScriptDebugServer& scriptDebugServer();
+    
+    // FIXME: Remove default ScriptType.
+    virtual WorkerScriptDebugServer& scriptDebugServer(ScriptType type = JSScriptType);
     virtual InjectedScript injectedScriptForEval(ErrorString*, const int* executionContextId);
     virtual void muteConsole();
     virtual void unmuteConsole();

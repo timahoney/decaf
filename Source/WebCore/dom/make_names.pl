@@ -45,6 +45,7 @@ sub readAttrs($$);
 my $printFactory = 0; 
 my $printWrapperFactory = 0; 
 my $printWrapperFactoryV8 = 0; 
+my $printWrapperFactoryRB = 0; 
 my $fontNamesIn = "";
 my $tagsFile = "";
 my $attrsFile = "";
@@ -82,6 +83,7 @@ GetOptions(
     'preprocessor=s' => \$preprocessor,
     'wrapperFactory' => \$printWrapperFactory,
     'wrapperFactoryV8' => \$printWrapperFactoryV8,
+    'wrapperFactoryRB' => \$printWrapperFactoryRB,
     'fonts=s' => \$fontNamesIn
 );
 
@@ -174,6 +176,8 @@ if ($printWrapperFactory) {
     $wrapperFactoryType = "JS";
 } elsif ($printWrapperFactoryV8) {
     $wrapperFactoryType = "V8";
+} elsif ($printWrapperFactoryRB) {
+    $wrapperFactoryType = "RB";
 }
 
 if ($wrapperFactoryType) {
@@ -1163,7 +1167,58 @@ static v8::Handle<v8::Object> create${JSInterfaceName}Wrapper($parameters{namesp
 END
 ;
             }
-        }
+        } elsif ($wrapperFactoryType eq "RB") {
+            if ($enabledTags{$tagName}{wrapperOnlyIfMediaIsAvailable}) {
+                print F <<END
+static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
+{
+    Settings* settings = element->document()->settings();
+    if (!MediaPlayer::isAvailable() || (settings && !settings->mediaEnabled()))
+        return toRB(RB$parameters{namespace}Element::rubyClass(), element);
+    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+}
+
+END
+;
+            } elsif ($enabledTags{$tagName}{contextConditional}) {
+                my $contextConditional = $enabledTags{$tagName}{contextConditional};
+                print F <<END
+static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
+{
+    if (!ContextFeatures::${contextConditional}Enabled(element->document())) {
+        ASSERT(!element || element->is$parameters{fallbackInterfaceName}());
+        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+    }
+
+    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+}
+END
+;
+            } elsif ($enabledTags{$tagName}{runtimeConditional}) {
+                my $runtimeConditional = $enabledTags{$tagName}{runtimeConditional};
+                print F <<END
+static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
+{
+    if (!RuntimeEnabledFeatures::${runtimeConditional}Enabled()) {
+        ASSERT(!element || element->is$parameters{fallbackInterfaceName}());
+        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+    }
+
+    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+}
+END
+;
+            } else {
+                print F <<END
+static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
+{
+    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+}
+
+END
+;
+            }
+        } 
 
         if ($conditional) {
             print F "#endif\n\n";
@@ -1247,6 +1302,12 @@ typedef v8::Handle<v8::Object> (*Create$parameters{namespace}ElementWrapperFunct
 
 END
 ;
+    } elsif ($wrapperFactoryType eq "RB") {
+        print F <<END
+typedef VALUE (*Create$parameters{namespace}ElementWrapperFunction)(PassRefPtr<$parameters{namespace}Element>);
+
+END
+;
     }
 
     printWrapperFunctions($F, $wrapperFactoryType);
@@ -1263,6 +1324,15 @@ END
     } elsif ($wrapperFactoryType eq "V8") {
         print F <<END
 v8::Handle<v8::Object> createV8$parameters{namespace}Wrapper($parameters{namespace}Element* element, v8::Handle<v8::Object> creationContext, v8::Isolate* isolate)
+{
+    typedef HashMap<WTF::AtomicStringImpl*, Create$parameters{namespace}ElementWrapperFunction> FunctionMap;
+    DEFINE_STATIC_LOCAL(FunctionMap, map, ());
+    if (map.isEmpty()) {
+END
+;
+    } elsif ($wrapperFactoryType eq "RB") {
+        print F <<END
+VALUE createRB$parameters{namespace}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
 {
     typedef HashMap<WTF::AtomicStringImpl*, Create$parameters{namespace}ElementWrapperFunction> FunctionMap;
     DEFINE_STATIC_LOCAL(FunctionMap, map, ());
@@ -1341,6 +1411,12 @@ END
 END
 ;
         }
+    } elsif ($wrapperFactoryType eq "RB") {
+        print F <<END
+        return createWrapperFunction(element);
+    return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+END
+;
     }
     print F <<END
 }
@@ -1446,6 +1522,19 @@ namespace WebCore {
     {
         return V8$parameters{fallbackInterfaceName}::createWrapper(element, creationContext, isolate);
     }
+}
+END
+;
+    } elsif ($wrapperFactoryType eq "RB") {
+        print F <<END
+#include <Ruby/ruby.h>
+#include <wtf/PassRefPtr.h>
+
+namespace WebCore {
+
+    class $parameters{namespace}Element;
+
+    VALUE createRB$parameters{namespace}Wrapper(PassRefPtr<$parameters{namespace}Element>);
 }
 END
 ;

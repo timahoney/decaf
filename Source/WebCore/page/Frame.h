@@ -36,8 +36,9 @@
 #include "FrameLoader.h"
 #include "FrameSelection.h"
 #include "FrameTree.h"
+#include "JSScriptController.h"
 #include "NavigationScheduler.h"
-#include "ScriptController.h"
+#include "ScriptManager.h"
 #include "UserScriptTypes.h"
 
 #if PLATFORM(WIN)
@@ -118,7 +119,9 @@ namespace WebCore {
         FrameSelection* selection() const;
         FrameTree* tree() const;
         AnimationController* animation() const;
-        ScriptController* script();
+        JSScriptController* script();
+        ScriptController* script(ScriptType);
+        ScriptManager* scriptManager();
         
         RenderView* contentRenderer() const; // Root of the render tree for the document contained in this frame.
         RenderPart* ownerRenderer() const; // Renderer for the element that contains this frame.
@@ -223,7 +226,7 @@ namespace WebCore {
         RefPtr<FrameView> m_view;
         RefPtr<Document> m_doc;
 
-        ScriptController m_script;
+        ScriptManager m_scriptManager;
 
         mutable Editor m_editor;
         mutable FrameSelection m_selection;
@@ -281,9 +284,19 @@ namespace WebCore {
         return m_view.get();
     }
 
-    inline ScriptController* Frame::script()
+    inline JSScriptController* Frame::script()
     {
-        return &m_script;
+        return static_cast<JSScriptController*>(m_scriptManager.scriptController(JSScriptType));
+    }
+    
+    inline ScriptController* Frame::script(ScriptType type)
+    {
+        return m_scriptManager.scriptController(type);
+    }
+    
+    inline ScriptManager* Frame::scriptManager()
+    {
+        return &m_scriptManager;
     }
 
     inline Document* Frame::document() const

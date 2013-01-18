@@ -50,6 +50,7 @@
 #include <WebCore/GraphicsContext.h>
 #include <WebCore/HTMLPlugInElement.h>
 #include <WebCore/HostWindow.h>
+#include <WebCore/JSScriptState.h>
 #include <WebCore/MIMETypeRegistry.h>
 #include <WebCore/NetscapePlugInStreamLoader.h>
 #include <WebCore/NetworkingContext.h>
@@ -1140,9 +1141,9 @@ void PluginView::performJavaScriptURLRequest(URLRequest* request)
     if (!request->target().isNull())
         return;
 
-    ScriptState* scriptState = frame->script()->globalObject(pluginWorld())->globalExec();
+    JSC::ExecState* scriptState = frame->script()->globalObject(pluginWorld())->globalExec();
     String resultString;
-    result.getString(scriptState, resultString);
+    result.getString(JSScriptState::forExecState(scriptState), resultString);
   
     // Send the result back to the plug-in.
     plugin->didEvaluateJavaScript(request->requestID(), resultString);

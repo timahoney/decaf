@@ -347,7 +347,7 @@ bool InspectorFrontendClientLocal::evaluateAsBoolean(const String& expression)
     if (!m_frontendPage->mainFrame())
         return false;
     ScriptValue value = m_frontendPage->mainFrame()->script()->executeScript(expression);
-    return value.toString(mainWorldScriptState(m_frontendPage->mainFrame())) == "true";
+    return value.toString(mainWorldScriptState(m_frontendPage->mainFrame(), value.scriptType())) == "true";
 }
 
 void InspectorFrontendClientLocal::evaluateOnLoad(const String& expression)

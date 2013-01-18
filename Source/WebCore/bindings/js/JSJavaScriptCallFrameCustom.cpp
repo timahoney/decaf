@@ -29,7 +29,7 @@
 
 #include "JSJavaScriptCallFrame.h"
 
-#include "JavaScriptCallFrame.h"
+#include "JSScriptCallFrame.h"
 #include <runtime/ArrayPrototype.h>
 #include <runtime/Error.h>
 
@@ -37,10 +37,12 @@ using namespace JSC;
 
 namespace WebCore {
 
+#define JSIMPL static_cast<JSScriptCallFrame*>(impl())
+
 JSValue JSJavaScriptCallFrame::evaluate(ExecState* exec)
 {
     JSValue exception;
-    JSValue result = impl()->evaluate(exec->argument(0).toString(exec)->value(exec), exception);
+    JSValue result = JSIMPL->evaluate(exec->argument(0).toString(exec)->value(exec), exception);
 
     if (exception)
         throwError(exec, exception);
@@ -56,12 +58,12 @@ JSValue JSJavaScriptCallFrame::restart(ExecState*)
 
 JSValue JSJavaScriptCallFrame::thisObject(ExecState*) const
 {
-    return impl()->thisObject() ? JSValue(impl()->thisObject()) : jsNull();
+    return JSIMPL->thisObject() ? JSValue(JSIMPL->thisObject()) : jsNull();
 }
 
 JSValue JSJavaScriptCallFrame::type(ExecState* exec) const
 {
-    switch (impl()->type()) {
+    switch (JSIMPL->type()) {
         case DebuggerCallFrame::FunctionType:
             return jsString(exec, ASCIILiteral("function"));
         case DebuggerCallFrame::ProgramType:
@@ -74,10 +76,10 @@ JSValue JSJavaScriptCallFrame::type(ExecState* exec) const
 
 JSValue JSJavaScriptCallFrame::scopeChain(ExecState* exec) const
 {
-    if (!impl()->scopeChain())
+    if (!JSIMPL->scopeChain())
         return jsNull();
 
-    JSScope* scopeChain = impl()->scopeChain();
+    JSScope* scopeChain = JSIMPL->scopeChain();
     ScopeChainIterator iter = scopeChain->begin();
     ScopeChainIterator end = scopeChain->end();
 
@@ -95,14 +97,14 @@ JSValue JSJavaScriptCallFrame::scopeChain(ExecState* exec) const
 
 JSValue JSJavaScriptCallFrame::scopeType(ExecState* exec)
 {
-    if (!impl()->scopeChain())
+    if (!JSIMPL->scopeChain())
         return jsUndefined();
 
     if (!exec->argument(0).isInt32())
         return jsUndefined();
     int index = exec->argument(0).asInt32();
 
-    JSScope* scopeChain = impl()->scopeChain();
+    JSScope* scopeChain = JSIMPL->scopeChain();
     ScopeChainIterator end = scopeChain->end();
 
     bool foundLocalScope = false;

@@ -34,6 +34,7 @@
 #include "GCController.h"
 #include "JSDOMBinding.h"
 #include "JSDOMWindow.h"
+#include "JSScriptState.h"
 #include "Page.h"
 #include "ScriptObject.h"
 #include "ScriptState.h"
@@ -59,13 +60,13 @@ unsigned ScriptProfiler::getHeapObjectId(const ScriptValue&)
 
 void ScriptProfiler::start(ScriptState* state, const String& title)
 {
-    JSC::LegacyProfiler::profiler()->startProfiling(state, title);
+    JSC::LegacyProfiler::profiler()->startProfiling(static_cast<JSScriptState*>(state)->execState(), title);
 }
 
 void ScriptProfiler::startForPage(Page* inspectedPage, const String& title)
 {
     JSC::ExecState* scriptState = toJSDOMWindow(inspectedPage->mainFrame(), debuggerWorld())->globalExec();
-    start(scriptState, title);
+    start(JSScriptState::forExecState(scriptState), title);
 }
 
 #if ENABLE(WORKERS)
@@ -77,14 +78,14 @@ void ScriptProfiler::startForWorkerContext(WorkerContext* context, const String&
 
 PassRefPtr<ScriptProfile> ScriptProfiler::stop(ScriptState* state, const String& title)
 {
-    RefPtr<JSC::Profile> profile = JSC::LegacyProfiler::profiler()->stopProfiling(state, title);
+    RefPtr<JSC::Profile> profile = JSC::LegacyProfiler::profiler()->stopProfiling(static_cast<JSScriptState*>(state)->execState(), title);
     return ScriptProfile::create(profile);
 }
 
 PassRefPtr<ScriptProfile> ScriptProfiler::stopForPage(Page* inspectedPage, const String& title)
 {
     JSC::ExecState* scriptState = toJSDOMWindow(inspectedPage->mainFrame(), debuggerWorld())->globalExec();
-    return stop(scriptState, title);
+    return stop(JSScriptState::forExecState(scriptState), title);
 }
 
 #if ENABLE(WORKERS)

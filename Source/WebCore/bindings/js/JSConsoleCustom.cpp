@@ -30,6 +30,7 @@
 #include "JSConsole.h"
 
 #include "Console.h"
+#include "JSScriptState.h"
 #include "ScriptCallStack.h"
 #include <wtf/OwnPtr.h>
 
@@ -43,7 +44,7 @@ JSValue JSConsole::profile(ExecState* exec)
     if (exec->hadException())
         return jsUndefined();
 
-    impl()->profile(title, exec);
+    impl()->profile(title, JSScriptState::forExecState(exec));
     return jsUndefined();
 }
 
@@ -53,7 +54,7 @@ JSValue JSConsole::profileEnd(ExecState* exec)
     if (exec->hadException())
         return jsUndefined();
 
-    impl()->profileEnd(title, exec);
+    impl()->profileEnd(title, JSScriptState::forExecState(exec));
     return jsUndefined();
 }
 

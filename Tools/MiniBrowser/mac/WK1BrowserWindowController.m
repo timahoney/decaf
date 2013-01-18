@@ -26,6 +26,8 @@
 #import "WK1BrowserWindowController.h"
 
 #import <WebKit/WebKit.h>
+#import <WebKit/WebViewPrivate.h>
+#import <WebKit/WebInspector.h>
 #import "AppDelegate.h"
 
 @interface WK1BrowserWindowController ()
@@ -227,6 +229,11 @@
 {
 }
 
+- (IBAction)showWebInspector:(id)sender
+{
+    [[_webView inspector] show:sender];
+}
+
 - (IBAction)dumpSourceToConsole:(id)sender
 {
 }
@@ -234,6 +241,22 @@
 // WebFrameLoadDelegate Methods
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
+    [progressIndicator startAnimation:sender];
+}
+
+- (void)webView:(WebView *)sender didFailProvisionalLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+{
+    [progressIndicator stopAnimation:sender];
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
+{
+    [progressIndicator stopAnimation:sender];
+}
+
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+{
+    [progressIndicator stopAnimation:sender];
 }
 
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
@@ -250,7 +273,7 @@
     if (frame != [sender mainFrame])
         return;
 
-    [[self window] setTitle:[title stringByAppendingString:@" [WK1]"]];
+    [[self window] setTitle:title];
 }
 
 - (void)webView:(WebView *)sender runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WebFrame *)frame

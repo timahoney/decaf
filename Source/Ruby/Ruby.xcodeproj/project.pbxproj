@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		22823F6717011BD600EDCD52 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5417011BD600EDCD52 /* config.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6817011BD600EDCD52 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5517011BD600EDCD52 /* debug.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6917011BD600EDCD52 /* defines.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5617011BD600EDCD52 /* defines.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6A17011BD600EDCD52 /* digest.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5717011BD600EDCD52 /* digest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6B17011BD600EDCD52 /* dl.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5817011BD600EDCD52 /* dl.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6C17011BD600EDCD52 /* encoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5917011BD600EDCD52 /* encoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6D17011BD600EDCD52 /* intern.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5A17011BD600EDCD52 /* intern.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6E17011BD600EDCD52 /* io.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5B17011BD600EDCD52 /* io.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F6F17011BD600EDCD52 /* missing.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5C17011BD600EDCD52 /* missing.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7017011BD600EDCD52 /* oniguruma.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5D17011BD600EDCD52 /* oniguruma.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7117011BD600EDCD52 /* re.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5E17011BD600EDCD52 /* re.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7217011BD600EDCD52 /* regex.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F5F17011BD600EDCD52 /* regex.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7317011BD600EDCD52 /* ruby.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6017011BD600EDCD52 /* ruby.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7417011BD600EDCD52 /* st.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6117011BD600EDCD52 /* st.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7517011BD600EDCD52 /* subst.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6217011BD600EDCD52 /* subst.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7617011BD600EDCD52 /* thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6317011BD600EDCD52 /* thread.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7717011BD600EDCD52 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6417011BD600EDCD52 /* util.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7817011BD600EDCD52 /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6517011BD600EDCD52 /* version.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		22823F7917011BD600EDCD52 /* vm.h in Headers */ = {isa = PBXBuildFile; fileRef = 22823F6617011BD600EDCD52 /* vm.h */; settings = {ATTRIBUTES = (Public, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		220BB59B16FD3210009EF531 /* Ruby-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Ruby-Info.plist"; sourceTree = "<group>"; };
+		220BB62716FE3AD3009EF531 /* Ruby.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Ruby.xcconfig; sourceTree = "<group>"; };
+		22823F5417011BD600EDCD52 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = DerivedSources/Ruby/include/ruby/config.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5517011BD600EDCD52 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = DerivedSources/Ruby/include/ruby/debug.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5617011BD600EDCD52 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defines.h; path = DerivedSources/Ruby/include/ruby/defines.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5717011BD600EDCD52 /* digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = digest.h; path = DerivedSources/Ruby/include/ruby/digest.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5817011BD600EDCD52 /* dl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dl.h; path = DerivedSources/Ruby/include/ruby/dl.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5917011BD600EDCD52 /* encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = encoding.h; path = DerivedSources/Ruby/include/ruby/encoding.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5A17011BD600EDCD52 /* intern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = intern.h; path = DerivedSources/Ruby/include/ruby/intern.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5B17011BD600EDCD52 /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = io.h; path = DerivedSources/Ruby/include/ruby/io.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5C17011BD600EDCD52 /* missing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missing.h; path = DerivedSources/Ruby/include/ruby/missing.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5D17011BD600EDCD52 /* oniguruma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = oniguruma.h; path = DerivedSources/Ruby/include/ruby/oniguruma.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5E17011BD600EDCD52 /* re.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = re.h; path = DerivedSources/Ruby/include/ruby/re.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F5F17011BD600EDCD52 /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = regex.h; path = DerivedSources/Ruby/include/ruby/regex.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6017011BD600EDCD52 /* ruby.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ruby.h; path = DerivedSources/Ruby/include/ruby/ruby.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6117011BD600EDCD52 /* st.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = st.h; path = DerivedSources/Ruby/include/ruby/st.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6217011BD600EDCD52 /* subst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = subst.h; path = DerivedSources/Ruby/include/ruby/subst.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6317011BD600EDCD52 /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = thread.h; path = DerivedSources/Ruby/include/ruby/thread.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6417011BD600EDCD52 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = DerivedSources/Ruby/include/ruby/util.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6517011BD600EDCD52 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = version.h; path = DerivedSources/Ruby/include/ruby/version.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22823F6617011BD600EDCD52 /* vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vm.h; path = DerivedSources/Ruby/include/ruby/vm.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		22B324C416FE4A3C00DB34B7 /* libRuby.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRuby.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		220BB58416FD3022009EF531 = {
+			isa = PBXGroup;
+			children = (
+				220BB59B16FD3210009EF531 /* Ruby-Info.plist */,
+				22B324C416FE4A3C00DB34B7 /* libRuby.a */,
+				220BB62816FE3AD9009EF531 /* Configurations */,
+				220BB5ED16FE132D009EF531 /* Source */,
+			);
+			sourceTree = "<group>";
+		};
+		220BB5B616FD42CC009EF531 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				22823F5417011BD600EDCD52 /* config.h */,
+				22823F5517011BD600EDCD52 /* debug.h */,
+				22823F5617011BD600EDCD52 /* defines.h */,
+				22823F5717011BD600EDCD52 /* digest.h */,
+				22823F5817011BD600EDCD52 /* dl.h */,
+				22823F5917011BD600EDCD52 /* encoding.h */,
+				22823F5A17011BD600EDCD52 /* intern.h */,
+				22823F5B17011BD600EDCD52 /* io.h */,
+				22823F5C17011BD600EDCD52 /* missing.h */,
+				22823F5D17011BD600EDCD52 /* oniguruma.h */,
+				22823F5E17011BD600EDCD52 /* re.h */,
+				22823F5F17011BD600EDCD52 /* regex.h */,
+				22823F6017011BD600EDCD52 /* ruby.h */,
+				22823F6117011BD600EDCD52 /* st.h */,
+				22823F6217011BD600EDCD52 /* subst.h */,
+				22823F6317011BD600EDCD52 /* thread.h */,
+				22823F6417011BD600EDCD52 /* util.h */,
+				22823F6517011BD600EDCD52 /* version.h */,
+				22823F6617011BD600EDCD52 /* vm.h */,
+			);
+			name = include;
+			path = "usr/local/include/ruby-2.0.0";
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		220BB5ED16FE132D009EF531 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				220BB5B616FD42CC009EF531 /* include */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		220BB62816FE3AD9009EF531 /* Configurations */ = {
+			isa = PBXGroup;
+			children = (
+				220BB62716FE3AD3009EF531 /* Ruby.xcconfig */,
+			);
+			name = Configurations;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		22B324C216FE4A3C00DB34B7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22823F6717011BD600EDCD52 /* config.h in Headers */,
+				22823F6817011BD600EDCD52 /* debug.h in Headers */,
+				22823F6917011BD600EDCD52 /* defines.h in Headers */,
+				22823F6A17011BD600EDCD52 /* digest.h in Headers */,
+				22823F6B17011BD600EDCD52 /* dl.h in Headers */,
+				22823F6C17011BD600EDCD52 /* encoding.h in Headers */,
+				22823F6D17011BD600EDCD52 /* intern.h in Headers */,
+				22823F6E17011BD600EDCD52 /* io.h in Headers */,
+				22823F6F17011BD600EDCD52 /* missing.h in Headers */,
+				22823F7017011BD600EDCD52 /* oniguruma.h in Headers */,
+				22823F7117011BD600EDCD52 /* re.h in Headers */,
+				22823F7217011BD600EDCD52 /* regex.h in Headers */,
+				22823F7317011BD600EDCD52 /* ruby.h in Headers */,
+				22823F7417011BD600EDCD52 /* st.h in Headers */,
+				22823F7517011BD600EDCD52 /* subst.h in Headers */,
+				22823F7617011BD600EDCD52 /* thread.h in Headers */,
+				22823F7717011BD600EDCD52 /* util.h in Headers */,
+				22823F7817011BD600EDCD52 /* version.h in Headers */,
+				22823F7917011BD600EDCD52 /* vm.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		22B324C316FE4A3C00DB34B7 /* Ruby */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22B324C516FE4A3C00DB34B7 /* Build configuration list for PBXNativeTarget "Ruby" */;
+			buildPhases = (
+				22B324C916FE4AA900DB34B7 /* Make Ruby */,
+				22B324C216FE4A3C00DB34B7 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Ruby;
+			productName = Ruby;
+			productReference = 22B324C416FE4A3C00DB34B7 /* libRuby.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		220BB58516FD3022009EF531 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+			};
+			buildConfigurationList = 220BB58816FD3022009EF531 /* Build configuration list for PBXProject "Ruby" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 220BB58416FD3022009EF531;
+			productRefGroup = 220BB58416FD3022009EF531;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				22B324C316FE4A3C00DB34B7 /* Ruby */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		22B324C916FE4AA900DB34B7 /* Make Ruby */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Make Ruby";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p \"${OBJECT_FILE_DIR}\"\ncd \"${OBJECT_FILE_DIR}\"\n\nif [ ! -e \"Makefile\" ]; then\n    cd \"${SRCROOT}\"/Source\n    autoconf\n    cd \"${OBJECT_FILE_DIR}\"\n    \"${SRCROOT}\"/Source/configure \\\n        --prefix=\"${BUILT_PRODUCTS_DIR}\"/DerivedSources/Ruby/ \\\n        --with-rubyhdrdir=\"${BUILT_PRODUCTS_DIR}\"/DerivedSources/Ruby/include \\\n        --with-rubyarchhdrdir=\"${BUILT_PRODUCTS_DIR}\"/DerivedSources/Ruby/include \\\n        --disable-install-doc \\\n        --disable-rubygems \\\n        --disable-multiarch \\\n        --without-gcc\nfi\n\nif [ \"${ACTION}\" = \"build\" ]; then\n    make\n    make install\n    cp \"${BUILT_PRODUCTS_DIR}\"/DerivedSources/Ruby/lib/libruby-static.a \"${BUILT_PRODUCTS_DIR}\"/libRuby.a\nfi\n\nif [ \"${ACTION}\" = \"clean\" ]; then\n    make clean\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		220BB58916FD3022009EF531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 220BB62716FE3AD3009EF531 /* Ruby.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		220BB58A16FD3022009EF531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 220BB62716FE3AD3009EF531 /* Ruby.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		22B324C616FE4A3C00DB34B7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		22B324C716FE4A3C00DB34B7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		220BB58816FD3022009EF531 /* Build configuration list for PBXProject "Ruby" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				220BB58916FD3022009EF531 /* Debug */,
+				220BB58A16FD3022009EF531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		22B324C516FE4A3C00DB34B7 /* Build configuration list for PBXNativeTarget "Ruby" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22B324C616FE4A3C00DB34B7 /* Debug */,
+				22B324C716FE4A3C00DB34B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 220BB58516FD3022009EF531 /* Project object */;
+}

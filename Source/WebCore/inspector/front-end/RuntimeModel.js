@@ -119,7 +119,7 @@ WebInspector.RuntimeModel.prototype = {
         // FIXME(85708): this should never happen
         if (!contextList)
             return;
-        contextList._addExecutionContext(new WebInspector.ExecutionContext(context.id, context.name, context.isPageContext));
+        contextList._addExecutionContext(new WebInspector.ExecutionContext(context.id, context.name, context.isPageContext, context.scriptType));
     },
 
     /**
@@ -218,42 +218,7 @@ WebInspector.RuntimeModel.prototype = {
                 return;
             }
 
-            function getCompletions(primitiveType)
-            {
-                var object;
-                if (primitiveType === "string")
-                    object = new String("");
-                else if (primitiveType === "number")
-                    object = new Number(0);
-                else if (primitiveType === "boolean")
-                    object = new Boolean(false);
-                else
-                    object = this;
-
-                var resultSet = {};
-                for (var o = object; o; o = o.__proto__) {
-                    try {
-                        var names = Object.getOwnPropertyNames(o);
-                        for (var i = 0; i < names.length; ++i)
-                            resultSet[names[i]] = true;
-                    } catch (e) {
-                    }
-                }
-                return resultSet;
-            }
-
-            if (result.type === "object" || result.type === "function")
-                result.callFunctionJSON(getCompletions, undefined, receivedPropertyNames.bind(this));
-            else if (result.type === "string" || result.type === "number" || result.type === "boolean")
-                this.evaluate("(" + getCompletions + ")(\"" + result.type + "\")", "completion", false, true, true, false, receivedPropertyNamesFromEval.bind(this));
-        }
-
-        function receivedPropertyNamesFromEval(notRelevant, wasThrown, result)
-        {
-            if (result && !wasThrown)
-                receivedPropertyNames.call(this, result.value);
-            else
-                completionsReadyCallback([]);
+            result.getCompletions(receivedPropertyNames.bind(this));
         }
 
         function receivedPropertyNames(propertyNames)
@@ -263,6 +228,7 @@ WebInspector.RuntimeModel.prototype = {
                 completionsReadyCallback([]);
                 return;
             }
+
             var includeCommandLineAPI = (!dotNotation && !bracketNotation);
             if (includeCommandLineAPI) {
                 const commandLineAPI = ["dir", "dirxml", "keys", "values", "profile", "profileEnd", "monitorEvents", "unmonitorEvents", "inspect", "copy", "clear",
@@ -270,7 +236,7 @@ WebInspector.RuntimeModel.prototype = {
                 for (var i = 0; i < commandLineAPI.length; ++i)
                     propertyNames[commandLineAPI[i]] = true;
             }
-            this._reportCompletions(completionsReadyCallback, dotNotation, bracketNotation, expressionString, prefix, Object.keys(propertyNames));
+            this._reportCompletions(completionsReadyCallback, dotNotation, bracketNotation, expressionString, prefix, propertyNames);
         }
     },
 
@@ -351,10 +317,10 @@ WebInspector.RuntimeDispatcher.prototype = {
  * @constructor
  * @extends {WebInspector.Object}
  */
-WebInspector.ExecutionContext = function(id, name, isPageContext)
+WebInspector.ExecutionContext = function(id, name, isPageContext, scriptType)
 {
     this.id = id;
-    this.name = (isPageContext && !name) ? "<page context>" : name;
+    this.name = scriptType + " : " + ((isPageContext && !name) ? "<page context>" : name);
     this.isMainWorldContext = isPageContext;
 }
 

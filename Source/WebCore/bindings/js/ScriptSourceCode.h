@@ -54,6 +54,7 @@ public:
         : m_provider(CachedScriptSourceProvider::create(cachedScript))
         , m_code(m_provider)
         , m_cachedScript(cachedScript)
+        , m_url(m_cachedScript->url())
     {
     }
 

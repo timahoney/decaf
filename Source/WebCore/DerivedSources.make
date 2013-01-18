@@ -664,6 +664,7 @@ all : \
     $(WEB_DOM_HEADERS) \
     \
     JSJavaScriptCallFrame.h \
+    RBJavaScriptCallFrame.h \
     \
     CSSGrammar.cpp \
     CSSPropertyNames.h \
@@ -676,6 +677,7 @@ all : \
     HTMLEntityTable.cpp \
     HTMLNames.cpp \
     JSSVGElementWrapperFactory.cpp \
+    RBSVGElementWrapperFactory.cpp \
     SVGElementFactory.cpp \
     SVGNames.cpp \
     UserAgentStyleSheets.h \
@@ -876,15 +878,18 @@ ifdef HTML_FLAGS
 
 HTMLElementFactory.cpp HTMLNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm html/HTMLTagNames.in html/HTMLAttributeNames.in
 	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in --factory --wrapperFactory --extraDefines "$(HTML_FLAGS)"
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in --factory --wrapperFactoryRB --extraDefines "$(HTML_FLAGS)"
 
 else
 
 HTMLElementFactory.cpp HTMLNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm html/HTMLTagNames.in html/HTMLAttributeNames.in
 	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in --factory --wrapperFactory
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in --factory --wrapperFactoryRB
 
 endif
 
 JSHTMLElementWrapperFactory.cpp : HTMLNames.cpp
+RBHTMLElementWrapperFactory.cpp : HTMLNames.cpp
 
 XMLNSNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm xml/xmlnsattrs.in
 	perl -I $(WebCore)/bindings/scripts $< --attrs $(WebCore)/xml/xmlnsattrs.in
@@ -910,14 +915,17 @@ ifdef SVG_FLAGS
 
 SVGElementFactory.cpp SVGNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm svg/svgtags.in svg/svgattrs.in
 	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --extraDefines "$(SVG_FLAGS)" --factory --wrapperFactory
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --extraDefines "$(SVG_FLAGS)" --factory --wrapperFactoryRB
 else
 
 SVGElementFactory.cpp SVGNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm svg/svgtags.in svg/svgattrs.in
 	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --factory --wrapperFactory
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --factory --wrapperFactoryRB
 
 endif
 
 JSSVGElementWrapperFactory.cpp : SVGNames.cpp
+RBSVGElementWrapperFactory.cpp : SVGNames.cpp
 
 XLinkNames.cpp : dom/make_names.pl bindings/scripts/Hasher.pm bindings/scripts/StaticString.pm svg/xlinkattrs.in
 	perl -I $(WebCore)/bindings/scripts $< --attrs $(WebCore)/svg/xlinkattrs.in
@@ -1042,10 +1050,15 @@ all : InspectorOverlayPage.h
 InspectorOverlayPage.h : InspectorOverlayPage.html
 	perl $(WebCore)/inspector/xxd.pl InspectorOverlayPage_html $(WebCore)/inspector/InspectorOverlayPage.html InspectorOverlayPage.h
 
-all : InjectedScriptSource.h
+all : JSInjectedScriptSource.h
 
-InjectedScriptSource.h : InjectedScriptSource.js
-	perl $(WebCore)/inspector/xxd.pl InjectedScriptSource_js $(WebCore)/inspector/InjectedScriptSource.js InjectedScriptSource.h
+JSInjectedScriptSource.h : InjectedScriptSource.js
+	perl $(WebCore)/inspector/xxd.pl InjectedScriptSource_js $(WebCore)/inspector/InjectedScriptSource.js JSInjectedScriptSource.h
+
+all : RBInjectedScriptSource.h
+
+RBInjectedScriptSource.h : InjectedScriptSource.rb
+	perl $(WebCore)/inspector/xxd.pl InjectedScriptSource_rb $(WebCore)/inspector/InjectedScriptSource.rb RBInjectedScriptSource.h
 
 all : InjectedScriptCanvasModuleSource.h
 
@@ -1060,6 +1073,26 @@ CPP_BINDINGS_SCRIPTS = $(GENERATE_SCRIPTS) bindings/scripts/CodeGeneratorCPP.pm
 WebDOM%.h : %.idl $(CPP_BINDINGS_SCRIPTS)
 	$(call generator_script, $(CPP_BINDINGS_SCRIPTS)) $(IDL_COMMON_ARGS) --defines "$(FEATURE_DEFINES) $(ADDITIONAL_IDL_DEFINES) LANGUAGE_CPP" --generator CPP --supplementalDependencyFile $(SUPPLEMENTAL_DEPENDENCY_FILE) $<
 endif # BUILDING_WX
+
+# ------------------------
+
+# Ruby bindings
+
+RB_DOM_HEADERS=$(filter-out RBAbstractView.h RBMediaQueryListListener.h RBEventListener.h RBInternals.h RBInternalSettings.h RBInternalSettingsGenerated.h, $(DOM_CLASSES:%=RB%.h))
+
+all : $(RB_DOM_HEADERS)
+
+# FIXME: Right now, we use LANGUAGE_JAVASCRIPT so that we can have
+# some APIs that are only available under that flag.
+# At some point, we might want to specify a new flag that is shared between
+# JavaScript and other script types.
+RB_BINDINGS_SCRIPTS = $(GENERATE_SCRIPTS) bindings/scripts/CodeGeneratorRB.pm
+RB%.h : %.idl $(RB_BINDINGS_SCRIPTS)
+	$(call generator_script, $(RB_BINDINGS_SCRIPTS)) $(IDL_COMMON_ARGS) --defines "$(FEATURE_DEFINES) $(ADDITIONAL_IDL_DEFINES) LANGUAGE_RB LANGUAGE_JAVASCRIPT" --generator RB --supplementalDependencyFile $(SUPPLEMENTAL_DEPENDENCY_FILE) $<
+
+-include $(RB_DOM_HEADERS:.h=.dep)
+
+# ------------------------
 
 # ------------------------
 

@@ -118,8 +118,13 @@ void PageRuntimeAgent::didCreateMainWorldContext(Frame* frame)
         return;
     ASSERT(m_frontend);
     String frameId = m_pageAgent->frameId(frame);
-    ScriptState* scriptState = mainWorldScriptState(frame);
-    notifyContextCreated(frameId, scriptState, 0, true);
+    
+    ScriptTypeVector types = scriptTypeVector();
+    for (ScriptTypeVector::const_iterator it = types.begin(); it != types.end(); ++it) {
+        ScriptType type = *it;
+        ScriptState* scriptState = mainWorldScriptState(frame, type);
+        notifyContextCreated(frameId, scriptState, 0, true);
+    }
 }
 
 void PageRuntimeAgent::didCreateIsolatedContext(Frame* frame, ScriptState* scriptState, SecurityOrigin* origin)
@@ -134,7 +139,8 @@ void PageRuntimeAgent::didCreateIsolatedContext(Frame* frame, ScriptState* scrip
 InjectedScript PageRuntimeAgent::injectedScriptForEval(ErrorString* errorString, const int* executionContextId)
 {
     if (!executionContextId) {
-        ScriptState* scriptState = mainWorldScriptState(m_inspectedPage->mainFrame());
+        // FIXME: Determine the correct ScriptType from the selection in the inspector.
+        ScriptState* scriptState = mainWorldScriptState(m_inspectedPage->mainFrame(), JSScriptType);
         InjectedScript result = injectedScriptManager()->injectedScriptFor(scriptState);
         if (result.hasNoValue())
             *errorString = "Internal error: main world execution context not found.";
@@ -164,14 +170,19 @@ void PageRuntimeAgent::reportExecutionContextCreation()
             continue;
         String frameId = m_pageAgent->frameId(frame);
 
-        ScriptState* scriptState = mainWorldScriptState(frame);
-        notifyContextCreated(frameId, scriptState, 0, true);
-        frame->script()->collectIsolatedContexts(isolatedContexts);
-        if (isolatedContexts.isEmpty())
-            continue;
-        for (size_t i = 0; i< isolatedContexts.size(); i++)
-            notifyContextCreated(frameId, isolatedContexts[i].first, isolatedContexts[i].second, false);
-        isolatedContexts.clear();
+        ScriptTypeVector types = scriptTypeVector();
+        for (ScriptTypeVector::const_iterator it = types.begin(); it != types.end(); ++it) {
+            ScriptType type = *it;
+            ScriptState* scriptState = mainWorldScriptState(frame, type);
+            notifyContextCreated(frameId, scriptState, 0, true);
+
+            frame->script(type)->collectIsolatedContexts(isolatedContexts);
+            if (isolatedContexts.isEmpty())
+                continue;
+            for (size_t i = 0; i< isolatedContexts.size(); i++)
+                notifyContextCreated(frameId, isolatedContexts[i].first, isolatedContexts[i].second, false);
+            isolatedContexts.clear();
+        }
     }
 }
 
@@ -180,11 +191,13 @@ void PageRuntimeAgent::notifyContextCreated(const String& frameId, ScriptState* 
     ASSERT(securityOrigin || isPageContext);
     int executionContextId = injectedScriptManager()->injectedScriptIdFor(scriptState);
     String name = securityOrigin ? securityOrigin->toRawString() : "";
+    String type = abbreviationForScriptType(scriptState->scriptType());
     m_frontend->executionContextCreated(ExecutionContextDescription::create()
         .setId(executionContextId)
         .setIsPageContext(isPageContext)
         .setName(name)
         .setFrameId(frameId)
+        .setScriptType(type)
         .release());
 }
 

@@ -34,7 +34,7 @@
 
 #if ENABLE(INSPECTOR)
 
-#include "InjectedScriptManager.h"
+#include "JSInjectedScriptManager.h"
 
 #include "BindingSecurity.h"
 #include "ExceptionCode.h"
@@ -42,6 +42,7 @@
 #include "JSDOMWindowCustom.h"
 #include "JSInjectedScriptHost.h"
 #include "JSMainThreadExecState.h"
+#include "JSScriptState.h"
 #include "ScriptObject.h"
 #include <parser/SourceCode.h>
 #include <runtime/JSLock.h>
@@ -50,8 +51,10 @@ using namespace JSC;
 
 namespace WebCore {
 
-ScriptObject InjectedScriptManager::createInjectedScript(const String& source, ScriptState* scriptState, int id)
+ScriptObject jsCreateInjectedScript(const String& source, ScriptState* state, int id, InjectedScriptHost* host)
 {
+    JSC::ExecState* scriptState = static_cast<JSScriptState*>(state)->execState();
+    
     JSLockHolder lock(scriptState);
 
     SourceCode sourceCode = makeSource(source);
@@ -76,23 +79,25 @@ ScriptObject InjectedScriptManager::createInjectedScript(const String& source, S
         return ScriptObject();
 
     MarkedArgumentBuffer args;
-    args.append(toJS(scriptState, globalObject, m_injectedScriptHost.get()));
+    args.append(toJS(scriptState, globalObject, host));
     args.append(globalThisValue);
     args.append(jsNumber(id));
 
     JSValue result = JSC::call(scriptState, functionValue, callType, callData, globalThisValue, args);
     if (result.isObject())
-        return ScriptObject(scriptState, result.getObject());
+        return ScriptObject(state, result.getObject());
     return ScriptObject();
 }
 
-bool InjectedScriptManager::canAccessInspectedWindow(ScriptState* scriptState)
+bool jsCanAccessInspectedWindow(ScriptState* state)
 {
+    JSC::ExecState* scriptState = static_cast<JSScriptState*>(state)->execState();
+    
     JSLockHolder lock(scriptState);
     JSDOMWindow* inspectedWindow = toJSDOMWindow(scriptState->lexicalGlobalObject());
     if (!inspectedWindow)
         return false;
-    return BindingSecurity::shouldAllowAccessToDOMWindow(scriptState, inspectedWindow->impl(), DoNotReportSecurityError);
+    return BindingSecurity::shouldAllowAccessToDOMWindow(state, inspectedWindow->impl(), DoNotReportSecurityError);
 }
 
 } // namespace WebCore

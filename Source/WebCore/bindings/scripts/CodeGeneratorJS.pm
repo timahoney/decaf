@@ -2611,7 +2611,8 @@ sub GenerateCallWith
 
     my @callWithArgs;
     if ($codeGenerator->ExtendedAttributeContains($callWith, "ScriptState")) {
-        push(@callWithArgs, "exec");
+        $implIncludes{"JSScriptState.h"} = 1;
+        push(@callWithArgs, "JSScriptState::forExecState(exec)");
     }
     if ($codeGenerator->ExtendedAttributeContains($callWith, "ScriptExecutionContext")) {
         push(@$outputArray, "    ScriptExecutionContext* scriptContext = jsCast<JSDOMGlobalObject*>(exec->lexicalGlobalObject())->scriptExecutionContext();\n");
@@ -2620,9 +2621,9 @@ sub GenerateCallWith
         push(@callWithArgs, "scriptContext");
     }
     if ($function and $codeGenerator->ExtendedAttributeContains($callWith, "ScriptArguments")) {
-        push(@$outputArray, "    RefPtr<ScriptArguments> scriptArguments(createScriptArguments(exec, " . @{$function->parameters} . "));\n");
+        push(@$outputArray, "    RefPtr<ScriptArguments> scriptArguments(JSScriptCallStackFactory::createScriptArguments(exec, " . @{$function->parameters} . "));\n");
         $implIncludes{"ScriptArguments.h"} = 1;
-        $implIncludes{"ScriptCallStackFactory.h"} = 1;
+        $implIncludes{"JSScriptCallStackFactory.h"} = 1;
         push(@callWithArgs, "scriptArguments.release()");
     }
     return @callWithArgs;
