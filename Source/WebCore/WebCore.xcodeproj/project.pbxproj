@@ -699,11 +699,11 @@
 		22885E641301AE4C00526E68 /* JSDOMImplementationCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22885E631301AE4C00526E68 /* JSDOMImplementationCustom.cpp */; };
 		228C284510D82500009D0D0E /* ScriptWrappable.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C284410D82500009D0D0E /* ScriptWrappable.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2292B27C1356669400CF11EF /* ImageBufferDataCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */; };
+		22A7232F170C822D0086B67F /* libRuby.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A7232E170C822D0086B67F /* libRuby.a */; };
 		22BD9F7F1353625C009BD102 /* ImageBufferData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F7D1353625C009BD102 /* ImageBufferData.h */; };
 		22BD9F81135364FE009BD102 /* ImageBufferDataCG.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */; };
 		22C690F8170B6387004D9E73 /* RBMutationCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */; };
 		22C690F9170B6387004D9E73 /* RBMutationCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C690F7170B6383004D9E73 /* RBMutationCallback.h */; };
-		22C690FB170B7F89004D9E73 /* libRuby.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C690FA170B7F84004D9E73 /* libRuby.a */; };
 		22C690FE170B89D3004D9E73 /* RBOfflineAudioContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C690FC170B89B9004D9E73 /* RBOfflineAudioContext.cpp */; };
 		22C690FF170B89D3004D9E73 /* RBOfflineAudioContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C690FD170B89C6004D9E73 /* RBOfflineAudioContext.h */; };
 		22C69101170B8E22004D9E73 /* RBEventTargetCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C69100170B8E1F004D9E73 /* RBEventTargetCustom.cpp */; };
@@ -9379,11 +9379,11 @@
 		22885E631301AE4C00526E68 /* JSDOMImplementationCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSDOMImplementationCustom.cpp; sourceTree = "<group>"; };
 		228C284410D82500009D0D0E /* ScriptWrappable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptWrappable.h; sourceTree = "<group>"; };
 		2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageBufferDataCG.cpp; sourceTree = "<group>"; };
+		22A7232E170C822D0086B67F /* libRuby.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRuby.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		22BD9F7D1353625C009BD102 /* ImageBufferData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferData.h; sourceTree = "<group>"; };
 		22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferDataCG.h; sourceTree = "<group>"; };
 		22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBMutationCallback.cpp; sourceTree = "<group>"; };
 		22C690F7170B6383004D9E73 /* RBMutationCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBMutationCallback.h; sourceTree = "<group>"; };
-		22C690FA170B7F84004D9E73 /* libRuby.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuby.a; path = ../../WebKitBuild/Debug/libRuby.a; sourceTree = "<group>"; };
 		22C690FC170B89B9004D9E73 /* RBOfflineAudioContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBOfflineAudioContext.cpp; sourceTree = "<group>"; };
 		22C690FD170B89C6004D9E73 /* RBOfflineAudioContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBOfflineAudioContext.h; sourceTree = "<group>"; };
 		22C69100170B8E1F004D9E73 /* RBEventTargetCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBEventTargetCustom.cpp; sourceTree = "<group>"; };
@@ -17305,7 +17305,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22C690FB170B7F89004D9E73 /* libRuby.a in Frameworks */,
 				FD2DBF1212B048A300ED98C6 /* Accelerate.framework in Frameworks */,
 				93F19B1308245E59001E9ABC /* ApplicationServices.framework in Frameworks */,
 				FD2DBF1312B048A300ED98C6 /* AudioToolbox.framework in Frameworks */,
@@ -17317,6 +17316,7 @@
 				93F19B1608245E59001E9ABC /* JavaScriptCore.framework in Frameworks */,
 				93F19B1708245E59001E9ABC /* libicucore.dylib in Frameworks */,
 				1CFAE3230A6D6A3F0032593D /* libobjc.dylib in Frameworks */,
+				22A7232F170C822D0086B67F /* libRuby.a in Frameworks */,
 				DD763BB20992C2C900740B8E /* libxml2.dylib in Frameworks */,
 				379919B21200DE5000EA041C /* libz.dylib in Frameworks */,
 				49C7BA791042EFAE0009D447 /* OpenGL.framework in Frameworks */,
@@ -17450,7 +17450,7 @@
 				F8216299029F4FB501000131 /* JavaScriptCore.framework */,
 				93F1D31A0558CC5C00821BC0 /* libicucore.dylib */,
 				1CFAE3220A6D6A3F0032593D /* libobjc.dylib */,
-				22C690FA170B7F84004D9E73 /* libRuby.a */,
+				22A7232E170C822D0086B67F /* libRuby.a */,
 				DD763BB10992C2C900740B8E /* libxml2.dylib */,
 				379919B11200DE5000EA041C /* libz.dylib */,
 				49C7BA781042EFAE0009D447 /* OpenGL.framework */,
@@ -35301,6 +35301,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../WebKitBuild/Debug\"",
+					"\"$(SRCROOT)/../../WebKitBuild/Release\"",
 				);
 			};
 			name = Debug;
@@ -35313,6 +35314,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../WebKitBuild/Debug\"",
+					"\"$(SRCROOT)/../../WebKitBuild/Release\"",
 				);
 			};
 			name = Release;
@@ -35325,6 +35327,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../WebKitBuild/Debug\"",
+					"\"$(SRCROOT)/../../WebKitBuild/Release\"",
 				);
 			};
 			name = Production;

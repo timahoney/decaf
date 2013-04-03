@@ -32,6 +32,7 @@
 #include <heap/StrongInlines.h>
 #include <interpreter/CallFrame.h>
 #include <runtime/JSGlobalObject.h>
+#include <runtime/Operations.h>
 
 namespace WebCore {
     
