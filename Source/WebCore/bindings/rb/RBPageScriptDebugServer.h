@@ -33,6 +33,7 @@
 
 #include "PageScriptDebugServer.h"
 #include "RBScriptDebugServer.h"
+#include <Ruby/ruby.h>
 #include <wtf/Forward.h>
 
 namespace WebCore {
