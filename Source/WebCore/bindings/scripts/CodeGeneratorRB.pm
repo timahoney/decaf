@@ -810,7 +810,6 @@ sub RequiresVariableArguments
     my $function = shift;
 
     return 1 if CountOptionalArguments($function);
-    return 1 if $function->{overloads} and @{$function->{overloads}} > 1;
     return 1 if $codeGenerator->ExtendedAttributeContains($function->signature->extendedAttributes->{"CallWith"}, "ScriptArguments");
 
     # FIXME: Change the IDL so that it specifies these correctly.
@@ -832,6 +831,10 @@ sub RequiresVariableArguments
         return 1 if $function->signature->name eq "getFramebufferAttachmentParameter";
         return 1 if $function->signature->name eq "getParameter";
         return 1 if $function->signature->name eq "getProgramParameter";
+    }
+
+    foreach my $param (@{$function->parameters}) {
+        return 1 if $param->isVariadic;
     }
 
     return 0;
@@ -1032,7 +1035,8 @@ sub GenerateHeader
         my $numberOfParameters = @{$function->parameters};
         my $staticFunctionName = GetStaticFunctionName($functionName);
         my $functionSig;
-        if (RequiresVariableArguments($function)) {
+        my $isOverloaded = $function->{overloads} && @{$function->{overloads}} > 1;
+        if (RequiresVariableArguments($function) || $isOverloaded) {
             $numberOfParameters = -1;
             $functionSig = "    static VALUE $staticFunctionName(int argc, VALUE* argv, VALUE self)";
         } else {
@@ -1183,7 +1187,8 @@ sub GenerateFunctionImplementation
     my $optionalCount = CountOptionalArguments($function);
     my $mandatoryCount = @params - $optionalCount;
     my $hasScriptArguments = $codeGenerator->ExtendedAttributeContains($function->signature->extendedAttributes->{"CallWith"}, "ScriptArguments");
-    if ($optionalCount || $hasScriptArguments) {
+    my $hasVariableArguments = RequiresVariableArguments($function);
+    if ($hasVariableArguments) {
         $functionSig .= "(int argc, VALUE* argv, VALUE" . ($function->isStatic ? ")" : " self)");
     } else {
         $functionSig .= "(VALUE" . ($function->isStatic ? "" : " self");
@@ -1193,11 +1198,12 @@ sub GenerateFunctionImplementation
     foreach my $param (@params) {
         next if !$param->isVariadic;
         $hasVariadic = 1;
+        $mandatoryCount -= 1;
     }
 
     my $argDeclaration = "VALUE ";
     my $scanArgs = "rb_scan_args(argc, argv, \"${mandatoryCount}${optionalCount}" . ($hasVariadic ? "*\"" : "\"");
-    my $remainingParams = $mandatoryCount + $optionalCount;
+    my $remainingParams = $mandatoryCount + $optionalCount + ($hasVariadic ? 1 : 0);
     my $callbackCount = 0;
     foreach my $param (@params) {
         my $paramName = $param->name;
@@ -1243,7 +1249,7 @@ sub GenerateFunctionImplementation
         $argDeclaration .= $paramName . (!$remainingParams ? ";" : ", ");
         $scanArgs .= ", &${paramName}";
 
-        if (!$optionalCount and !$hasScriptArguments) {
+        if (!$hasVariableArguments) {
             $functionSig .= ", VALUE $paramName";
             push(@functionContent, "    $paramImplDeclaration;\n")
         } else {
@@ -1307,7 +1313,7 @@ sub GenerateFunctionImplementation
 
     if ($optionalCount || $hasScriptArguments) {
         push(@functionContent, @optionalContent);
-    } else {
+    } elsif (!$hasVariableArguments) {
         $functionSig .= ")" if !$remainingParams;
     }
 
@@ -1364,7 +1370,7 @@ sub GenerateFunctionImplementation
     push(@functionHeaderContent, "$functionSig\n");
     push(@functionHeaderContent, "{\n");
     push(@functionHeaderContent, "    $implSelfDeclaration;\n") if !$function->isStatic;
-    if (($optionalCount || $hasScriptArguments) and $mandatoryCount + $optionalCount != 0) {
+    if ($hasVariableArguments && @{$function->parameters}) {
         push(@functionHeaderContent, "    $argDeclaration\n");
         push(@functionHeaderContent, "    $scanArgs);\n");
     }
@@ -1712,9 +1718,10 @@ sub GenerateOverloadedFunction
             if ($optionalCount) {
                 $functionCall = "$overloadName(argc, argv, self)";
             }
-            push(@functionContent, "        return $functionCall;\n");
+            push(@functionContent, "        return $functionCall;\n\n");
         }
     }
+    push(@functionContent, "    rb_raise(rb_eArgError, \"Invalid arguments to ${staticFunctionName}\");\n");
     push(@functionContent, "    return Qnil;\n");
 
     my $argDeclaration = "VALUE arg0";
