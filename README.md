@@ -1,6 +1,6 @@
 # Decaf
 
-```
+```html
 <script type='text/ruby'>
     window.onload do
         introduction = document.create_element('p')
