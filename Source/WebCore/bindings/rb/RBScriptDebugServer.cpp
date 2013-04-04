@@ -53,6 +53,11 @@ RBScriptDebugServer::~RBScriptDebugServer()
 {
 }
 
+static bool isValidUrl(const String& filename)
+{
+    return filename.contains("://");
+}
+
 RBScriptCallFrame* RBScriptDebugServer::currentCallFrame() const
 {
     return static_cast<RBScriptCallFrame*>(m_currentCallFrame.get());
@@ -101,10 +106,14 @@ void RBScriptDebugServer::processEventHook(rb_event_flag_t event, VALUE data, VA
     if (!m_doProcessEvents)
         return;
 
+    // If we don't have a filename, then don't do anything here.
+    // rb_sourcefile might return '1' instead of '0'
     const char* fileName = rb_sourcefile();
+    if (!fileName || reinterpret_cast<intptr_t>(fileName) == 1)
+        return;
     intptr_t sourceID = RBDOMBinding::sourceIDFromFileName(fileName);
 
-    if (!m_parsedScriptIds.contains(sourceID)) {
+    if (!m_parsedScriptIds.contains(sourceID) && isValidUrl(fileName)) {
         if (!m_currentCallFrame)
             createCurrentCallFrame();
         
@@ -183,12 +192,14 @@ void RBScriptDebugServer::dispatchDidPause(ScriptDebugListener* listener)
 
 void RBScriptDebugServer::dispatchDidParseSource(ListenerSet& listeners, const char* fileNamePtr)
 {
+    String fileName = fileNamePtr;
+    if (!isValidUrl(fileName))
+        return;
+    
     String sourceID = String::number(RBDOMBinding::sourceIDFromFileName(fileNamePtr));
 
     ScriptDebugListener::Script script;
-    String fileName = fileNamePtr;
-    bool isValidUrl = fileName.contains("://");
-    script.url = isValidUrl ? fileName : "";
+    script.url = fileName;
     script.endLine = INT_MAX;
     script.source = sourceForScriptUrl(script.url);
     script.isContentScript = false;
