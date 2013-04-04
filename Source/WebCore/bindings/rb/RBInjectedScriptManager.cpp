@@ -43,24 +43,21 @@ namespace WebCore {
 
 ScriptObject rbCreateInjectedScript(const String& source, ScriptState* state, int id, InjectedScriptHost* host)
 {
-    static VALUE rb_cInjectedScript = Qnil;
-    if (NIL_P(rb_cInjectedScript)) {
-        rb_cInjectedScript = rb_eval_string(source.utf8().data());
-        rb_gc_register_address(&rb_cInjectedScript);
-        
-        // The user should not be able to access the InjectedScript class.
-        rb_const_remove(rb_cObject, rb_intern("InjectedScript"));
-    }
-    
-    VALUE injectedScript = rb_funcall(rb_cInjectedScript, rb_intern("new"), 0);
-    VALUE hostRB = toRB(host);
     VALUE windowRB = toRB(state->domWindow());
+    VALUE injectedScriptSource = rb_str_new2(source.utf8().data());
+    VALUE binding = rb_funcall(windowRB, rb_intern("instance_eval"), 1, rb_str_new2("binding"));
+    VALUE argv[2];
+    argv[0] = injectedScriptSource;
+    argv[1] = rb_str_new2("InjectedScriptSource.rb");
+    callFunctionProtected(binding, "eval", 2, argv);
+    VALUE injectedScript = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("InjectedScript.new"));
+    VALUE hostRB = toRB(host);
     rb_iv_set(hostRB, "@inspected_window", windowRB);
     rb_iv_set(injectedScript, "@injected_script_host", hostRB);
     rb_iv_set(injectedScript, "@inspected_window", windowRB);
     rb_iv_set(injectedScript, "@injected_script_id", toRB(id));
 
-    if (state->hadException() || NIL_P(injectedScript))
+    if (NIL_P(injectedScript))
         return ScriptObject();
     
     return ScriptObject(state, RBScriptValue::create(injectedScript));
