@@ -124,6 +124,7 @@ void PageDebuggerAgent::setOverlayMessage(ErrorString*, const String* message)
 void PageDebuggerAgent::didClearMainFrameWindowObject()
 {
     reset();
+    ALL_DEBUG_SERVERS_CALL(didClearMainFrameWindowObject());
     ALL_DEBUG_SERVERS_CALL(setScriptPreprocessor(m_pageAgent->scriptPreprocessor()));
 }
 
