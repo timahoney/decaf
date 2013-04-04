@@ -46,9 +46,12 @@ void RBScriptCallArgumentHandler::appendArgument(const ScriptValue& argument)
 static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<VALUE>& arguments, bool& hadException, bool reportExceptions)
 {
     // FIXME: Call the function within the call frame of the script state.
+    VALUE previousException = rb_errinfo();
+    rb_set_errinfo(Qnil);
     VALUE result = callFunctionProtected(object, functionName.utf8().data(), arguments.size(), arguments.data());
-    
+
     VALUE exception = rb_errinfo();
+    rb_set_errinfo(previousException);
     if (!NIL_P(exception)) {
         rb_set_errinfo(Qnil);
         if (reportExceptions) {
