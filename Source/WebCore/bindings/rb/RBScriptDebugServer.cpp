@@ -126,6 +126,11 @@ void RBScriptDebugServer::processEventHook(rb_event_flag_t event, VALUE data, VA
 
     switch (event) {
     case RUBY_EVENT_LINE: {
+        // Sometimes, RUBY_EVENT_LINE will fire multiple times for the same line.
+        // Make sure we don't pause twice on the same line.
+        // Remember that m_lastExecutedLine is zero-based and rb_sourceline() is one-based.
+        if (m_lastExecutedLine == rb_sourceline() - 1)
+            return;
         updateCurrentCallFrame();
         pauseIfNeeded();
         break;
