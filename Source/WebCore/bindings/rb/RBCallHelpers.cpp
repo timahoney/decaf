@@ -74,9 +74,12 @@ VALUE callFunctionProtected(VALUE obj, const char* functionName, long argc, cons
         rb_ary_push(callParams, argv[i]);
     
     int exception = 0;
+    rb_gc_register_address(&callParams);
     VALUE result = rb_protect(&call_protected, callParams, &exception);
+    rb_gc_unregister_address(&callParams);
     if (exception)
         printException(rb_errinfo());
+    
     return result;
 }
 
