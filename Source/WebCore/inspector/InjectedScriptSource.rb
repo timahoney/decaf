@@ -324,7 +324,8 @@ class InjectedScript
       descriptors.concat(dom_attributes)
     end
 
-    ivars = object.instance_variables.map do |name|
+    ivar_names = object.instance_variables.select { |name| name.to_s != '@dom_binding_attributes' }
+    ivars = ivar_names.map do |name|
       {
         :name         => name,
         :value        => object.instance_variable_get(name),
@@ -401,7 +402,6 @@ class InjectedScript
   alias_method :callFunctionOn, :call_function_on
 
   def _evaluate_and_wrap(eval_function, object, expression, object_group, is_eval_on_call_frame, inject_command_line_api, return_by_value, generate_preview)
-    # FIXME: Remove "object" argument.
     begin
       result = _evaluate_on(eval_function, object, object_group, expression, is_eval_on_call_frame, inject_command_line_api)
       return { 
@@ -700,7 +700,8 @@ class InjectedScript
         end
 
         name = object.instance_variables[i]
-        next if (@subtype == "array" && name == "@length")
+        next if (name.to_s == "@dom_binding_attributes")
+        next if (@subtype == "array" && name.to_s == "@length")
 
         value = object.instance_variable_get(name)
         property = _generate_descriptor(name, value, injected_script)
@@ -713,6 +714,9 @@ class InjectedScript
           @preview[:lossless] = false
           break
         end
+
+        next if method_name == :dom_binding_attributes 
+        next if method_name == :add_dom_binding_attribute
 
         property = { :name => method_name, :type => "function" }
         @preview[:properties].push(property)
