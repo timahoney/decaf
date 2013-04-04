@@ -27,16 +27,31 @@
 #include "RBInitializationCustom.h"
 
 #include "RBArrayBufferCustom.h"
+#include "RBConverters.h"
 #include "RBDataViewCustom.h"
 #include "RBMessagePortCustom.h"
+#include "RBWorker.h"
 
 namespace WebCore {
+
+extern "C" VALUE unimplemented(VALUE);
 
 void RBInitializationCustom::initializeCustomRubyClasses()
 {
     RBArrayBufferCustom::Init_ArrayBufferCustom();
     RBDataViewCustom::Init_DataViewCustom();
     RBMessagePortCustom::Init_MessagePortCustom();
+    
+    // Workers aren't implemented yet.
+    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(unimplemented), 0);
+}
+
+VALUE unimplemented(VALUE self)
+{
+    rb_raise(rb_eNotImpError,
+             "%s.%s is not implemented in Decaf at the moment.",
+             rbToString(self).utf8().data(),
+             rb_id2name(rb_frame_this_func()));
 }
 
 } // namespace WebCore
