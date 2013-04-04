@@ -59,24 +59,7 @@ class ScriptValue;
 class JSScriptDebugServer : protected JSC::Debugger, public virtual ScriptDebugServer {
     WTF_MAKE_NONCOPYABLE(JSScriptDebugServer); WTF_MAKE_FAST_ALLOCATED;
 public:
-    // virtual String setBreakpoint(const String& sourceID, const ScriptBreakpoint&, int* actualLineNumber, int* actualColumnNumber);
-    // virtual void removeBreakpoint(const String& breakpointId);
-    // virtual void clearBreakpoints();
-    // virtual void setBreakpointsActivated(bool activated);
-
-    // virtual PauseOnExceptionsState pauseOnExceptionsState() const { return m_pauseOnExceptionsState; }
-    // virtual void setPauseOnExceptionsState(PauseOnExceptionsState);
-
-    // virtual void setPauseOnNextStatement(bool pause);
-    // virtual void breakProgram();
-    // virtual void continueProgram();
-    // virtual void stepIntoStatement();
-    // virtual void stepOverStatement();
-    // virtual void stepOutOfFunction();
-    
     virtual void attach(JSC::JSGlobalObject*);
-
-    // virtual bool isPaused() { return m_paused; }
 
 protected:
     
