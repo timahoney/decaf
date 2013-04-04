@@ -98,6 +98,7 @@ ScriptValue RBScriptController::evaluate(const ScriptSourceCode& source)
 
     VALUE exception = rb_errinfo();
     if (!NIL_P(exception)) {
+        rb_set_errinfo(Qnil);
         RBDOMBinding::reportException(frame()->document(), exception);
         return ScriptValue();
     }

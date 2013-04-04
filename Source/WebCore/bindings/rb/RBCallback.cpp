@@ -57,8 +57,10 @@ VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int a
     VALUE result = callFunctionProtected(m_proc, "call", argc, argv);
 
     VALUE exception = rb_errinfo();
-    if (!NIL_P(exception))
+    if (!NIL_P(exception)) {
+        rb_set_errinfo(Qnil);
         RBDOMBinding::reportException(scriptExecutionContext, exception);
+    }
 
     return result;
 }
