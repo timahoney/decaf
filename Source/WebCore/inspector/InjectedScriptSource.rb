@@ -708,18 +708,22 @@ class InjectedScript
         @preview[:properties].push(property)
       end
 
-      object.public_methods(false).each do |method_name|
-        if (@preview[:properties].length >= elements_to_dump)
-          @preview[:overflow] = true
-          @preview[:lossless] = false
-          break
+      if (object.class.respond_to? :dom_binding_attributes)
+        object.class.dom_binding_attributes.each do |name|
+          if (@preview[:properties].length >= elements_to_dump)
+            @preview[:overflow] = true
+            @preview[:lossless] = false
+            break
+          end
+
+          begin
+            value = object.method(name).call
+            property = _generate_descriptor(name, value, injected_script)
+            @preview[:properties].push(property)
+          rescue
+            next
+          end
         end
-
-        next if method_name == :dom_binding_attributes 
-        next if method_name == :add_dom_binding_attribute
-
-        property = { :name => method_name, :type => "function" }
-        @preview[:properties].push(property)
       end
     end
 
