@@ -30,21 +30,30 @@
 
 namespace RB {
 
+void undefineClassesGlobalsMethods();
+
 void ensureRubySecurity()
+{
+    undefineClassesGlobalsMethods();
+    
+    // FIXME: Should we set a higher safe level?
+    // Once we do so, we have to change some things.
+    rb_set_safe_level(2);
+}
+
+void undefineClassesGlobalsMethods()
 {
     // This is an ongoing list of classes and methods that are
     // unsafe to run from the browser. We want to disable them all.
-
+    
     // FIXME: Make sure we catch everything.
-
+    
     // FIXME: Right now, we undefine global hooked and virtual variables
     // by redefining them to be nothing. However, this means that they cannot
     // be used by the user. For example, we'll redefine $?, but then the user
-    // can never use the $? variable. This is kind of alright, but it would 
+    // can never use the $? variable. This is kind of alright, but it would
     // be nicer to just remove the global entirely so it can be reused.
-
-    // FIXME: Should we be using the $SAFE level as well?
-
+    
     // process.c
     rb_const_remove(rb_cObject, rb_intern("Process"));
     rb_undef_method(rb_mKernel, "exec");
@@ -58,11 +67,11 @@ void ensureRubySecurity()
     rb_undef_method(rb_mKernel, "abort");
     rb_define_virtual_variable("$?", 0, 0);
     rb_define_virtual_variable("$$", 0, 0);
-
+    
     // file.c
     rb_const_remove(rb_cObject, rb_intern("File"));
     rb_undef_method(rb_mKernel, "test");
-
+    
     // io.c
     rb_const_remove(rb_cObject, rb_intern("IO"));
     rb_undef_method(rb_mKernel, "syscall");
@@ -100,7 +109,7 @@ void ensureRubySecurity()
     rb_define_virtual_variable("$stdout", 0, 0);
     rb_define_virtual_variable("$stderr", 0, 0);
     rb_define_virtual_variable("$>", 0, 0);
-
+    
     // load.c
     rb_define_virtual_variable("$:", 0, 0);
     rb_define_virtual_variable("$-I", 0, 0);
@@ -114,7 +123,7 @@ void ensureRubySecurity()
     rb_undef_method(rb_cModule, "autoload?");
     rb_undef_method(rb_mKernel, "autoload");
     rb_undef_method(rb_mKernel, "autoload?");
-
+    
     // ruby.c
     rb_define_virtual_variable("$VERBOSE", 0, 0);
     rb_define_virtual_variable("$-v", 0, 0);
@@ -129,24 +138,24 @@ void ensureRubySecurity()
     rb_define_virtual_variable("$-p", 0, 0);
     rb_define_virtual_variable("$-l", 0, 0);
     rb_define_virtual_variable("$-a", 0, 0);
-
+    
     // error.c
     rb_undef_method(rb_mKernel, "warn");
-
+    
     // signal.c
     rb_const_remove(rb_cObject, rb_intern("Signal"));
     rb_undef_method(rb_mKernel, "trap");
-
+    
     // eval_jump.c
     rb_undef_method(rb_mKernel, "at_exit");
-
+    
     // vm_trace.c
     rb_undef_method(rb_mKernel, "set_trace_func");
     rb_undef_method(rb_mKernel, "add_trace_func");
-
+    
     // vm.c
     rb_const_remove(rb_cObject, rb_intern("TOPLEVEL_BINDING"));
-
+    
     // gc.c
     VALUE rb_mObSpace = rb_const_get(rb_cObject, rb_intern("ObjectSpace"));
     rb_undef_method(rb_mObSpace, "each_object");
