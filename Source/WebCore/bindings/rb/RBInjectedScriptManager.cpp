@@ -43,12 +43,16 @@ namespace WebCore {
 
 ScriptObject rbCreateInjectedScript(const String& source, ScriptState* state, int id, InjectedScriptHost* host)
 {
-    VALUE windowRB = toRB(state->domWindow());
-    VALUE injectedScriptSource = rb_str_new2(source.utf8().data());
-    VALUE binding = rb_funcall(windowRB, rb_intern("instance_eval"), 1, rb_str_new2("binding"));
-    rb_funcall(binding, rb_intern("eval"), 2, injectedScriptSource, rb_str_new2("InjectedScriptSource.rb"));
-    VALUE injectedScript = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("InjectedScript.new"));
+    static VALUE rb_cInjectedScript = Qnil;
+    if (NIL_P(rb_cInjectedScript)) {
+        rb_cInjectedScript = rb_eval_string(source.utf8().data());
+        rb_gc_register_address(&rb_cInjectedScript);
+        rb_const_remove(rb_cObject, rb_intern("InjectedScript"));
+    }
+    
+    VALUE injectedScript = rb_funcall(rb_cInjectedScript, rb_intern("new"), 0);
     VALUE hostRB = toRB(host);
+    VALUE windowRB = toRB(state->domWindow());
     rb_iv_set(hostRB, "@inspected_window", windowRB);
     rb_iv_set(injectedScript, "@injected_script_host", hostRB);
     rb_iv_set(injectedScript, "@inspected_window", windowRB);
