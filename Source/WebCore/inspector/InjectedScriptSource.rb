@@ -618,7 +618,7 @@ class InjectedScript
       end
 
       if (object.is_a? Symbol)
-        @value = object.id
+        @value = object.object_id
         @description = object.inspect
         return
       end
