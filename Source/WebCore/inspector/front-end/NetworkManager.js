@@ -86,6 +86,7 @@ WebInspector.NetworkManager._MIMETypes = {
     "text/javascript1.3":          {"script": true},
     "text/jscript":                {"script": true},
     "text/livescript":             {"script": true},
+    "text/ruby":                   {"script": true},
 }
 
 WebInspector.NetworkManager.prototype = {
