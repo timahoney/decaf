@@ -91,6 +91,8 @@ void RBScriptDebugServer::updateCurrentCallFrame()
 
 void RBScriptDebugServer::processEventHook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
 {
+    // FIXME: At some point, we should switch over to the new TracePoint API.
+    
     UNUSED_PARAM(self);
     UNUSED_PARAM(klass);
     UNUSED_PARAM(data);
