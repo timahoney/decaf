@@ -47,6 +47,8 @@ ScriptObject rbCreateInjectedScript(const String& source, ScriptState* state, in
     if (NIL_P(rb_cInjectedScript)) {
         rb_cInjectedScript = rb_eval_string(source.utf8().data());
         rb_gc_register_address(&rb_cInjectedScript);
+        
+        // The user should not be able to access the InjectedScript class.
         rb_const_remove(rb_cObject, rb_intern("InjectedScript"));
     }
     
