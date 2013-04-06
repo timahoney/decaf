@@ -1,6 +1,6 @@
 # Decaf
 
-**Decaf** is a modification of WebKit that runs Ruby in the browser. You can access the DOM, use the inspector, and do most other things that JavaScript can do. For now, it only builds on the Mac. You can [download a binary](http://trydecaf.org/latest) or you can [build it yourself](http://www.webkit.org/building/build.html).
+**Decaf** is a modification of WebKit that runs Ruby in the browser. You can access the DOM, use the inspector, and do most other things that JavaScript can do. For now, it only builds on the Mac. You can [download a binary](http://trydecaf.org/latest?utm_source=github) or you can [build it yourself](http://www.webkit.org/building/build.html).
 
 ```html
 <script type='text/ruby'>
