@@ -27,19 +27,23 @@
 
 int main(int argc, char *argv[])
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     // We want to force the MiniBrowser to use the bundled
     // WebCore and WebKit. We can do this with DYLD_FRAMEWORK_PATH.
     NSString *frameworkPath = [[NSBundle mainBundle] privateFrameworksPath];
     NSString *miniBrowserPath = [[NSBundle mainBundle] pathForResource:@"Decaf" ofType:@"app"];
     NSBundle *miniBrowserBundle = [NSBundle bundleWithPath:miniBrowserPath];
     
-    NSMutableDictionary *environment = [[NSDictionary dictionaryWithObjectsAndKeys:
+    NSMutableDictionary *environment = [[[NSDictionary dictionaryWithObjectsAndKeys:
                                          frameworkPath, @"DYLD_FRAMEWORK_PATH",
-                                         @"YES", @"WEBKIT_UNSET_DYLD_FRAMEWORK_PATH", nil] mutableCopy];
+                                         @"YES", @"WEBKIT_UNSET_DYLD_FRAMEWORK_PATH", nil] mutableCopy] autorelease];
     [environment addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
     
     NSDictionary *configuration = [NSDictionary dictionaryWithObject:environment forKey:NSWorkspaceLaunchConfigurationEnvironment];
     NSURL *executableURL = [NSURL fileURLWithPath:[miniBrowserBundle executablePath]];
     [[NSWorkspace sharedWorkspace] launchApplicationAtURL:executableURL options:0 configuration:configuration error:0];
+    
+    [pool release];
     return 0;
 }

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		224D2821170F9AFB0005FE8F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2820170F9AFB0005FE8F /* Cocoa.framework */; };
 		224D282D170F9AFB0005FE8F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 224D282C170F9AFB0005FE8F /* main.m */; };
-		224D284D170F9C600005FE8F /* MiniBrowser.app in Copy MiniBrowser */ = {isa = PBXBuildFile; fileRef = 224D284C170F9C600005FE8F /* MiniBrowser.app */; };
 		224D2854170FA2870005FE8F /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2851170FA2870005FE8F /* WebKit.framework */; };
 		224D285A170FA2FA0005FE8F /* WebKit2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2859170FA2FA0005FE8F /* WebKit2.framework */; };
 		224D2863170FA42D0005FE8F /* JavaScriptCore.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D284F170FA2870005FE8F /* JavaScriptCore.framework */; };
@@ -17,20 +16,10 @@
 		224D2865170FA42D0005FE8F /* WebKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2851170FA2870005FE8F /* WebKit.framework */; };
 		224D2866170FA42D0005FE8F /* WebKit2.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2859170FA2FA0005FE8F /* WebKit2.framework */; };
 		224D286A170FADB50005FE8F /* decaf.icns in Resources */ = {isa = PBXBuildFile; fileRef = 224D2869170FADB50005FE8F /* decaf.icns */; };
+		22C44BE217108381001DD9B0 /* MiniBrowser.app in Resources */ = {isa = PBXBuildFile; fileRef = 22C44BE117108381001DD9B0 /* MiniBrowser.app */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		224D284B170F9C4E0005FE8F /* Copy MiniBrowser */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				224D284D170F9C600005FE8F /* MiniBrowser.app in Copy MiniBrowser */,
-			);
-			name = "Copy MiniBrowser";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		224D2862170FA4250005FE8F /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -52,12 +41,13 @@
 		224D2820170F9AFB0005FE8F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		224D2828170F9AFB0005FE8F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		224D282C170F9AFB0005FE8F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		224D284C170F9C600005FE8F /* MiniBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = MiniBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D284F170FA2870005FE8F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = JavaScriptCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D2850170FA2870005FE8F /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D2851170FA2870005FE8F /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D2859170FA2FA0005FE8F /* WebKit2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		224D2869170FADB50005FE8F /* decaf.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = decaf.icns; sourceTree = "<group>"; };
+		22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Decaf.xcconfig; sourceTree = "<group>"; };
+		22C44BE117108381001DD9B0 /* MiniBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = MiniBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +67,7 @@
 		224D2814170F9AFB0005FE8F = {
 			isa = PBXGroup;
 			children = (
+				22C44BDC171078CA001DD9B0 /* Configurations */,
 				224D2826170F9AFB0005FE8F /* Source */,
 				224D284E170F9C770005FE8F /* Resources */,
 				224D281F170F9AFB0005FE8F /* Frameworks */,
@@ -115,11 +106,19 @@
 		224D284E170F9C770005FE8F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				224D2828170F9AFB0005FE8F /* Info.plist */,
 				224D2869170FADB50005FE8F /* decaf.icns */,
-				224D284C170F9C600005FE8F /* MiniBrowser.app */,
+				224D2828170F9AFB0005FE8F /* Info.plist */,
+				22C44BE117108381001DD9B0 /* MiniBrowser.app */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		22C44BDC171078CA001DD9B0 /* Configurations */ = {
+			isa = PBXGroup;
+			children = (
+				22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */,
+			);
+			name = Configurations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -132,7 +131,6 @@
 				224D2819170F9AFB0005FE8F /* Sources */,
 				224D281A170F9AFB0005FE8F /* Frameworks */,
 				224D281B170F9AFB0005FE8F /* Resources */,
-				224D284B170F9C4E0005FE8F /* Copy MiniBrowser */,
 				224D2888170FB9D30005FE8F /* Set MiniBrowser Name and Icon */,
 				224D2862170FA4250005FE8F /* Copy Frameworks */,
 			);
@@ -177,6 +175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				224D286A170FADB50005FE8F /* decaf.icns in Resources */,
+				22C44BE217108381001DD9B0 /* MiniBrowser.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,12 +212,12 @@
 /* Begin XCBuildConfiguration section */
 		224D2838170F9AFB0005FE8F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -238,20 +237,19 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
 		224D2839170F9AFB0005FE8F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -265,13 +263,14 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				SDKROOT = macosx;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = "";
 			};
 			name = Release;
 		};
 		224D283B170F9AFB0005FE8F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -288,6 +287,7 @@
 		};
 		224D283C170F9AFB0005FE8F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 22C44BDD171078ED001DD9B0 /* Decaf.xcconfig */;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
