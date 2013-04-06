@@ -1,0 +1,329 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		224D2821170F9AFB0005FE8F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2820170F9AFB0005FE8F /* Cocoa.framework */; };
+		224D282D170F9AFB0005FE8F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 224D282C170F9AFB0005FE8F /* main.m */; };
+		224D284D170F9C600005FE8F /* MiniBrowser.app in Copy MiniBrowser */ = {isa = PBXBuildFile; fileRef = 224D284C170F9C600005FE8F /* MiniBrowser.app */; };
+		224D2854170FA2870005FE8F /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2851170FA2870005FE8F /* WebKit.framework */; };
+		224D285A170FA2FA0005FE8F /* WebKit2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2859170FA2FA0005FE8F /* WebKit2.framework */; };
+		224D2863170FA42D0005FE8F /* JavaScriptCore.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D284F170FA2870005FE8F /* JavaScriptCore.framework */; };
+		224D2864170FA42D0005FE8F /* WebCore.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2850170FA2870005FE8F /* WebCore.framework */; };
+		224D2865170FA42D0005FE8F /* WebKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2851170FA2870005FE8F /* WebKit.framework */; };
+		224D2866170FA42D0005FE8F /* WebKit2.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 224D2859170FA2FA0005FE8F /* WebKit2.framework */; };
+		224D286A170FADB50005FE8F /* decaf.icns in Resources */ = {isa = PBXBuildFile; fileRef = 224D2869170FADB50005FE8F /* decaf.icns */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		224D284B170F9C4E0005FE8F /* Copy MiniBrowser */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				224D284D170F9C600005FE8F /* MiniBrowser.app in Copy MiniBrowser */,
+			);
+			name = "Copy MiniBrowser";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224D2862170FA4250005FE8F /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				224D2863170FA42D0005FE8F /* JavaScriptCore.framework in Copy Frameworks */,
+				224D2864170FA42D0005FE8F /* WebCore.framework in Copy Frameworks */,
+				224D2865170FA42D0005FE8F /* WebKit.framework in Copy Frameworks */,
+				224D2866170FA42D0005FE8F /* WebKit2.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		224D281D170F9AFB0005FE8F /* Decaf.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Decaf.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D2820170F9AFB0005FE8F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		224D2828170F9AFB0005FE8F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		224D282C170F9AFB0005FE8F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		224D284C170F9C600005FE8F /* MiniBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = MiniBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D284F170FA2870005FE8F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = JavaScriptCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D2850170FA2870005FE8F /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D2851170FA2870005FE8F /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D2859170FA2FA0005FE8F /* WebKit2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		224D2869170FADB50005FE8F /* decaf.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = decaf.icns; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		224D281A170F9AFB0005FE8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D285A170FA2FA0005FE8F /* WebKit2.framework in Frameworks */,
+				224D2854170FA2870005FE8F /* WebKit.framework in Frameworks */,
+				224D2821170F9AFB0005FE8F /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		224D2814170F9AFB0005FE8F = {
+			isa = PBXGroup;
+			children = (
+				224D2826170F9AFB0005FE8F /* Source */,
+				224D284E170F9C770005FE8F /* Resources */,
+				224D281F170F9AFB0005FE8F /* Frameworks */,
+				224D281E170F9AFB0005FE8F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		224D281E170F9AFB0005FE8F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				224D281D170F9AFB0005FE8F /* Decaf.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		224D281F170F9AFB0005FE8F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				224D2820170F9AFB0005FE8F /* Cocoa.framework */,
+				224D284F170FA2870005FE8F /* JavaScriptCore.framework */,
+				224D2850170FA2870005FE8F /* WebCore.framework */,
+				224D2851170FA2870005FE8F /* WebKit.framework */,
+				224D2859170FA2FA0005FE8F /* WebKit2.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		224D2826170F9AFB0005FE8F /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				224D282C170F9AFB0005FE8F /* main.m */,
+			);
+			name = Source;
+			sourceTree = SOURCE_ROOT;
+		};
+		224D284E170F9C770005FE8F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				224D2828170F9AFB0005FE8F /* Info.plist */,
+				224D2869170FADB50005FE8F /* decaf.icns */,
+				224D284C170F9C600005FE8F /* MiniBrowser.app */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		224D281C170F9AFB0005FE8F /* Decaf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224D283A170F9AFB0005FE8F /* Build configuration list for PBXNativeTarget "Decaf" */;
+			buildPhases = (
+				224D2819170F9AFB0005FE8F /* Sources */,
+				224D281A170F9AFB0005FE8F /* Frameworks */,
+				224D281B170F9AFB0005FE8F /* Resources */,
+				224D284B170F9C4E0005FE8F /* Copy MiniBrowser */,
+				224D2888170FB9D30005FE8F /* Set MiniBrowser Name and Icon */,
+				224D2862170FA4250005FE8F /* Copy Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Decaf;
+			productName = Decaf;
+			productReference = 224D281D170F9AFB0005FE8F /* Decaf.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		224D2815170F9AFB0005FE8F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Tim Mahoney";
+			};
+			buildConfigurationList = 224D2818170F9AFB0005FE8F /* Build configuration list for PBXProject "Decaf" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 224D2814170F9AFB0005FE8F;
+			productRefGroup = 224D281E170F9AFB0005FE8F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				224D281C170F9AFB0005FE8F /* Decaf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		224D281B170F9AFB0005FE8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D286A170FADB50005FE8F /* decaf.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		224D2888170FB9D30005FE8F /* Set MiniBrowser Name and Icon */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Set MiniBrowser Name and Icon";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "RESOURCES_PATH=\"${BUILT_PRODUCTS_DIR}\"/\"${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\ncd \"${RESOURCES_PATH}\"\ncp ./decaf.icns ./MiniBrowser.app/Contents/Resources/\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Add :CFBundleIconFile string decaf\"\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Set :CFBundleName Decaf\"\nmv ./MiniBrowser.app ./Decaf.app";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		224D2819170F9AFB0005FE8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224D282D170F9AFB0005FE8F /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		224D2838170F9AFB0005FE8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		224D2839170F9AFB0005FE8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		224D283B170F9AFB0005FE8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../WebKitBuild/Debug\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		224D283C170F9AFB0005FE8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../WebKitBuild/Debug\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		224D2818170F9AFB0005FE8F /* Build configuration list for PBXProject "Decaf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224D2838170F9AFB0005FE8F /* Debug */,
+				224D2839170F9AFB0005FE8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		224D283A170F9AFB0005FE8F /* Build configuration list for PBXNativeTarget "Decaf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224D283B170F9AFB0005FE8F /* Debug */,
+				224D283C170F9AFB0005FE8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 224D2815170F9AFB0005FE8F /* Project object */;
+}
