@@ -18,7 +18,7 @@ There are a few major differences in the DOM API for Ruby.
 
 - Methods and attributes are specified in `underscore_case` instead of `camelCase`.
 - The `window` variable is accessible from only the top-most scope. Elsewhere you can use the global `$window`.
-- Ruby accepts a `Proc` or a block for anonymous functions. For example:
+- Ruby accepts a `Proc` or a block for callbacks and listeners. For example:
 
 ```ruby
 # Ruby with explicit Procs
