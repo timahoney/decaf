@@ -32,7 +32,7 @@
 #import <WebKit2/WKStringCF.h>
 #import <WebKit2/WKURLCF.h>
 
-static NSString *defaultURL = @"http://www.webkit.org/";
+static NSString *defaultURL = @"http://trydecaf.org/sample";
 
 enum {
     WebKit1NewWindowTag = 1,
