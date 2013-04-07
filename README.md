@@ -12,10 +12,13 @@
 </script>
 ```
 
-Run a Ruby script on a page using `<script type=‘text/ruby’>`. The DOM API will be in `underscore_case` instead of `camelCase`.
+## Differences from JavaScript
 
-### Callbacks and listeners
-The DOM API uses anonymous functions for callbacks and listeners. In Ruby, we use a `Proc` or a block.
+There are a few major differences in the DOM API for Ruby.
+
+- Methods and attributes are specified in `underscore_case` instead of `camelCase`.
+- The `window` variable is accessible from only the top-most scope. Elsewhere you can use the global `$window`.
+- Ruby accepts a `Proc` or a block for anonymous functions. For example:
 
 ```ruby
 # Ruby with explicit Procs
@@ -30,10 +33,6 @@ $window.onload do |event|
   console.log('The window loaded.')
 end
 ```
-
-### The `window` object
-
-In JavaScript, you can access `window` from mostly anywhere. In Ruby, use the global `$window` object. You can access the plain `window` object from the top-most scope, but everywhere else requires you to use the global.
 
 ## Warning
 This is a work in progress. Please report any issues you find.
