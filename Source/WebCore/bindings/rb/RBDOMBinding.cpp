@@ -191,4 +191,23 @@ intptr_t RBDOMBinding::sourceIDFromFileName(const char* fileName)
     return id;
 }
 
+typedef HashMap<DOMWindow*, RBScriptState*> RBWindowToGlobalStateMap;
+static RBWindowToGlobalStateMap* windowGlobalStates;
+
+RBScriptState* RBDOMBinding::globalScriptState(RBScriptState* state)
+{
+    if (!windowGlobalStates)
+        windowGlobalStates = new RBWindowToGlobalStateMap();
+    
+    DOMWindow* window = state->domWindow();
+    RBScriptState* globalState = windowGlobalStates->get(window);
+    if (!globalState) {
+        VALUE binding = bindingFromWindow(window);
+        globalState = RBScriptState::forBinding(binding);
+        windowGlobalStates->set(window, globalState);
+    }
+    
+    return globalState;
+}
+
 } // namespace WebCore

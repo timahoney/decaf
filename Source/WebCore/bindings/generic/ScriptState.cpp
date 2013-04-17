@@ -27,6 +27,7 @@
 #include "ScriptState.h"
 
 #include "JSScriptState.h"
+#include "RBDOMBinding.h"
 #include "RBScriptState.h"
 #include <heap/Strong.h>
 #include <heap/StrongInlines.h>
@@ -55,7 +56,7 @@ static ScriptState* getScriptStateForProtectedPtr(ScriptState* scriptState)
         }
             
         case RBScriptType:
-            return scriptState;
+            return RBDOMBinding::globalScriptState(static_cast<RBScriptState*>(scriptState));
     }
 }
 

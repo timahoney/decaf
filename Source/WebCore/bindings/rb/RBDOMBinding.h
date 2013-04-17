@@ -50,6 +50,9 @@ public:
     static VALUE bindingFromWindow(DOMWindow*);
 
     static intptr_t sourceIDFromFileName(const char* fileName);
+    
+    // Finds the global script state for another state.
+    static RBScriptState* globalScriptState(RBScriptState*);
 
 private:
     static DOMWindow* windowFromModule(VALUE module);
