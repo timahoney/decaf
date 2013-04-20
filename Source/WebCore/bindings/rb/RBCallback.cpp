@@ -54,6 +54,12 @@ VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int a
     if (NIL_P(m_proc))
         return Qnil;
     
+    // FIXME: Right now, a Proc can take less than
+    // the number of arguments called here, but a Method
+    // will crash. For example, window.onload = Proc.new {} works,
+    // but window.onload = method(:a) will crash if 'a' takes no arguments.
+    // Do we want to allow Methods to specify less arguments?
+    
     VALUE result = callFunctionProtected(m_proc, "call", argc, argv);
 
     VALUE exception = rb_errinfo();
