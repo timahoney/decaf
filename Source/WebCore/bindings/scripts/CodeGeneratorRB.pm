@@ -938,9 +938,9 @@ sub GenerateHeader
     my $customConstructor = $dataNode->extendedAttributes->{"CustomConstructor"};
     my $constructorTemplate = $dataNode->extendedAttributes->{"ConstructorTemplate"};
     if ($constructorTemplate and $constructorTemplate eq "Event") {
-        push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), 2);\n\n");
+        push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), -1);\n\n");
         push(@headerContent, "    static void fillEventInit(${interfaceName}Init&, VALUE options);\n");
-        push(@headerContent, "    static VALUE rb_new(VALUE self, VALUE type, VALUE options);\n");
+        push(@headerContent, "    static VALUE rb_new(int argc, VALUE* argv, VALUE self);\n");
     } elsif ($constructorTemplate and $constructorTemplate eq "TypedArray") {
         push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), -1);\n\n");
         push(@headerContent, "    static VALUE rb_new(int argc, VALUE* argv, VALUE self);\n");
@@ -1523,19 +1523,28 @@ sub GenerateEventConstructorImplementation
     my @constructorContent = ();
 
     # Constructor
-    push(@constructorContent, "VALUE ${className}::rb_new(VALUE, VALUE type, VALUE options)\n");
+    push(@constructorContent, "VALUE ${className}::rb_new(int argc, VALUE* argv, VALUE)\n");
     push(@constructorContent, "{\n");
+    push(@constructorContent, "    VALUE type, options;\n");
+    push(@constructorContent, "    rb_scan_args(argc, argv, \"11\", &type, &options);\n\n");
     push(@constructorContent, "    ${interfaceName}Init eventInit;\n");
     push(@constructorContent, "    fillEventInit(eventInit, options);\n");
-    push(@constructorContent, "    return toRB(${interfaceName}::create(StringValueCStr(type), eventInit));\n");
+    push(@constructorContent, "    String typeString = rbToString(type);\n");
+    push(@constructorContent, "    return toRB(${interfaceName}::create(typeString, eventInit));\n");
     push(@constructorContent, "}\n\n");
 
     # EventInit filler
     push(@constructorContent, "void RB${interfaceName}::fillEventInit(${interfaceName}Init& eventInit, VALUE options)\n");
     push(@constructorContent, "{\n");
+    push(@constructorContent, "    if (NIL_P(options))\n");
+    push(@constructorContent, "        return;\n\n");
+
     foreach my $interfaceBase (@{$dataNode->parents}) {
         push(@constructorContent, "    RB${interfaceBase}::fillEventInit(eventInit, options);\n");
     }
+    push(@constructorContent, "\n") if @{$dataNode->parents};
+    
+
     foreach my $attribute (@{$dataNode->attributes}) {
         if ($attribute->signature->extendedAttributes->{"InitializedByEventConstructor"}) {
             my $attributeName = $attribute->signature->name;
