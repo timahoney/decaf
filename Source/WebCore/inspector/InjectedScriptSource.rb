@@ -538,6 +538,7 @@ class InjectedScript
     return nil if is_primitive_value(obj)
 
     return ":#{obj.to_s}" if obj.is_a? Symbol
+    return obj.name if obj.is_a? Module
 
     subtype = _subtype(obj)
     return obj.to_s if subtype == "regexp"

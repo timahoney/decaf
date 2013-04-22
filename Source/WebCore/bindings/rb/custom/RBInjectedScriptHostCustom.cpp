@@ -76,8 +76,8 @@ VALUE RBInjectedScriptHost::internal_constructor_name(VALUE, VALUE object)
     if (NIL_P(object))
         return Qnil;
 
-    VALUE klass = CLASS_OF(object);
-    VALUE klassName = rb_funcall(klass, rb_intern("name"), 0);
+    VALUE klass = rb_funcall(object, rb_intern("class"), 0);
+    VALUE klassName = rb_funcall(klass, rb_intern("name"), 0);    
     String className = rbToString(klassName);
     return rb_str_new2(className.utf8().data());
 }
