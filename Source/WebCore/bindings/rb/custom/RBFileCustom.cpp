@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Tim Mahoney (tim.mahoney@me.com)
+ * Copyright (C) 2013 Tim Mahoney (tim.mahoney@me.com)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,38 +24,43 @@
  */
 
 #include "config.h"
-#include "RBInitializationCustom.h"
+#include "RBFile.h"
 
-#include "RBArrayBufferCustom.h"
-#include "RBBlobCustom.h"
+#include "File.h"
 #include "RBConverters.h"
-#include "RBDataViewCustom.h"
 #include "RBFileCustom.h"
-#include "RBMessagePortCustom.h"
-#include "RBWorker.h"
 
 namespace WebCore {
 
-extern "C" VALUE unimplemented(VALUE);
-
-void RBInitializationCustom::initializeCustomRubyClasses()
+VALUE RBFileCustom::marshal_load(VALUE, VALUE data)
 {
-    RBArrayBufferCustom::Init_ArrayBufferCustom();
-    RBBlobCustom::Init_BlobCustom();
-    RBDataViewCustom::Init_DataViewCustom();
-    RBFileCustom::Init_FileCustom();
-    RBMessagePortCustom::Init_MessagePortCustom();
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    VALUE values = rb_funcall(rb_mMarshal, rb_intern("load"), 1, data);
     
-    // Workers aren't implemented yet.
-    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(unimplemented), 0);
+    String path = rbToString(rb_ary_entry(values, 0));
+    KURL url = KURL(KURL(), rbToString(rb_ary_entry(values, 1)));
+    String type = rbToString(rb_ary_entry(values, 2));
+    RefPtr<File> file = File::create(path, url, type);
+    return toRB(file.release());
 }
 
-VALUE unimplemented(VALUE self)
+VALUE RBFileCustom::marshal_dump(VALUE self, VALUE)
 {
-    rb_raise(rb_eNotImpError,
-             "%s.%s is not implemented in Decaf at the moment.",
-             rbToString(self).utf8().data(),
-             rb_id2name(rb_frame_this_func()));
+    File* file = impl<File>(self);
+    VALUE array = rb_ary_new2(3);
+    rb_ary_push(array, toRB(file->path()));
+    rb_ary_push(array, toRB(file->url()));
+    rb_ary_push(array, toRB(file->type()));
+    
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    VALUE data = rb_funcall(rb_mMarshal, rb_intern("dump"), 1, array);
+    return data;
 }
 
+void RBFileCustom::Init_FileCustom()
+{
+    rb_define_method(RBFile::rubyClass(), "_dump", RUBY_METHOD_FUNC(&RBFileCustom::marshal_dump), 1);
+    rb_define_module_function(RBFile::rubyClass(), "_load", RUBY_METHOD_FUNC(&RBFileCustom::marshal_load), 1);
+}
+    
 } // namespace WebCore

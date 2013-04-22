@@ -28,6 +28,7 @@
 
 #include "RBArrayBuffer.h"
 #include "RBArrayBufferView.h"
+#include "RBBlobCustom.h"
 #include "RBConverters.h"
 #include "RBFile.h"
 #include "RBScriptState.h"
@@ -123,6 +124,37 @@ VALUE toRB(PassRefPtr<Blob> impl)
         return toRB(static_cast<File*>(impl.get()));
 
     return toRB(RBBlob::rubyClass(), impl);
+}
+
+VALUE RBBlobCustom::marshal_load(VALUE, VALUE data)
+{
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    VALUE values = rb_funcall(rb_mMarshal, rb_intern("load"), 1, data);
+    
+    KURL url = KURL(KURL(), rbToString(rb_ary_entry(values, 0)));
+    String type = rbToString(rb_ary_entry(values, 1));
+    unsigned long long size = NUM2ULL(rb_ary_entry(values, 2));
+    RefPtr<Blob> blob = Blob::create(url, type, size);
+    return toRB(blob.release());
+}
+
+VALUE RBBlobCustom::marshal_dump(VALUE self, VALUE)
+{
+    Blob* blob = impl<Blob>(self);
+    VALUE array = rb_ary_new2(3);
+    rb_ary_push(array, toRB(blob->url()));
+    rb_ary_push(array, toRB(blob->type()));
+    rb_ary_push(array, toRB(blob->size()));
+    
+    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
+    VALUE data = rb_funcall(rb_mMarshal, rb_intern("dump"), 1, array);
+    return data;
+}
+
+void RBBlobCustom::Init_BlobCustom()
+{
+    rb_define_method(RBBlob::rubyClass(), "_dump", RUBY_METHOD_FUNC(&RBBlobCustom::marshal_dump), 1);
+    rb_define_module_function(RBBlob::rubyClass(), "_load", RUBY_METHOD_FUNC(&RBBlobCustom::marshal_load), 1);
 }
     
 }
