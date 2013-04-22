@@ -653,7 +653,7 @@ class InjectedScript
       elsif (injected_script.is_primitive_value(value))
         if (type == "string")
           value = _abbreviate_string(value, max_length, true)
-          value = "\"#{value.gsub(/\n/, "\u21B5")}\""
+          value = "#{value.gsub(/\n/, "\u21B5")}"
         end
         descriptor[:value] = value.to_s
 
