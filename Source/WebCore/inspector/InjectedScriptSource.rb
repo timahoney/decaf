@@ -685,10 +685,29 @@ class InjectedScript
       end
     end
 
+    def _generate_array_preview(object, elements_to_dump, injected_script)
+      if (elements_to_dump <= object.size)
+        @preview[:overflow] = true
+        @preview[:lossless] = false
+      end
+
+      elements_to_dump = [object.size, elements_to_dump].min
+      object[0..elements_to_dump].each_with_index do |value, i|
+        name = i.to_s
+        property = _generate_descriptor(name, value, injected_script)
+        @preview[:properties].push(property)
+      end
+    end
+
     def _generate_proto_preview(object, elements_to_dump, injected_script)
 
       if (object.is_a? Hash)
         _generate_hash_preview(object, elements_to_dump, injected_script)
+        return
+      end
+
+      if (object.is_a? Array)
+        _generate_array_preview(object, elements_to_dump, injected_script)
         return
       end
 
