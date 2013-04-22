@@ -88,7 +88,7 @@ VALUE RBWorkerContext::import_scripts(int argc, VALUE* argv, VALUE self)
     ExceptionCode ec = 0;
     WorkerContext* selfImpl = impl<WorkerContext>(self);
     selfImpl->importScripts(urls, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 

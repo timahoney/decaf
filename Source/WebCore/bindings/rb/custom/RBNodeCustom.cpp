@@ -49,7 +49,7 @@ VALUE RBNode::insert_before(VALUE self, VALUE newChild, VALUE refChild)
     Node* refChildImpl = impl<Node>(refChild);
     ExceptionCode ec = 0;
     bool success = selfImpl->insertBefore(newChildImpl, refChildImpl, ec, AttachLazily);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     if (success)
         return newChild;
     
@@ -63,7 +63,7 @@ VALUE RBNode::replace_child(VALUE self, VALUE newChild, VALUE refChild)
     Node* refChildImpl = impl<Node>(refChild);
     ExceptionCode ec = 0;
     bool success = selfImpl->replaceChild(newChildImpl, refChildImpl, ec, AttachLazily);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     if (success)
         return newChild;
     
@@ -76,7 +76,7 @@ VALUE RBNode::remove_child(VALUE self, VALUE oldChild)
     Node* oldChildImpl = impl<Node>(oldChild);
     ExceptionCode ec = 0;
     bool success = selfImpl->removeChild(oldChildImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     if (success)
         return oldChild;
     
@@ -89,7 +89,7 @@ VALUE RBNode::append_child(VALUE self, VALUE newChild)
     Node* newChildImpl = impl<Node>(newChild);
     ExceptionCode ec = 0;
     bool success = selfImpl->appendChild(newChildImpl, ec, AttachLazily);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     if (success)
         return newChild;
     

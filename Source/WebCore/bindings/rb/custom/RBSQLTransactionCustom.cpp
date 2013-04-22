@@ -49,7 +49,7 @@ VALUE RBSQLTransaction::execute_sql(int argc, VALUE* argv, VALUE self)
     }
 
     if (argc == 0) {
-        rbDOMRaiseError(SYNTAX_ERR);
+        RB::setDOMException(SYNTAX_ERR);
         return Qnil;
     }
 
@@ -59,7 +59,7 @@ VALUE RBSQLTransaction::execute_sql(int argc, VALUE* argv, VALUE self)
     Vector<SQLValue> sqlValues;
     if (!NIL_P(argumentsRB)) {
         if (!IS_RB_ARRAY(argumentsRB)) {
-            rbDOMRaiseError(TYPE_MISMATCH_ERR);
+            RB::setDOMException(TYPE_MISMATCH_ERR);
             return Qnil;
         }        
 
@@ -78,7 +78,7 @@ VALUE RBSQLTransaction::execute_sql(int argc, VALUE* argv, VALUE self)
     RefPtr<SQLStatementCallback> callback;
     if (!NIL_P(callbackRB)) {
         if (CLASS_OF(callbackRB) != rb_cProc) {
-            rbDOMRaiseError(TYPE_MISMATCH_ERR);
+            RB::setDOMException(TYPE_MISMATCH_ERR);
             return Qnil;
         }
 
@@ -88,7 +88,7 @@ VALUE RBSQLTransaction::execute_sql(int argc, VALUE* argv, VALUE self)
     RefPtr<SQLStatementErrorCallback> errorCallback;
     if (!NIL_P(errorCallbackRB)) {
         if (CLASS_OF(errorCallbackRB) != rb_cProc) {
-            rbDOMRaiseError(TYPE_MISMATCH_ERR);
+            RB::setDOMException(TYPE_MISMATCH_ERR);
             return Qnil;
         }
 
@@ -97,7 +97,7 @@ VALUE RBSQLTransaction::execute_sql(int argc, VALUE* argv, VALUE self)
 
     ExceptionCode ec = 0;
     selfImpl->executeSQL(sqlStatement, sqlValues, callback.release(), errorCallback.release(), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }

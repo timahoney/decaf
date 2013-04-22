@@ -53,7 +53,7 @@ my @implCustomContent = ();
 
 # Constants
 my $exceptionInit = "ExceptionCode ec = 0;";
-my $exceptionRaiseOnError = "rbDOMRaiseError(ec);";
+my $exceptionRaiseOnError = "RB::setDOMException(ec);";
 my $notImplementedFixme = "// FIXME: Implement this custom function.";
 my $notImplementedRaise = "rb_raise(rb_eNotImpError, \"This function is not currently implemented for Ruby in WebKit. Sorry!\");";
 

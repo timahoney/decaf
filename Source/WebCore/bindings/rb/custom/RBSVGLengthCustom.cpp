@@ -43,7 +43,7 @@ VALUE RBSVGLength::value_getter(VALUE self)
     SVGLengthContext lengthContext(selfImpl->contextElement());
     float value = property.value(lengthContext, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 
@@ -54,7 +54,7 @@ VALUE RBSVGLength::value_setter(VALUE self, VALUE newValue)
 {
     SVGPropertyTearOff<SVGLength>* selfImpl = impl<SVGPropertyTearOff<SVGLength> >(self);
     if (selfImpl->isReadOnly()) {
-        rbDOMRaiseError(NO_MODIFICATION_ALLOWED_ERR);
+        RB::setDOMException(NO_MODIFICATION_ALLOWED_ERR);
         return Qnil;
     }
 
@@ -69,7 +69,7 @@ VALUE RBSVGLength::value_setter(VALUE self, VALUE newValue)
     SVGLengthContext lengthContext(selfImpl->contextElement());
     property.setValue(NUM2DBL(newValue), lengthContext, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 
@@ -81,7 +81,7 @@ VALUE RBSVGLength::convert_to_specified_units(VALUE self, VALUE rbUnitType)
 {
     SVGPropertyTearOff<SVGLength>* selfImpl = impl<SVGPropertyTearOff<SVGLength> >(self);
     if (selfImpl->isReadOnly()) {
-        rbDOMRaiseError(NO_MODIFICATION_ALLOWED_ERR);
+        RB::setDOMException(NO_MODIFICATION_ALLOWED_ERR);
         return Qnil;
     }
 
@@ -98,7 +98,7 @@ VALUE RBSVGLength::convert_to_specified_units(VALUE self, VALUE rbUnitType)
     SVGLengthContext lengthContext(selfImpl->contextElement());
     property.convertToSpecifiedUnits(unitType, lengthContext, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 

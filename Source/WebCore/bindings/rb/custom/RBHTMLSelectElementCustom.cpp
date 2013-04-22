@@ -31,7 +31,7 @@ VALUE RBHTMLSelectElement::indexed_setter(VALUE self, VALUE index, VALUE value)
     HTMLOptionElement* option = impl<HTMLOptionElement>(value);
     ExceptionCode ec = 0;
     selfImpl->setOption(NUM2UINT(index), option, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return value;
 }
 

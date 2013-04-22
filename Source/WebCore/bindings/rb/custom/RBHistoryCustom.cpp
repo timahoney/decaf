@@ -52,7 +52,7 @@ VALUE RBHistory::push_state(int argc, VALUE* argv, VALUE self)
     String url = rbStringOrNullString(urlRB);
     ExceptionCode ec = 0;
     selfImpl->stateObjectAdded(historyState.release(), title, url, History::StateObjectPush, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }
@@ -68,7 +68,7 @@ VALUE RBHistory::replace_state(int argc, VALUE* argv, VALUE self)
     String url = rbStringOrNullString(urlRB);
     ExceptionCode ec = 0;
     selfImpl->stateObjectAdded(historyState.release(), title, url, History::StateObjectReplace, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }

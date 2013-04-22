@@ -52,7 +52,7 @@ inline VALUE handlePostMessage(int argc, VALUE* argv, T* impl)
 
     ExceptionCode ec = 0;
     impl->postMessage(message.release(), &portArray, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 

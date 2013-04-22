@@ -57,7 +57,7 @@ VALUE RBLocation::protocol_setter(VALUE self, VALUE newProtocol)
     String protocol = StringValueCStr(newProtocol);
     ExceptionCode ec = 0;
     selfImpl->setProtocol(protocol, activeDOMWindow(state), firstDOMWindow(state), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return newProtocol;
 }
 

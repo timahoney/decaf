@@ -64,7 +64,7 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
 
         // Validation of non-null objects, per HTML5 spec 10.3.3.
         if (NIL_P(value)) {
-            rbDOMRaiseError(INVALID_STATE_ERR);
+            RB::setDOMException(INVALID_STATE_ERR);
             return;
         }
 
@@ -74,7 +74,7 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
 
             // Check for duplicate ports.
             if (portArray.contains(port)) {
-                rbDOMRaiseError(INVALID_STATE_ERR);
+                RB::setDOMException(INVALID_STATE_ERR);
                 return;
             }
             portArray.append(port.release());
