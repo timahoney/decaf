@@ -108,12 +108,10 @@ static PassRefPtr<InspectorValue> rbToInspectorValue(VALUE value, int maxDepth)
         return InspectorValue::null();
     if (IS_RB_BOOL(value))
         return InspectorBasicValue::create(RTEST(value));
-    if (IS_RB_FLOAT(value))
+    if (IS_RB_FLOAT(value) || IS_RB_INT(value))
         return InspectorBasicValue::create(NUM2DBL(value));
     if (IS_RB_STRING(value))
         return InspectorString::create(StringValueCStr(value));
-    if (IS_RB_INT(value))
-        return InspectorBasicValue::create(static_cast<double>(NUM2LL(value)));
     
     if (IS_RB_SYMBOL(value)) {
         String name = rbToString(value);
