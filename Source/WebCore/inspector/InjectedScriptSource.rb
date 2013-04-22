@@ -79,7 +79,6 @@ class InjectedScript
       result = RemoteObject.new(self, object, object_group_name, force_value_type, generate_preview)
     rescue => e
       backtrace_string = e.backtrace.join("\n\t")
-      puts "Failed to create RemoteObject. Backtrace:\n\t#{backtrace_string}"
       begin
         description = _describe($!)
       rescue
