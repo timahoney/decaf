@@ -929,6 +929,11 @@ sub GenerateHeader
     push(@rbInitFunction, "        $rbClassVariable = rb_define_class(\"$rubyClassName\", $rbParentClass);\n");
     push(@rbInitFunction, "        rb_extend_object($rbClassVariable, RBDOMBindingAttributes::rubyClass());\n\n");
 
+    # The Ruby DOM objects should not be able to use 'dup' and 'clone'
+    push(@rbInitFunction, "        // DOM objects do not implement 'dup' or 'clone'\n");
+    push(@rbInitFunction, "        rb_undef_method($rbClassVariable, \"dup\");\n");
+    push(@rbInitFunction, "        rb_undef_method($rbClassVariable, \"clone\");\n\n");
+
     # - CONSTRUCTORS -
     # A single constructor with 0 arguments get a zero argument method.
     # A constructor template gets a fixed number of arguments.
