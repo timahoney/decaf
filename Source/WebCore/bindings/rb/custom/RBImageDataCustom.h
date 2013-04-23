@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Tim Mahoney (tim.mahoney@me.com)
+ * Copyright (C) 2013 Tim Mahoney (tim.mahoney@me.com)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,43 +23,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "RBInitializationCustom.h"
+#ifndef RBImageDataCustom_h
+#define RBImageDataCustom_h
 
-#include "RBArrayBufferCustom.h"
-#include "RBBlobCustom.h"
-#include "RBConverters.h"
-#include "RBDataViewCustom.h"
-#include "RBFileCustom.h"
-#include "RBFileListCustom.h"
-#include "RBImageDataCustom.h"
-#include "RBMessagePortCustom.h"
-#include "RBWorker.h"
+#include <Ruby/ruby.h>
 
 namespace WebCore {
 
-extern "C" VALUE unimplemented(VALUE);
-
-void RBInitializationCustom::initializeCustomRubyClasses()
-{
-    RBArrayBufferCustom::Init_ArrayBufferCustom();
-    RBBlobCustom::Init_BlobCustom();
-    RBDataViewCustom::Init_DataViewCustom();
-    RBFileCustom::Init_FileCustom();
-    RBFileListCustom::Init_FileListCustom();
-    RBImageDataCustom::Init_ImageDataCustom();
-    RBMessagePortCustom::Init_MessagePortCustom();
+class RBImageDataCustom {
+public:
+    static VALUE marshal_load(VALUE klass, VALUE data);
+    static VALUE marshal_dump(VALUE self, VALUE level);
     
-    // Workers aren't implemented yet.
-    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(unimplemented), 0);
-}
-
-VALUE unimplemented(VALUE self)
-{
-    rb_raise(rb_eNotImpError,
-             "%s.%s is not implemented in Decaf at the moment.",
-             rbToString(self).utf8().data(),
-             rb_id2name(rb_frame_this_func()));
-}
+    static void Init_ImageDataCustom();
+};
 
 } // namespace WebCore
+
+#endif // RBImageDataCustom_h

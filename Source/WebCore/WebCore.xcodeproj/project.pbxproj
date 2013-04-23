@@ -705,6 +705,7 @@
 		22B9929F1725F9F900A0537B /* RBBlobCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B9929E1725F9F900A0537B /* RBBlobCustom.h */; };
 		22B992A21725FD1700A0537B /* RBFileListCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992A01725FD1700A0537B /* RBFileListCustom.cpp */; };
 		22B992A31725FD1700A0537B /* RBFileListCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A11725FD1700A0537B /* RBFileListCustom.h */; };
+		22B992A51726004900A0537B /* RBImageDataCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A41726004900A0537B /* RBImageDataCustom.h */; };
 		22BD9F7F1353625C009BD102 /* ImageBufferData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F7D1353625C009BD102 /* ImageBufferData.h */; };
 		22BD9F81135364FE009BD102 /* ImageBufferDataCG.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */; };
 		22C690F8170B6387004D9E73 /* RBMutationCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */; };
@@ -9390,6 +9391,7 @@
 		22B9929E1725F9F900A0537B /* RBBlobCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBBlobCustom.h; sourceTree = "<group>"; };
 		22B992A01725FD1700A0537B /* RBFileListCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBFileListCustom.cpp; sourceTree = "<group>"; };
 		22B992A11725FD1700A0537B /* RBFileListCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBFileListCustom.h; sourceTree = "<group>"; };
+		22B992A41726004900A0537B /* RBImageDataCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBImageDataCustom.h; sourceTree = "<group>"; };
 		22BD9F7D1353625C009BD102 /* ImageBufferData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferData.h; sourceTree = "<group>"; };
 		22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferDataCG.h; sourceTree = "<group>"; };
 		22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBMutationCallback.cpp; sourceTree = "<group>"; };
@@ -18194,6 +18196,7 @@
 				22FEA6ED170B4C7500BAFA4B /* RBHTMLOptionsCollectionCustom.cpp */,
 				22FEA6EF170B4C7500BAFA4B /* RBHTMLSelectElementCustom.cpp */,
 				22FEA6F0170B4C7500BAFA4B /* RBImageDataCustom.cpp */,
+				22B992A41726004900A0537B /* RBImageDataCustom.h */,
 				22FEA6F1170B4C7500BAFA4B /* RBInitializationCustom.cpp */,
 				22FEA6F2170B4C7500BAFA4B /* RBInitializationCustom.h */,
 				22FEA6F3170B4C7500BAFA4B /* RBInjectedScriptHostCustom.cpp */,
@@ -31352,6 +31355,7 @@
 				22B9929D1725F4E900A0537B /* RBFileCustom.h in Headers */,
 				22B9929F1725F9F900A0537B /* RBBlobCustom.h in Headers */,
 				22B992A31725FD1700A0537B /* RBFileListCustom.h in Headers */,
+				22B992A51726004900A0537B /* RBImageDataCustom.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
