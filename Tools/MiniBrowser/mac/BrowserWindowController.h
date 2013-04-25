@@ -51,6 +51,7 @@
 - (IBAction)find:(id)sender;
 
 - (IBAction)showWebInspector:(id)sender;
+- (IBAction)showConsole:(id)sender;
 
 @end
 

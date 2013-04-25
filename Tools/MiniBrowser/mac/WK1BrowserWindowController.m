@@ -234,6 +234,11 @@
     [[_webView inspector] show:sender];
 }
 
+- (IBAction)showConsole:(id)sender
+{
+    [[_webView inspector] showConsole:sender];
+}
+
 - (IBAction)dumpSourceToConsole:(id)sender
 {
 }
