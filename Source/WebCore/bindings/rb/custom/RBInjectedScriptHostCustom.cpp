@@ -107,6 +107,8 @@ VALUE RBInjectedScriptHost::type(VALUE, VALUE object)
         return Qnil;
     if (TYPE(object) == T_REGEXP)
         return rb_str_new2("regexp");
+    if (CLASS_OF(object) == rb_cTime)
+        return rb_str_new2("date");
     if (IS_RB_KIND(object, Node))
         return rb_str_new2("node");
     if (IS_RB_KIND(object, NodeList))

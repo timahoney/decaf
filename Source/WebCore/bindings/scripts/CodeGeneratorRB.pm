@@ -365,6 +365,8 @@ sub RBToNativeConverter
         return "rbToString($argName)";
     }
 
+    return "rbToDate($argName)" if $type eq "Date";
+
     # Check if this signature is Optional.
     my $option = $extendedAttributes->{"Optional"};
     return "rbStringOrNullString($argName)" if $option and $option eq "DefaultIsNullString";
@@ -1281,6 +1283,8 @@ sub GenerateFunctionImplementation
 
                 if ($codeGenerator->IsSVGTypeNeedingTearOff($function->signature->type)) {
                     $earlyCall = WrapWithSVGConverter($function->signature, $earlyCall);
+                } elsif ($function->signature->type eq "Date") {
+                    $earlyCall .= ", Date";
                 }
 
                 $earlyCall = "VALUE result = toRB(${earlyCall})" if $function->signature->type ne "void";
@@ -1347,6 +1351,7 @@ sub GenerateFunctionImplementation
     } else {
         if ($function->signature->type ne "void") {
             $content .= ", false" if $function->signature->extendedAttributes->{"TreatReturnedNullStringAs"};
+            $content .= ", Date" if $function->signature->type eq "Date";
             $content = "VALUE result = toRB(${content})";
         }
         
@@ -1973,7 +1978,10 @@ sub GenerateImplementation
                     $functionCall .= ".get()";
                 } elsif ($attribute->signature->extendedAttributes->{"TreatReturnedNullStringAs"}) {
                     $functionCall .= ", false";
+                } elsif ($attribute->signature->type eq "Date") {
+                    $functionCall .= ", Date";
                 }
+
                 push(@getterContent, "    $exceptionInit\n") if $hasGetterException;
                 push(@getterContent, "    bool isNull = false;\n") if $isNullable;
                 push(@getterContent, "    VALUE result = toRB($functionCall);\n");

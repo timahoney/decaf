@@ -70,6 +70,12 @@ inline VALUE toRB(bool value) { return value ? Qtrue : Qfalse; }
 inline VALUE toRB(const KURL& value) { return rb_str_new2(value.string().utf8().data()); }
 inline VALUE toRB(SerializedScriptValue& value) { return value.deserializeRB(); }
 
+// This is a very hacky way of having multiple toRBs that take doubles.
+// It makes it nicer for the code generator to use this instead of
+// something like toRBDate(double).
+enum RBConvertDate { Date };
+inline VALUE toRB(double value, RBConvertDate) { return rb_time_new(value / 1000, 0); }
+
 inline VALUE toRB(const String& value, bool convertToEmptyString = true)
 { 
     if (!value.isNull())
@@ -240,6 +246,17 @@ Vector<T> rbToNativeArray(VALUE rbArray)
 
 inline String rbStringOrNullString(VALUE rbString) { return NIL_P(rbString) ? String() : StringValueCStr(rbString); }
 inline String rbStringOrUndefined(VALUE rbString) { return NIL_P(rbString) ? "undefined" : StringValueCStr(rbString); }
+
+inline double rbToDate(VALUE rbDate) {
+    if (NIL_P(rbDate))
+        return 0;
+    if (IS_RB_NUM(rbDate))
+        return NUM2DBL(rbDate);
+    if (CLASS_OF(rbDate) == rb_cTime)
+        return rb_time_timeval(rbDate).tv_sec;
+    
+    return 0;
+}
 
 } // namespace WebCore
 
