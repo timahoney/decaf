@@ -83,4 +83,103 @@ VALUE callFunctionProtected(VALUE obj, const char* functionName, long argc, cons
     return result;
 }
 
+namespace RB {
+
+class RBFunctionRunner {
+public:
+    RBFunctionRunner(VALUE object, const char* functionName, VALUE parameters)
+        : m_object(object)
+        , m_functionName(rb_intern(functionName))
+        , m_parameters(parameters)
+        , m_exception(Qnil)
+    {
+        rb_gc_register_address(&m_object);
+        rb_gc_register_address(&m_parameters);
+    }
+
+    ~RBFunctionRunner()
+    {
+        rb_gc_unregister_address(&m_object);
+        rb_gc_unregister_address(&m_parameters);
+    }
+
+    VALUE callFunction()
+    {
+        VALUE result = rb_rescue(RUBY_METHOD_FUNC(&call), (VALUE) this, RUBY_METHOD_FUNC(&rescue), (VALUE) this);
+        if (!NIL_P(m_exception))
+            printException(m_exception);
+    
+        return result;
+    }
+
+    VALUE exception() const { return m_exception; }
+
+private:
+    static VALUE rescue(RBFunctionRunner* runner, VALUE exception_object)
+    {
+        runner->m_exception = exception_object;
+        return Qnil;
+    }
+
+    static VALUE call(RBFunctionRunner* runner)
+    {
+        return rb_funcall2(runner->m_object, runner->m_functionName, RARRAY_LEN(runner->m_parameters), RARRAY_PTR(runner->m_parameters));
+    }
+
+    VALUE m_object;
+    ID m_functionName;
+    VALUE m_parameters;
+    VALUE m_exception;
+};
+
+static VALUE callFunctionInternal(VALUE object, const char* functionName, VALUE* exception, int argc, ...)
+{
+    VALUE *argv = 0;
+    va_list argList;
+
+    if (argc > 0) {
+        va_start(argList, argc);
+        argv = ALLOCA_N(VALUE, argc);
+        for (int i = 0; i < argc; i++)
+            argv[i] = va_arg(argList, VALUE);
+
+        va_end(argList);
+    }
+
+    VALUE parameters = rb_ary_new4(argc, argv);
+    RBFunctionRunner runner(object, functionName, parameters);
+    VALUE result = runner.callFunction();
+    if (exception)
+        *exception = runner.exception();
+
+    return result;
+}
+
+VALUE callFunction(VALUE obj, const char* functionName, VALUE* exception)
+{
+    return callFunctionInternal(obj, functionName, exception, 0);
+}
+
+VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE* exception)
+{
+    return callFunctionInternal(obj, functionName, exception, 1, arg1);
+}
+
+VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE* exception)
+{
+    return callFunctionInternal(obj, functionName, exception, 2, arg1, arg2);
+}
+
+VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE* exception)
+{
+    return callFunctionInternal(obj, functionName, exception, 3, arg1, arg2, arg3);
+}
+
+VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE arg4, VALUE* exception)
+{
+    return callFunctionInternal(obj, functionName, exception, 4, arg1, arg2, arg3, arg4);
+}
+
+} // namespace RB
+
 } // namespace WebCore
