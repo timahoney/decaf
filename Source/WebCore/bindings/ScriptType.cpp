@@ -82,8 +82,6 @@ String abbreviationForScriptType(ScriptType type)
 
 static ScriptType scriptTypeFromFileExtension(const String& fileExtension)
 {
-    printf("FOUND FILE EXTENSION: %s\n", fileExtension.utf8().data());
-
     // FIXME: Should these be registered somewhere formally?
     if (fileExtension == "rb")
         return RBScriptType;
