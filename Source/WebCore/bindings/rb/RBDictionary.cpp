@@ -57,8 +57,7 @@ RBDictionary::RBDictionary(VALUE rubyHash)
 
 RBDictionary::~RBDictionary()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_hash);
+    rb_gc_unregister_address(&m_hash);
 }
 
 bool RBDictionary::getWithUndefinedOrNullCheck(const String& propertyName, String& value) const

@@ -45,8 +45,7 @@ RBCallback::RBCallback(VALUE proc)
 
 RBCallback::~RBCallback()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_proc);
+    rb_gc_unregister_address(&m_proc);
 }
 
 VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int argc, VALUE* argv)

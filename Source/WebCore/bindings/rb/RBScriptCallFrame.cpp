@@ -44,8 +44,7 @@ RBScriptCallFrame::RBScriptCallFrame(VALUE binding, PassRefPtr<JavaScriptCallFra
 
 RBScriptCallFrame::~RBScriptCallFrame()
 {
-    // FIXME: Add this back in?
-    // rb_gc_unregister_address(&m_binding);
+    rb_gc_unregister_address(&m_binding);
 }
 
 void RBScriptCallFrame::update(VALUE binding, intptr_t sourceID, const TextPosition& textPosition)

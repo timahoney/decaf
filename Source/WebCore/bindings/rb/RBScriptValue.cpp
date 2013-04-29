@@ -42,8 +42,7 @@ RBScriptValue::RBScriptValue(VALUE object)
 
 RBScriptValue::~RBScriptValue()
 {
-    // FIXME: Add this back in?
-    // rb_gc_unregister_address(&m_value);
+    rb_gc_unregister_address(&m_value);
 }
 
 bool RBScriptValue::getString(ScriptState* scriptState, String& result) const

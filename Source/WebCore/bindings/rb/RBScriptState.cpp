@@ -49,8 +49,7 @@ RBScriptState::RBScriptState(VALUE binding)
 
 RBScriptState::~RBScriptState()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_binding);
+    rb_gc_unregister_address(&m_binding);
 }
 
 RBScriptState* RBScriptState::current()
