@@ -65,9 +65,6 @@ namespace WebCore {
 
         virtual bool isSharedWorkerContext() const { return false; }
         virtual bool isDedicatedWorkerContext() const { return false; }
-        
-        virtual void ref();
-        virtual void deref();
 
         const KURL& url() const { return m_url; }
         KURL completeURL(const String&) const;

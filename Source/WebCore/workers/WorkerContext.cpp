@@ -163,17 +163,6 @@ void WorkerContext::disableEval(const String& errorMessage)
 {
     m_script->disableEval(errorMessage);
 }
-    
-void WorkerContext::ref()
-{
-    RefCounted::ref();
-}
-
-void WorkerContext::deref()
-{
-    printf("DEREF!!!");
-    RefCounted::deref();
-}
 
 WorkerLocation* WorkerContext::location() const
 {
