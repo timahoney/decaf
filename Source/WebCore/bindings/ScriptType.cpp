@@ -32,8 +32,10 @@
 #include "ScriptType.h"
 
 #include "MIMETypeRegistry.h"
-#include <wtf/text/WTFString.h>
+#include "ScriptSourceCode.h"
 #include <wtf/HashMap.h>
+#include <wtf/text/CString.h>
+#include <wtf/text/WTFString.h>
 
 namespace WebCore {
 
@@ -68,6 +70,49 @@ ScriptType scriptTypeFromMIMEType(const String& mimeType)
     return mimeTypeToScriptType->get(mimeType);
 }
 
+String abbreviationForScriptType(ScriptType type)
+{
+    switch (type) {
+    case JSScriptType:
+        return "JS";
+    case RBScriptType:
+        return "RB";
+    }
+}
+
+static ScriptType scriptTypeFromFileExtension(const String& fileExtension)
+{
+    printf("FOUND FILE EXTENSION: %s\n", fileExtension.utf8().data());
+
+    // FIXME: Should these be registered somewhere formally?
+    if (fileExtension == "rb")
+        return RBScriptType;
+    if (fileExtension == "js")
+        return JSScriptType;
+
+    return JSScriptType;
+}
+
+ScriptType scriptTypeFromUrl(const KURL& url)
+{
+    String lastPathComponent = url.lastPathComponent();
+    size_t dotPosition = lastPathComponent.reverseFind('.');
+    if (dotPosition != notFound) {
+        String extension = lastPathComponent.substring(dotPosition + 1);
+        return scriptTypeFromFileExtension(extension);
+    }
+
+    return JSScriptType;
+}
+
+ScriptType scriptTypeFromSourceCode(const ScriptSourceCode& sourceCode)
+{
+    // FIXME: Either we should add a ScriptType to ScriptSourceCode,
+    // or we shouldn't have a function like this.
+    // For now, assume the source code from the file name.
+    return scriptTypeFromUrl(sourceCode.url());
+}
+
 bool isSupportedScriptMIMEType(const String& mimeType)
 {
     if (mimeType.isEmpty())
@@ -84,16 +129,6 @@ ScriptTypeVector scriptTypeVector()
     vector.append(JSScriptType);
     vector.append(RBScriptType);
     return vector;
-}
-
-String abbreviationForScriptType(ScriptType type)
-{
-    switch (type) {
-    case JSScriptType:
-        return "JS";
-    case RBScriptType:
-        return "RB";
-    }
 }
 
 } // namespace WebCore

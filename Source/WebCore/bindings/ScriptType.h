@@ -36,6 +36,9 @@
 
 namespace WebCore {
 
+class KURL;
+class ScriptSourceCode;
+
 enum ScriptType {
     JSScriptType = 1,
     RBScriptType = 2
@@ -43,6 +46,8 @@ enum ScriptType {
 
 ScriptType scriptTypeFromMIMEType(const String& mimeType);
 String abbreviationForScriptType(ScriptType);
+ScriptType scriptTypeFromSourceCode(const ScriptSourceCode&);
+ScriptType scriptTypeFromUrl(const KURL&);
     
 // FIXME: Either this function should be moved to MIMETypeRegistry,
 // or MIMETypeRegistry::isSupportedJavaScriptMIMEType should be moved to here.
