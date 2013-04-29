@@ -37,8 +37,18 @@
 
 namespace WebCore {
 
+ScriptValue::ScriptValue()
+    : m_delegate(EmptyScriptValueDelegate::create())
+{
+}
+
+ScriptValue::ScriptValue(PassRefPtr<ScriptValueDelegate> delegate)
+    : m_delegate(delegate)
+{
+}
+
 ScriptValue::ScriptValue(JSC::JSGlobalData& globalData, JSC::JSValue value)
-: ScriptValue(JSScriptValue::create(globalData, value))
+    : ScriptValue(JSScriptValue::create(globalData, value))
 {
 }
 

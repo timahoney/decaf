@@ -50,10 +50,10 @@ class SerializedScriptValue;
 
 class ScriptValue {
 public:
-    ScriptValue() : m_delegate(EmptyScriptValueDelegate::create()) { }
-    ScriptValue(PassRefPtr<ScriptValueDelegate> delegate) : m_delegate(delegate) { }
+    ScriptValue();
+    ScriptValue(PassRefPtr<ScriptValueDelegate> delegate);
 
-    // FIXME: Should we delete this? It's a leftover from the non-generic ScriptValue.
+    // FIXME: Delete this. It's a leftover from the non-generic ScriptValue.
     //        It's still around to ease the transition into the generic ScriptValue.
     ScriptValue(JSC::JSGlobalData&, JSC::JSValue);
 
