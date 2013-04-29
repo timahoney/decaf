@@ -33,6 +33,8 @@
 
 namespace WebCore {
 
+using namespace RB;
+
 void RBScriptCallArgumentHandler::appendArgument(const ScriptObject& argument)
 {
     m_arguments.append(static_cast<RBScriptValue*>(argument.delegate())->rbValue());
@@ -45,19 +47,25 @@ void RBScriptCallArgumentHandler::appendArgument(const ScriptValue& argument)
 
 static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<VALUE>& arguments, bool& hadException, bool reportExceptions)
 {
-    // FIXME: Call the function within the call frame of the script state.
-    VALUE previousException = rb_errinfo();
-    rb_set_errinfo(Qnil);
-    VALUE result = callFunctionProtected(object, functionName.utf8().data(), arguments.size(), arguments.data());
+    // Make the function call within the binding of the script state.
+    RBScriptState* state = static_cast<RBScriptState*>(scriptState);
+    VALUE createProc = rb_str_new2("Proc.new { |object, function_name, arguments| object.method(function_name).call(*arguments) }");
+    VALUE proc = rb_funcall(state->binding(), rb_intern("eval"), 1, createProc);
 
-    VALUE exception = rb_errinfo();
-    rb_set_errinfo(previousException);
+    VALUE functionNameRB = rb_str_new2(functionName.utf8().data());
+    VALUE argumentsRB = rb_ary_new4(arguments.size(), arguments.data());
+    VALUE exception;
+    VALUE result = callFunction(proc, "call", object, functionNameRB, argumentsRB, &exception);
+
     if (!NIL_P(exception)) {
+        // FIXME: Does the exception become the errinfo with callFunction?
+        // If so, clear it.
+        if (exception == rb_errinfo())
+            printf("Had exception and it is the errinfo.\n");
         rb_set_errinfo(Qnil);
-        if (reportExceptions) {
-            RBScriptState* state = static_cast<RBScriptState*>(scriptState);
+        
+        if (reportExceptions)
             RBDOMBinding::reportException(state->scriptExecutionContext(), exception);
-        }
         
         hadException = true;
         return ScriptValue();
