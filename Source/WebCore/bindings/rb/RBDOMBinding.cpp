@@ -26,15 +26,20 @@
 #include "config.h"
 #include "RBDOMBinding.h"
 
+#include "Document.h"
 #include "Frame.h"
 #include "RBCallHelpers.h"
 #include "RBConverters.h"
+#include "RBDedicatedWorkerContext.h"
 #include "RBDOMCoreException.h"
 #include "RBDOMWindow.h"
 #include "RBEventException.h"
 #include "RBObject.h"
 #include "RBRangeException.h"
 #include "RBXMLHttpRequestException.h"
+#if ENABLE(SHARED_WORKERS)
+#include "RBSharedWorkerContext.h"
+#endif
 #if ENABLE(SQL_DATABASE)
 #include "RBSQLException.h"
 #endif
@@ -42,8 +47,109 @@
 #include "RBSVGException.h"
 #endif
 #include "RBXPathException.h"
+#include "RBWorkerContext.h"
+#include <Ruby/intern.h>
 
 namespace WebCore {
+
+namespace RB {
+
+typedef HashMap<ScriptExecutionContext*, VALUE> RBContextToBindingMap;
+static RBContextToBindingMap* contextBindings;
+typedef HashMap<VALUE, ScriptExecutionContext*> RBModuleToContextMap;
+static RBModuleToContextMap* moduleContexts;
+static VALUE savedBindings;
+
+static void initializeMaps()
+{
+    contextBindings = new RBContextToBindingMap();
+    moduleContexts = new RBModuleToContextMap();
+    savedBindings = rb_ary_new();
+    rb_gc_register_address(&savedBindings);
+}
+
+static ScriptExecutionContext* contextFromModule(VALUE module)
+{
+    if (!moduleContexts)
+        initializeMaps();
+    
+    ScriptExecutionContext* context = moduleContexts->get(module);
+    if (!context) {        
+        VALUE attached = rb_iv_get(module, "__attached__");
+        if (NIL_P(attached)) {
+            // FIXME: Sometimes we lose the top instance_eval context from the console.
+            // Find a way to make sure that it's always there.
+            // This is probably unsafe.
+            attached = rb_iv_get(module, "@inspected_window");
+        }
+        VALUE klass = rb_obj_class(attached);
+        if (klass == RBDOMWindow::rubyClass())
+            context = impl<DOMWindow>(attached)->document();
+        else if (klass == RBWorkerContext::rubyClass())
+            context = impl<WorkerContext>(attached);
+
+        moduleContexts->set(module, context);
+    }
+
+    return context;
+}
+
+ScriptExecutionContext* contextFromBinding(VALUE binding)
+{
+    // We can always find our topmost module by calling the 'nesting'
+    // function on the Module class. Since the top module is created
+    // using an instance_eval, it will have an __attached__ instance variable,
+    // which will be the context we are looking for.
+    VALUE nesting = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("Module.nesting"));
+    if (RARRAY_LEN(nesting) == 0)
+        return 0;
+    
+    VALUE topModule = rb_ary_entry(nesting, RARRAY_LEN(nesting) - 1);
+    return contextFromModule(topModule);
+}
+
+ScriptExecutionContext* currentContext()
+{
+    return contextFromBinding(rb_binding_new());
+}
+
+VALUE bindingFromContext(ScriptExecutionContext* context)
+{
+    if (!contextBindings)
+        initializeMaps();
+
+    VALUE binding = contextBindings->get(context);
+    if (!RTEST(binding)) {
+
+        // The code for each execution context (Window or Worker) 
+        // is evaluating in it's own binding.
+        // This binding exists in an instance_eval on the context.
+        // Each instance_eval creates an anonymous module and runs
+        // the code inside that module. This creates a nice little sandbox.
+        // Any user-defined classes are confined in the sandbox and
+        // cannot be accessed from other contexts.
+        
+        VALUE contextRB = Qnil;
+        if (context->isDocument())
+            contextRB = toRB(static_cast<Document*>(context)->domWindow());
+#if ENABLE(WORKERS)
+        else if (context->isWorkerContext())
+            contextRB = toRB(static_cast<WorkerContext*>(context));
+#endif
+
+        ASSERT(!NIL_P(contextRB));
+
+        binding = rb_funcall(contextRB, rb_intern("instance_eval"), 1, rb_str_new2("binding"));
+        rb_ary_push(savedBindings, binding);
+        contextBindings->set(context, binding);
+    }
+
+    return binding;
+}
+
+} // namespace RB
+    
+using namespace RB;
 
 static ExceptionBase* toExceptionBase(VALUE value) 
 {
@@ -102,75 +208,21 @@ void RBDOMBinding::reportCurrentException(RBScriptState* state, CachedScript* ca
 
 DOMWindow* RBDOMBinding::currentWindow()
 {
-    return impl<DOMWindow>(currentWindowRB());
+    ScriptExecutionContext* context = currentContext();
+    if (context->isDocument())
+        return static_cast<Document*>(context)->domWindow();
+    
+    return 0;
 }
 
 VALUE RBDOMBinding::currentWindowRB()
 {
-    // See the comment in RBDOMBinding::bindingFromWindow.
-    VALUE nesting = rb_funcall(rb_cModule, rb_intern("nesting"), 0);
-    if (RARRAY_LEN(nesting) == 0)
-        return Qnil;
-    
-    VALUE topModule = rb_ary_entry(nesting, RARRAY_LEN(nesting) - 1);
-    DOMWindow* window = windowFromModule(topModule);
-    return toRB(window);
-}
-
-typedef HashMap<DOMWindow*, VALUE> RBWindowToBindingMap;
-static RBWindowToBindingMap* windowBindings;
-typedef HashMap<VALUE, DOMWindow*> RBModuleToWindowMap;
-static RBModuleToWindowMap* moduleWindows;
-static VALUE savedBindings;
-
-static void initializeMaps()
-{
-    windowBindings = new RBWindowToBindingMap();
-    moduleWindows = new RBModuleToWindowMap();
-    savedBindings = rb_ary_new();
-    rb_gc_register_address(&savedBindings);
+    return toRB(currentWindow());
 }
 
 VALUE RBDOMBinding::bindingFromWindow(DOMWindow* window)
 {
-    if (!windowBindings)
-        initializeMaps();
-
-    VALUE binding = windowBindings->get(window);
-    if (!RTEST(binding)) {
-
-        // The code for each Window is evaluating in it's own binding.
-        // This binding exists in an instance_eval on the Window.
-        // Each instance_eval creates an anonymous module and runs
-        // the code inside that module. This creates a nice little sandbox.
-        // Any user-defined classes are confined in the sandbox and
-        // cannot be accessed from other Windows.
-        //
-        // We can always find our topmost module by calling the 'nesting'
-        // function on the Module class.
-
-        VALUE windowRB = toRB(window);
-        binding = rb_funcall(windowRB, rb_intern("instance_eval"), 1, rb_str_new2("binding"));
-        rb_ary_push(savedBindings, binding);
-        windowBindings->set(window, binding);
-    }
-
-    return binding;
-}
-
-DOMWindow* RBDOMBinding::windowFromModule(VALUE module)
-{
-    if (!moduleWindows)
-        initializeMaps();
-    
-    DOMWindow* window = moduleWindows->get(module);
-    if (!window) {
-        VALUE attached = rb_iv_get(module, "__attached__");
-        window = impl<DOMWindow>(attached);
-        moduleWindows->set(module, window);
-    }
-
-    return window;
+    return bindingFromContext(window->scriptExecutionContext());
 }
 
 typedef HashMap<String, intptr_t> RBFileNameToSourceIDMap;
@@ -191,20 +243,20 @@ intptr_t RBDOMBinding::sourceIDFromFileName(const char* fileName)
     return id;
 }
 
-typedef HashMap<DOMWindow*, RBScriptState*> RBWindowToGlobalStateMap;
-static RBWindowToGlobalStateMap* windowGlobalStates;
+typedef HashMap<ScriptExecutionContext*, RBScriptState*> RBContextToGlobalStateMap;
+static RBContextToGlobalStateMap* contextGlobalStates;
 
 RBScriptState* RBDOMBinding::globalScriptState(RBScriptState* state)
 {
-    if (!windowGlobalStates)
-        windowGlobalStates = new RBWindowToGlobalStateMap();
+    if (!contextGlobalStates)
+        contextGlobalStates = new RBContextToGlobalStateMap();
     
-    DOMWindow* window = state->domWindow();
-    RBScriptState* globalState = windowGlobalStates->get(window);
+    ScriptExecutionContext* context = state->scriptExecutionContext();
+    RBScriptState* globalState = contextGlobalStates->get(context);
     if (!globalState) {
-        VALUE binding = bindingFromWindow(window);
+        VALUE binding = bindingFromContext(context);
         globalState = RBScriptState::forBinding(binding);
-        windowGlobalStates->set(window, globalState);
+        contextGlobalStates->set(context, globalState);
     }
     
     return globalState;

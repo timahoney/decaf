@@ -27,12 +27,15 @@
 #define RBDOMBinding_h
 
 #include "RBScriptState.h"
+#include "ScriptExecutionContext.h"
 #include <Ruby/ruby.h>
 
 namespace WebCore {
 
 class CachedScript;
 class DOMWindow;
+
+// FIXME: Use RB namespace instead of RBDOMBinding class.
 
 class RBDOMBinding {
 public:
@@ -53,10 +56,14 @@ public:
     
     // Finds the global script state for another state.
     static RBScriptState* globalScriptState(RBScriptState*);
-
-private:
-    static DOMWindow* windowFromModule(VALUE module);
 };
+
+namespace RB {
+    ScriptExecutionContext* currentContext();
+
+    VALUE bindingFromContext(ScriptExecutionContext* context);
+    ScriptExecutionContext* contextFromBinding(VALUE binding);
+} // namespace RB
 
 } // namespace WebCore
 
