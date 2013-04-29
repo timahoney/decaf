@@ -99,7 +99,7 @@ public:
 #endif
 
 private:
-    EmptyScriptValueDelegate() : ScriptValueDelegate(JSScriptType) { }
+    EmptyScriptValueDelegate() : ScriptValueDelegate(RBScriptType) { }
 };
 
 } // namespace WebCore
