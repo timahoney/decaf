@@ -45,6 +45,7 @@ using namespace RB;
 RBWorkerScriptController::RBWorkerScriptController(WorkerContext* workerContext)
     : WorkerScriptController(workerContext, RBScriptType)
     , m_workerContextWrapper(Qnil)
+    , m_isTerminating(false)
 {
 }
 
@@ -101,11 +102,6 @@ void RBWorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
     }
 }
 
-static bool isTerminatedExecutionException(VALUE exception) 
-{
-    return !NIL_P(exception) && rb_obj_class(exception) == rb_eInterrupt;
-}
-
 void RBWorkerScriptController::evaluate(const ScriptSourceCode& sourceCode, ScriptValue* exception)
 {
     if (isExecutionForbidden())
@@ -126,7 +122,7 @@ void RBWorkerScriptController::evaluate(const ScriptSourceCode& sourceCode, Scri
     VALUE evaluationException;
     callFunction(workerContextBinding, "eval", scriptString, fileName, lineNumber, &evaluationException);
 
-    if ((!NIL_P(evaluationException) && isTerminatedExecutionException(evaluationException)) || isExecutionTerminating()) {
+    if (!NIL_P(evaluationException) || isExecutionTerminating()) {
         forbidExecution();
         return;
     }
@@ -154,14 +150,14 @@ void RBWorkerScriptController::scheduleExecutionTermination()
     // termination is scheduled, isExecutionTerminating will
     // accurately reflect that state when called from another thread.
     MutexLocker locker(m_scheduledTerminationMutex);
-    rb_set_errinfo(rb_exc_new2(rb_eInterrupt, "Terminating Worker."));
+    m_isTerminating = true;
 }
 
 bool RBWorkerScriptController::isExecutionTerminating() const
 {
     // See comments in scheduleExecutionTermination regarding mutex usage.
     MutexLocker locker(m_scheduledTerminationMutex);
-    return isTerminatedExecutionException(rb_errinfo());
+    return m_isTerminating;
 }
 
 void RBWorkerScriptController::disableEval(const String& errorMessage)

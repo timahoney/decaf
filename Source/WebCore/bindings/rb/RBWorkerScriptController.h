@@ -57,6 +57,7 @@ private:
     mutable Mutex m_scheduledTerminationMutex;
     String m_disableEvalPendingMessage;
     VALUE m_workerContextWrapper;
+    bool m_isTerminating;
 };
 
 } // namespace WebCore
