@@ -241,6 +241,8 @@ VALUE RBInjectedScriptHost::evaluate(VALUE self, VALUE expression)
     if (rbToString(expression) == "this")
         expression = rb_str_new2("self");
     
+    // FIXME: Can we get by without using the instance variable here?
+    // We might be able to just use currentContext() and bindingFromContext().
     VALUE windowRB = rb_iv_get(self, "@inspected_window");
     DOMWindow* window = impl<DOMWindow>(windowRB);
     VALUE binding = RBDOMBinding::bindingFromWindow(window);

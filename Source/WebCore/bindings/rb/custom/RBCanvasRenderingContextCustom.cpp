@@ -35,17 +35,17 @@
 
 namespace WebCore {
 
-VALUE toRB(PassRefPtr<CanvasRenderingContext> impl)
+VALUE toRB(CanvasRenderingContext* impl)
 {
     if (!impl)
         return Qnil;
 
 #if ENABLE(WEBGL)
     if (impl->is3d())
-        return toRB(static_cast<WebGLRenderingContext*>(impl.get()));
+        return toRB(static_cast<WebGLRenderingContext*>(impl));
 #endif
     ASSERT(impl->is2d());
-    return toRB(static_cast<CanvasRenderingContext2D*>(impl.get()));
+    return toRB(static_cast<CanvasRenderingContext2D*>(impl));
 }
 
 } // namespace WebCore

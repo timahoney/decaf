@@ -115,13 +115,13 @@ VALUE RBBlob::rb_new(int argc, VALUE* argv, VALUE)
     return toRB(blob.release());
 }
 
-VALUE toRB(PassRefPtr<Blob> impl)
+VALUE toRB(Blob* impl)
 {
     if (!impl)
         return Qnil;
 
     if (impl->isFile())
-        return toRB(static_cast<File*>(impl.get()));
+        return toRB(static_cast<File*>(impl));
 
     return toRB(RBBlob::rubyClass(), impl);
 }

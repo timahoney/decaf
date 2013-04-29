@@ -31,13 +31,13 @@
 
 namespace WebCore {
 
-VALUE toRB(PassRefPtr<StyleSheet> impl)
+VALUE toRB(StyleSheet* impl)
 {
     if (!impl)
         return Qnil;
 
     if (impl->isCSSStyleSheet())
-        return toRB(static_cast<CSSStyleSheet*>(impl.get()));
+        return toRB(static_cast<CSSStyleSheet*>(impl));
 
     return toRB(RBStyleSheet::rubyClass(), impl);
 }

@@ -133,13 +133,13 @@ inline VALUE createRBNodeWrapper(Node* node)
     case Node::ENTITY_REFERENCE_NODE:
         return toRB(static_cast<EntityReference*>(node));
     default:
-        return toRB(RBNode::rubyClass(), PassRefPtr<Node>(node));
+        return toRB(RBNode::rubyClass(), node);
     }
 }
 
-VALUE toRB(PassRefPtr<Node> impl)
+VALUE toRB(Node* impl)
 {
-    return createRBNodeWrapper(impl.get());
+    return createRBNodeWrapper(impl);
 }
 
 } // namespace WebCore

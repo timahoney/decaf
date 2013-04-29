@@ -92,7 +92,7 @@ VALUE RBDataViewCustom::set_uint8(VALUE self, VALUE byteOffset, VALUE value)
     return Qnil;
 }
 
-VALUE toRB(PassRefPtr<DataView> impl)
+VALUE toRB(DataView* impl)
 {
     // The JS custom implementation of this is nothing special.
     // FIXME: Should the IDL for DataView not have CustomToJSObject?

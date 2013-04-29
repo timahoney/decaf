@@ -718,20 +718,6 @@ sub GenerateCallbackHeader
     push(@headerContent, "#endif\n");
 }
 
-sub GenerateSVGImplConverter
-{
-    my $type = shift;
-    my $svgType = $codeGenerator->GetSVGTypeNeedingTearOff($type);
-    my @converterContent = ();
-
-    # push(@converterContent, "template<>\n");
-    # push(@converterContent, "inline $type* impl(VALUE instance)\n");
-    # push(@converterContent, "{\n");
-    # push(@converterContent, "    \n");
-    # FIXME: Do we need this?
-    return @converterContent;
-}
-
 sub GenerateCallbackImplementation
 {
     my $object = shift;
@@ -1134,16 +1120,14 @@ sub GenerateHeader
     push(@headerContent, "};\n\n");
     
     # Add the function to convert to Ruby.
+    my $pointerType = $interfaceName;
+    my $passRefPtrType = "PassRefPtr<${interfaceName}>";
     if ($codeGenerator->IsSVGTypeNeedingTearOff($interfaceName)) {
-        push(@headerContent, GenerateSVGImplConverter($interfaceName));
-        my $svgType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
-        my $wrappedType = $codeGenerator->GetSVGWrappedTypeNeedingTearOff($interfaceName);
-        push(@headerContent, "VALUE toRB(PassRefPtr<$svgType >);\n");
-        push(@headerContent, "inline VALUE toRB($svgType* impl) { return toRB(PassRefPtr<$svgType >(impl)); }\n\n");
-    } else {
-        push(@headerContent, "VALUE toRB(PassRefPtr<$interfaceName>);\n");
-        push(@headerContent, "inline VALUE toRB($interfaceName* impl) { return toRB(PassRefPtr<$interfaceName>(impl)); }\n\n");
+        $pointerType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
+        $passRefPtrType = "PassRefPtr<${pointerType} >";
     }
+    push(@headerContent, "VALUE toRB($pointerType*);\n");
+    push(@headerContent, "inline VALUE toRB($passRefPtrType refPtr) { return toRB(refPtr.get()); }\n\n");
 
     push(@headerContent, "} // namespace WebCore\n\n");
     push(@headerContent, "#endif // ${conditionalString}\n\n") if $conditionalString;    
@@ -2106,9 +2090,9 @@ sub GenerateImplementation
     if (!SuppressToRBImplementation($dataNode)) {
         my $converterType = $interfaceName;
         if ($codeGenerator->IsSVGTypeNeedingTearOff($interfaceName)) {
-            $converterType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName) . " ";
+            $converterType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
         }
-        push(@implContent, "VALUE toRB(PassRefPtr<$converterType> impl)\n");
+        push(@implContent, "VALUE toRB($converterType* impl)\n");
         push(@implContent, "{\n");
         push(@implContent, "    return toRB(${className}::rubyClass(), impl);\n");
         push(@implContent, "}\n");

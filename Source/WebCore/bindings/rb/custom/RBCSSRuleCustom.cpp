@@ -44,35 +44,35 @@
 
 namespace WebCore {
 
-VALUE toRB(PassRefPtr<CSSRule> impl)
+VALUE toRB(CSSRule* impl)
 {
     if (!impl)
         return Qnil;
 
     switch (impl->type()) {
         case CSSRule::STYLE_RULE:
-            return toRB(static_cast<CSSStyleRule*>(impl.get()));
+            return toRB(static_cast<CSSStyleRule*>(impl));
         case CSSRule::MEDIA_RULE:
-            return toRB(static_cast<CSSMediaRule*>(impl.get()));
+            return toRB(static_cast<CSSMediaRule*>(impl));
         case CSSRule::FONT_FACE_RULE:
-            return toRB(static_cast<CSSFontFaceRule*>(impl.get()));
+            return toRB(static_cast<CSSFontFaceRule*>(impl));
         case CSSRule::PAGE_RULE:
-            return toRB(static_cast<CSSPageRule*>(impl.get()));
+            return toRB(static_cast<CSSPageRule*>(impl));
         case CSSRule::IMPORT_RULE:
-            return toRB(static_cast<CSSImportRule*>(impl.get()));
+            return toRB(static_cast<CSSImportRule*>(impl));
         case CSSRule::CHARSET_RULE:
-            return toRB(static_cast<CSSCharsetRule*>(impl.get()));
+            return toRB(static_cast<CSSCharsetRule*>(impl));
         case CSSRule::WEBKIT_KEYFRAME_RULE:
-            return toRB(static_cast<WebKitCSSKeyframeRule*>(impl.get()));
+            return toRB(static_cast<WebKitCSSKeyframeRule*>(impl));
         case CSSRule::WEBKIT_KEYFRAMES_RULE:
-            return toRB(static_cast<WebKitCSSKeyframesRule*>(impl.get()));
+            return toRB(static_cast<WebKitCSSKeyframesRule*>(impl));
 #if ENABLE(CSS_DEVICE_ADAPTATION)
         case CSSRule::WEBKIT_VIEWPORT_RULE:
-            return toRB(static_cast<WebKitCSSViewportRule*>(impl.get()));
+            return toRB(static_cast<WebKitCSSViewportRule*>(impl));
 #endif
 #if ENABLE(CSS_REGIONS)
         case CSSRule::WEBKIT_REGION_RULE:
-            return toRB(static_cast<WebKitCSSRegionRule*>(impl.get()));
+            return toRB(static_cast<WebKitCSSRegionRule*>(impl));
 #endif
         default:
             return toRB(RBCSSRule::rubyClass(), impl);

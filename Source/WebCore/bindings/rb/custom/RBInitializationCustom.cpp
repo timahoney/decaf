@@ -49,9 +49,6 @@ void RBInitializationCustom::initializeCustomRubyClasses()
     RBFileListCustom::Init_FileListCustom();
     RBImageDataCustom::Init_ImageDataCustom();
     RBMessagePortCustom::Init_MessagePortCustom();
-    
-    // Workers aren't implemented yet.
-    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(unimplemented), 0);
 }
 
 VALUE unimplemented(VALUE self)

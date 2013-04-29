@@ -32,9 +32,9 @@ namespace WebCore {
 
 #define TRY_TO_WRAP_WITH_INTERFACE(interfaceName) \
     if (eventNames().interfaceFor##interfaceName == desiredInterface) \
-        return toRB(static_cast<interfaceName*>(target.get()));
+        return toRB(static_cast<interfaceName*>(target));
 
-VALUE toRB(PassRefPtr<EventTarget> target)
+VALUE toRB(EventTarget* target)
 {
     if (!target)
         return Qnil;
@@ -43,11 +43,11 @@ VALUE toRB(PassRefPtr<EventTarget> target)
 
 #if ENABLE(WORKERS)
     if (eventNames().interfaceForDedicatedWorkerContext == desiredInterface)
-        return toRB(static_cast<DedicatedWorkerContext*>(target.get()));
+        return toRB(static_cast<DedicatedWorkerContext*>(target));
 #endif
 #if ENABLE(SHARED_WORKERS)
     if (eventNames().interfaceForSharedWorkerContext == desiredInterface)
-        return toRB(static_cast<SharedWorkerContext*>(target.get()));
+        return toRB(static_cast<SharedWorkerContext*>(target));
 #endif
 
     DOM_EVENT_TARGET_INTERFACES_FOR_EACH(TRY_TO_WRAP_WITH_INTERFACE)

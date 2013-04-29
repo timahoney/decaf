@@ -41,7 +41,7 @@ VALUE imagedata_get_data(VALUE self)
     return toRB(data);
 }
 
-VALUE toRB(PassRefPtr<ImageData> impl)
+VALUE toRB(ImageData* impl)
 {
     if (!impl)
         return Qnil;

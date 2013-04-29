@@ -39,9 +39,9 @@ TrackBase* rbToTrack(VALUE track)
     return 0;
 }
 
-VALUE toRB(PassRefPtr<TrackBase> track)
+VALUE toRB(TrackBase* track)
 {
-    if (!track || !track.get())
+    if (!track)
         return Qnil;
     
     switch (track->type()) {
