@@ -33,24 +33,24 @@
 #include "RBObject.h"
 #include "RBScriptCallStackFactory.h"
 #include "ScriptArguments.h"
+#include "WorkerContext.h"
 
 namespace WebCore {
 
-RBScriptState::RBScriptState(VALUE binding, VALUE window)
+using namespace RB;
+
+RBScriptState::RBScriptState(VALUE binding)
     : ScriptState(RBScriptType)
     , m_binding(binding)
-    , m_window(window)
     , m_evalEnabled(true)
 {
     rb_gc_register_address(&m_binding);
-    rb_gc_register_address(&m_window);
 }
 
 RBScriptState::~RBScriptState()
 {
     // FIXME: Should we put this back in?
     // rb_gc_unregister_address(&m_binding);
-    // rb_gc_unregister_address(&m_window);
 }
 
 RBScriptState* RBScriptState::current()
@@ -60,8 +60,8 @@ RBScriptState* RBScriptState::current()
 
 RBScriptState* RBScriptState::forBinding(VALUE binding)
 {
-    VALUE window = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("$window"));
-    return new RBScriptState(binding, window);
+    // FIXME: Do we really need this? Can't we just use 'new'?
+    return new RBScriptState(binding);
 }
     
 bool RBScriptState::hadException()
@@ -72,8 +72,11 @@ bool RBScriptState::hadException()
 
 DOMWindow* RBScriptState::domWindow() const
 {
-    DOMWindow* window = impl<DOMWindow>(m_window);
-    return window;
+    ScriptExecutionContext* context = scriptExecutionContext();
+    if (!context || !context->isDocument())
+        return 0;
+
+    return static_cast<Document*>(context)->domWindow();
 }
 
 VALUE RBScriptState::binding() const
@@ -83,7 +86,7 @@ VALUE RBScriptState::binding() const
 
 ScriptExecutionContext* RBScriptState::scriptExecutionContext() const
 {
-    return domWindow()->scriptExecutionContext();
+    return contextFromBinding(m_binding);
 }
 
 bool RBScriptState::evalEnabled() const
@@ -96,14 +99,19 @@ void RBScriptState::setEvalEnabled(bool enabled)
     m_evalEnabled = enabled;
 }
     
-RBScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
+ScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
 {
     DOMWindow* window = frame->document()->domWindow();
-    VALUE windowRB = toRB(window);
     VALUE binding = RBDOMBinding::bindingFromWindow(window);
 
-    // FIXME: This will get leaked...I think. V8 just returns a new one, can we as well?
-    return new RBScriptState(binding, windowRB);
+    // FIXME: This will get leaked. Fix that!
+    return new RBScriptState(binding);
+}
+
+ScriptState* RBScriptState::scriptStateFromWorkerContext(WorkerContext* workerContext)
+{
+    VALUE binding = bindingFromContext(workerContext);
+    return RBScriptState::forBinding(binding);
 }
 
 PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed)

@@ -69,7 +69,9 @@ public:
     virtual bool evalEnabled() const;
     virtual void setEvalEnabled(bool);
     
-    static JSScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* scriptStateFromWorkerContext(WorkerContext*);
+
     static PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStackForConsole();

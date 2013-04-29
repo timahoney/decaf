@@ -34,6 +34,7 @@
 #include "ErrorEvent.h"
 #include "EventListener.h"
 #include "EventTarget.h"
+#include "JSWorkerScriptController.h"
 #include "MessagePort.h"
 #include "PublicURLManager.h"
 #include "Settings.h"
@@ -414,12 +415,16 @@ ScriptExecutionContext::Task::~Task()
 #if USE(JSC)
 JSC::JSGlobalData* ScriptExecutionContext::globalData()
 {
+    // FIXME: Remove this function and find a language-generic way to do it.
+    
      if (isDocument())
         return JSDOMWindow::commonJSGlobalData();
 
 #if ENABLE(WORKERS)
-    if (isWorkerContext())
-        return static_cast<WorkerContext*>(this)->script()->globalData();
+    if (isWorkerContext()) {
+        WorkerScriptController* script = static_cast<WorkerContext*>(this)->script();
+        return static_cast<JSWorkerScriptController*>(script)->globalData();
+    }
 #endif
 
     ASSERT_NOT_REACHED();

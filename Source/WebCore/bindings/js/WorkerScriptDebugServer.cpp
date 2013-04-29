@@ -33,6 +33,7 @@
 #if ENABLE(JAVASCRIPT_DEBUGGER) && ENABLE(WORKERS)
 #include "WorkerScriptDebugServer.h"
 
+#include "JSWorkerScriptController.h"
 #include "WorkerContext.h"
 #include "WorkerDebuggerAgent.h"
 #include "WorkerRunLoop.h"
@@ -55,7 +56,7 @@ void WorkerScriptDebugServer::addListener(ScriptDebugListener* listener)
         return;
 
     if (m_listeners.isEmpty())
-        m_workerContext->script()->attachDebugger(this);
+        static_cast<JSWorkerScriptController*>(m_workerContext->script())->attachDebugger(this);
     m_listeners.add(listener);
     recompileAllJSFunctions(0);
 }
@@ -68,7 +69,7 @@ void WorkerScriptDebugServer::willExecuteProgram(const JSC::DebuggerCallFrame& d
 
 void WorkerScriptDebugServer::recompileAllJSFunctions(Timer<ScriptDebugServer>*)
 {
-    JSC::JSGlobalData* globalData = m_workerContext->script()->globalData();
+    JSC::JSGlobalData* globalData = static_cast<JSWorkerScriptController*>(m_workerContext->script())->globalData();
 
     JSC::JSLockHolder lock(globalData);
     // If JavaScript stack is not empty postpone recompilation.
@@ -85,7 +86,7 @@ void WorkerScriptDebugServer::removeListener(ScriptDebugListener* listener)
 
     m_listeners.remove(listener);
     if (m_listeners.isEmpty())
-        m_workerContext->script()->detachDebugger(this);
+        static_cast<JSWorkerScriptController*>(m_workerContext->script())->detachDebugger(this);
 }
 
 void WorkerScriptDebugServer::runEventLoopWhilePaused()

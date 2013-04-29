@@ -33,6 +33,7 @@
 
 #if ENABLE(WORKERS)
 #include "JSWorkerContext.h"
+#include "JSWorkerScriptController.h"
 #include "WorkerContext.h"
 #endif
 
@@ -116,8 +117,10 @@ JSDOMGlobalObject* toJSDOMGlobalObject(ScriptExecutionContext* scriptExecutionCo
         return toJSDOMGlobalObject(toDocument(scriptExecutionContext), exec);
 
 #if ENABLE(WORKERS)
-    if (scriptExecutionContext->isWorkerContext())
-        return static_cast<WorkerContext*>(scriptExecutionContext)->script()->workerContextWrapper();
+    if (scriptExecutionContext->isWorkerContext()) {
+        WorkerScriptController* script = static_cast<WorkerContext*>(scriptExecutionContext)->script();
+        return static_cast<JSWorkerScriptController*>(script)->workerContextWrapper();
+    }
 #endif
 
     ASSERT_NOT_REACHED();
@@ -135,8 +138,10 @@ JSDOMGlobalObject* toJSDOMGlobalObject(ScriptExecutionContext* scriptExecutionCo
         return toJSDOMGlobalObject(toDocument(scriptExecutionContext), world);
 
 #if ENABLE(WORKERS)
-    if (scriptExecutionContext->isWorkerContext())
-        return static_cast<WorkerContext*>(scriptExecutionContext)->script()->workerContextWrapper();
+    if (scriptExecutionContext->isWorkerContext()) {
+        WorkerScriptController* script = static_cast<WorkerContext*>(scriptExecutionContext)->script();
+        return static_cast<JSWorkerScriptController*>(script)->workerContextWrapper();
+    }
 #endif
 
     ASSERT_NOT_REACHED();

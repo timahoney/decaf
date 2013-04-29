@@ -49,17 +49,18 @@ public:
     virtual bool evalEnabled() const;
     virtual void setEvalEnabled(bool);
     
-    static RBScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* scriptStateFromWorkerContext(WorkerContext*);
+
     static PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStackForConsole();
 
 private:
-    RBScriptState(VALUE binding, VALUE window);
+    RBScriptState(VALUE binding);
     virtual ~RBScriptState();
 
     VALUE m_binding;
-    VALUE m_window;
     bool m_evalEnabled;
 };
 

@@ -1818,6 +1818,10 @@ sub SuppressToRBImplementation
     return 0 if $dataNode->extendedAttributes->{"TypedArray"};
     return 1 if $dataNode->name eq "Element";
     return 1 if $dataNode->extendedAttributes->{"CustomToJSObject"};
+
+    # FIXME: JS has a custom base class for WorkerContext, and V8 specifies V8CustomToJSObject.
+    # Rather than add to the IDL, fix it here.
+    return 1 if $dataNode->name eq "WorkerContext";
     return 0;
 }
 
