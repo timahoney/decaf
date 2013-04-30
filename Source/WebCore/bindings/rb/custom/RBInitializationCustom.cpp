@@ -38,7 +38,7 @@
 
 namespace WebCore {
 
-extern "C" VALUE unimplemented(VALUE);
+extern "C" VALUE worker_unimplemented(int, VALUE*, VALUE);
 
 void RBInitializationCustom::initializeCustomRubyClasses()
 {
@@ -49,14 +49,14 @@ void RBInitializationCustom::initializeCustomRubyClasses()
     RBFileListCustom::Init_FileListCustom();
     RBImageDataCustom::Init_ImageDataCustom();
     RBMessagePortCustom::Init_MessagePortCustom();
+    
+    // FIXME: Remove this when Workers are ready.
+    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(worker_unimplemented), -1);
 }
 
-VALUE unimplemented(VALUE self)
+VALUE worker_unimplemented(int, VALUE*, VALUE)
 {
-    rb_raise(rb_eNotImpError,
-             "%s.%s is not implemented in Decaf at the moment.",
-             rbToString(self).utf8().data(),
-             rb_id2name(rb_frame_this_func()));
+    rb_raise(rb_eNotImpError, "Workers do not work in Ruby at the moment.");
 }
 
 } // namespace WebCore
