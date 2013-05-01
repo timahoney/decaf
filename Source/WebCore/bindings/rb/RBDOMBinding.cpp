@@ -99,9 +99,7 @@ ScriptExecutionContext* contextFromBinding(VALUE binding)
     // using an instance_eval, it will have an __attached__ instance variable,
     // which will be the context we are looking for.
     VALUE nesting = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("Module.nesting"));
-    if (RARRAY_LEN(nesting) == 0)
-        return 0;
-    
+    ASSERT(!NIL_P(nesting) && RARRAY_LEN(nesting) > 0);
     VALUE topModule = rb_ary_entry(nesting, RARRAY_LEN(nesting) - 1);
     return contextFromModule(topModule);
 }
@@ -110,6 +108,7 @@ ScriptExecutionContext* currentContext()
 {
     // See contextFromBinding for a description of nesting.
     VALUE nesting = rb_funcall(rb_cModule, rb_intern("nesting"), 0);
+    ASSERT(!NIL_P(nesting) && RARRAY_LEN(nesting) > 0);
     VALUE topModule = rb_ary_entry(nesting, RARRAY_LEN(nesting) - 1);
     return contextFromModule(topModule);
 }
