@@ -90,15 +90,10 @@ ScriptValue RBScriptController::evaluate(const ScriptSourceCode& source)
     VALUE scriptString = rb_str_new2(source.source().utf8().data());
     VALUE fileName = rb_str_new2(source.url().string().utf8().data());
     VALUE lineNumber = INT2NUM(1);
-    VALUE args[3];
-    args[0] = scriptString;
-    args[1] = fileName;
-    args[2] = lineNumber;
-    VALUE result = callFunctionProtected(binding, "eval", 3, args);
+    VALUE exception = Qnil;
+    VALUE result = callFunction(binding, "eval", scriptString, fileName, lineNumber, &exception);
 
-    VALUE exception = rb_errinfo();
     if (!NIL_P(exception)) {
-        rb_set_errinfo(Qnil);
         RBDOMBinding::reportException(frame()->document(), exception);
         return ScriptValue();
     }
