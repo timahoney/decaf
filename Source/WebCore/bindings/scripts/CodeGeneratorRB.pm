@@ -738,8 +738,8 @@ sub GenerateCallbackImplementation
     push(@implContent, "namespace WebCore {\n\n");
 
     push(@implContent, "${className}::${className}(VALUE proc, ScriptExecutionContext* context)\n");
-    push(@implContent, ": RBCallback(proc)\n");
-    push(@implContent, ", ActiveDOMCallback(context)\n");
+    push(@implContent, "    : RBCallback(proc)\n");
+    push(@implContent, "    , ActiveDOMCallback(context)\n");
     push(@implContent, "{\n");
     push(@implContent, "}\n\n");
 

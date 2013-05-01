@@ -28,8 +28,8 @@
 namespace WebCore {
 
 RBMutationCallback::RBMutationCallback(VALUE proc, ScriptExecutionContext* context)
-: RBCallback(proc)
-, ActiveDOMCallback(context)
+    : RBCallback(proc)
+    , ActiveDOMCallback(context)
 {
 }
 
