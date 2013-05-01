@@ -35,35 +35,46 @@ using namespace RB;
 
 namespace WebCore {
 
+RBScriptCallArgumentHandler::RBScriptCallArgumentHandler(ScriptState* state)
+    : ScriptCallArgumentHandlerDelegate(state)
+{
+}
+
+RBScriptCallArgumentHandler::~RBScriptCallArgumentHandler()
+{
+}
+
+inline void RBScriptCallArgumentHandler::appendRBArgument(VALUE argument)
+{
+    appendArgument(RBScriptValue::scriptValue(argument));
+}
+
 void RBScriptCallArgumentHandler::appendArgument(const ScriptObject& argument)
 {
-    m_arguments.append(static_cast<RBScriptValue*>(argument.delegate())->rbValue());
+    m_arguments.append(argument);
 }
 
 void RBScriptCallArgumentHandler::appendArgument(const ScriptValue& argument)
 {
-    m_arguments.append(static_cast<RBScriptValue*>(argument.delegate())->rbValue());
+    m_arguments.append(argument);
 }
 
-static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<VALUE>& arguments, bool& hadException, bool reportExceptions)
+static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<ScriptValue>& arguments, bool& hadException, bool reportExceptions)
 {
     // Make the function call within the binding of the script state.
     RBScriptState* state = static_cast<RBScriptState*>(scriptState);
     VALUE createProc = rb_str_new2("Proc.new { |object, function_name, arguments| object.method(function_name).call(*arguments) }");
     VALUE proc = rb_funcall(state->binding(), rb_intern("eval"), 1, createProc);
-
     VALUE functionNameRB = rb_str_new2(functionName.utf8().data());
-    VALUE argumentsRB = rb_ary_new4(arguments.size(), arguments.data());
+    VALUE argumentsRB = rb_ary_new2(arguments.size());
+    for (size_t i = 0; i < arguments.size(); i++) {
+        VALUE argument = static_cast<RBScriptValue*>(arguments[i].delegate())->rbValue();
+        rb_ary_push(argumentsRB, argument);
+    }
+    
     VALUE exception;
     VALUE result = callFunction(proc, "call", object, functionNameRB, argumentsRB, &exception);
-
     if (!NIL_P(exception)) {
-        // FIXME: Does the exception become the errinfo with callFunction?
-        // If so, clear it.
-        if (exception == rb_errinfo())
-            printf("Had exception and it is the errinfo.\n");
-        rb_set_errinfo(Qnil);
-        
         if (reportExceptions)
             RBDOMBinding::reportException(state->scriptExecutionContext(), exception);
         

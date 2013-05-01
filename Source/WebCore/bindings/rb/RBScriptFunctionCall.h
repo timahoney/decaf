@@ -35,24 +35,22 @@ class RBScriptCallArgumentHandler : public virtual ScriptCallArgumentHandlerDele
 public:
     virtual void appendArgument(const ScriptObject&);
     virtual void appendArgument(const ScriptValue&);
-    virtual void appendArgument(const char* argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(const String& argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(long argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(long long argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(unsigned int argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(unsigned long argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(int argument) { m_arguments.append(toRB(argument)); }
-    virtual void appendArgument(bool argument) { m_arguments.append(toRB(argument)); }
+    virtual void appendArgument(const char* argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(const String& argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(long argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(long long argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(unsigned int argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(unsigned long argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(int argument) { appendRBArgument(toRB(argument)); }
+    virtual void appendArgument(bool argument) { appendRBArgument(toRB(argument)); }
+    void appendRBArgument(VALUE argument);
     
-    virtual ~RBScriptCallArgumentHandler() { }
+    virtual ~RBScriptCallArgumentHandler();
 
 protected:
-    RBScriptCallArgumentHandler(ScriptState* state)
-    : ScriptCallArgumentHandlerDelegate(state)
-    {
-    }
+    RBScriptCallArgumentHandler(ScriptState* state);
 
-    Vector<VALUE> m_arguments;
+    Vector<ScriptValue> m_arguments;
 };
 
 class RBScriptFunctionCall : public RBScriptCallArgumentHandler, public ScriptFunctionCallDelegate {
