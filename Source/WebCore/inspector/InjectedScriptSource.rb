@@ -78,7 +78,7 @@ class InjectedScript
     begin
       result = RemoteObject.new(self, object, object_group_name, force_value_type, generate_preview)
     rescue => e
-      backtrace_string = e.backtrace.join("\n\t")
+      p e.backtrace.join("\n\t")
       begin
         description = _describe($!)
       rescue
@@ -314,6 +314,7 @@ class InjectedScript
         begin
           descriptor[:value] = object.method(name).call
         rescue Exception => e
+          p e.backtrace
           descriptor[:value] = e
           descriptor[:wasThrown] = true
         end
@@ -394,7 +395,8 @@ class InjectedScript
 
       result = func.call(resolved_args)
       return { :wasThrown => false, :result => _wrap_object(result, object_group, return_by_value) }
-    rescue
+    rescue Exception => e
+      p e.backtrace
       return _create_thrown_value($!, object_group)
     end
   end
@@ -408,6 +410,7 @@ class InjectedScript
         :result    => _wrap_object(result, object_group, return_by_value, generate_preview) 
       }
     rescue Exception => e
+      p e.backtrace
       return _create_thrown_value(e, object_group)
     end
   end
@@ -739,7 +742,8 @@ class InjectedScript
             value = object.method(name).call
             property = _generate_descriptor(name, value, injected_script)
             @preview[:properties].push(property)
-          rescue
+          rescue Exception => e
+            p e.backtrace
             next
           end
         end
