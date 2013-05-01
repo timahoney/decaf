@@ -30,6 +30,8 @@
 #include "RBDOMBinding.h"
 #include <wtf/text/CString.h>
 
+using namespace RB;
+
 namespace WebCore {
 
 RBCallback::RBCallback(VALUE proc)
@@ -48,7 +50,7 @@ RBCallback::~RBCallback()
     rb_gc_unregister_address(&m_proc);
 }
 
-VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int argc, VALUE* argv)
+VALUE RBCallback::call(ScriptExecutionContext* scriptExecutionContext, int argc, VALUE* argv)
 {
     if (NIL_P(m_proc))
         return Qnil;

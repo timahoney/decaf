@@ -54,7 +54,7 @@ void RBEventListener::handleEvent(ScriptExecutionContext* scriptExecutionContext
 {
     VALUE argv[1];
     argv[0] = toRB(event);
-    callProc(scriptExecutionContext, 1, argv);
+    call(scriptExecutionContext, 1, argv);
 }
 
 } // namespace WebCore

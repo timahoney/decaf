@@ -39,7 +39,7 @@ bool RBSQLStatementErrorCallback::handleEvent(SQLTransaction* transaction, SQLEr
     VALUE argv[2];
     argv[0] = toRB(transaction);
     argv[1] = toRB(error);
-    VALUE result = callProc(scriptExecutionContext(), 2, argv);
+    VALUE result = call(scriptExecutionContext(), 2, argv);
     return RTEST(result);
 }
 

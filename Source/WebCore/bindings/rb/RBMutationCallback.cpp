@@ -44,12 +44,10 @@ void RBMutationCallback::call(const Vector<RefPtr<MutationRecord> >& mutations, 
 
     RefPtr<RBMutationCallback> protect(this);
 
-    VALUE mutationsRB = toRB(mutations);
-    VALUE observerRB = toRB(observer);
     VALUE argv[2];
-    argv[0] = mutationsRB;
-    argv[1] = observerRB;
-    callProc(scriptExecutionContext(), 2, argv);
+    argv[0] = toRB(mutations);
+    argv[1] = toRB(observer);
+    RBCallback::call(scriptExecutionContext(), 2, argv);
 }
 
 } // namespace WebCore

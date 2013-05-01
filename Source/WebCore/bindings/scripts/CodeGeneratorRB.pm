@@ -771,9 +771,9 @@ sub GenerateCallbackImplementation
                 push(@functionContent, "    argv[${paramI}] = toRB(" . $param->name . ");\n");
                 $paramI++;
             }
-            push(@functionContent, "    VALUE result = callProc(scriptExecutionContext(), $paramCount, argv);\n");
+            push(@functionContent, "    VALUE result = call(scriptExecutionContext(), $paramCount, argv);\n");
         } else {
-            push(@functionContent, "    VALUE result = callProc(scriptExecutionContext());\n");
+            push(@functionContent, "    VALUE result = call(scriptExecutionContext());\n");
         }
 
         my $implGetter = RBToNative("result", $function->signature);

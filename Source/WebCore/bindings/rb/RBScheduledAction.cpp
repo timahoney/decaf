@@ -54,13 +54,13 @@ RBScheduledAction::~RBScheduledAction()
 
 void RBScheduledAction::execute(Document* document)
 {
-    callProc(document);
+    call(document);
 }
 
 #if ENABLE(WORKERS)
 void RBScheduledAction::execute(WorkerContext* context)
 {
-    callProc(context);
+    call(context);
 }
 #endif
 
