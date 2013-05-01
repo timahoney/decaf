@@ -52,8 +52,6 @@ using namespace RB;
     
 namespace WebCore {
 
-using namespace RB;
-
 static VALUE globalWindowGetter(ID, VALUE*, struct global_entry*)
 {
     return RBDOMBinding::currentWindowRB();

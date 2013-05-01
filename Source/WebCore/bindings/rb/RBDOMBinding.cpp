@@ -50,8 +50,6 @@
 #include "RBWorkerContext.h"
 #include <Ruby/intern.h>
 
-namespace WebCore {
-
 namespace RB {
 
 typedef HashMap<ScriptExecutionContext*, VALUE> RBContextToBindingMap;
@@ -148,8 +146,10 @@ VALUE bindingFromContext(ScriptExecutionContext* context)
 }
 
 } // namespace RB
-    
+
 using namespace RB;
+
+namespace WebCore {
 
 static ExceptionBase* toExceptionBase(VALUE value) 
 {

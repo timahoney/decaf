@@ -30,7 +30,8 @@
 #include "ExceptionHeaders.h"
 #include "ExceptionInterfaces.h"
 
-namespace WebCore {
+using namespace WebCore;
+
 namespace RB {
 
 #define TRY_TO_CREATE_EXCEPTION(interfaceName) \
@@ -60,4 +61,3 @@ void setDOMException(ExceptionCode ec)
 }
 
 } // namespace RB
-} // namespace WebCore

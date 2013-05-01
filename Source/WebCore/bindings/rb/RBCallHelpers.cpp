@@ -83,6 +83,10 @@ VALUE callFunctionProtected(VALUE obj, const char* functionName, long argc, cons
     return result;
 }
 
+} // namespace WebCore
+
+using namespace WebCore;
+
 namespace RB {
 
 class RBFunctionRunner {
@@ -181,5 +185,3 @@ VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, 
 }
 
 } // namespace RB
-
-} // namespace WebCore

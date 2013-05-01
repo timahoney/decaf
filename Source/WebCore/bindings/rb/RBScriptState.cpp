@@ -35,9 +35,9 @@
 #include "ScriptArguments.h"
 #include "WorkerContext.h"
 
-namespace WebCore {
-
 using namespace RB;
+
+namespace WebCore {
 
 RBScriptState::RBScriptState(VALUE binding)
     : ScriptState(RBScriptType)

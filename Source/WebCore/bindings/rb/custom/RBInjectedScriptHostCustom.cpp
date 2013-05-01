@@ -41,9 +41,9 @@
 #include "RBScriptState.h"
 #include "RBScriptValue.h"
 
-namespace WebCore {
-
 using namespace RB;
+
+namespace WebCore {
 
 VALUE RBInjectedScriptHost::inspect(VALUE self, VALUE objectId, VALUE rbHints)
 {

@@ -31,9 +31,9 @@
 #include "RBScriptValue.h"
 #include <wtf/text/WTFString.h>
 
-namespace WebCore {
-
 using namespace RB;
+
+namespace WebCore {
 
 void RBScriptCallArgumentHandler::appendArgument(const ScriptObject& argument)
 {

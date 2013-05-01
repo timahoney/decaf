@@ -52,17 +52,22 @@ public:
     static RBScriptState* globalScriptState(RBScriptState*);
 };
 
-namespace RB {
-    ScriptExecutionContext* currentContext();
-
-    // Gets the binding for execution.
-    // Always evaluate any code from the user in this binding.
-    // If you use a different binding than this one, 
-    // then it will likely not have any of the previously user-defined code.
-    VALUE bindingFromContext(ScriptExecutionContext* context);
-    ScriptExecutionContext* contextFromBinding(VALUE binding);
-} // namespace RB
-
 } // namespace WebCore
+
+using namespace WebCore;
+
+namespace RB {
+
+ScriptExecutionContext* currentContext();
+
+// Gets the binding for execution.
+// Always evaluate any code from the user in this binding.
+// If you use a different binding than this one, 
+// then it will likely not have any of the previously user-defined code.
+VALUE bindingFromContext(ScriptExecutionContext* context);
+
+ScriptExecutionContext* contextFromBinding(VALUE binding);
+
+} // namespace RB
 
 #endif // RBDOMBinding_h

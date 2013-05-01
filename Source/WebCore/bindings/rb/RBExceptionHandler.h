@@ -26,13 +26,11 @@
 #ifndef RBExceptionHandler_h
 #define RBExceptionHandler_h
 
-namespace WebCore {
 namespace RB {
 
     typedef int ExceptionCode;
     void setDOMException(ExceptionCode ec);
     
 } // namespace RB
-} // namespace WebCore
 
 #endif
