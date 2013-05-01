@@ -33,17 +33,18 @@
 
 #include <Ruby/ruby.h>
 
-namespace WebCore {
+namespace RB {
 
+// FIXME: Remove this function.
 static VALUE printException(VALUE exceptionObject)
 {
     printf("--EXCEPTION--\n");
     printf("Type:\t\t%s\n", rb_obj_classname(exceptionObject));
-
+    
     VALUE message = rb_funcall(exceptionObject, rb_intern("message"), 0);
     printf("Message:\t%s\n", StringValueCStr(message));
     VALUE backtrace = rb_funcall(exceptionObject, rb_intern("backtrace"), 0);
-
+    
     printf("Backtrace:\t");
     int count = NUM2INT(rb_funcall(backtrace, rb_intern("size"), 0));
     for (int i = 0; i < count; i++) {
@@ -52,42 +53,9 @@ static VALUE printException(VALUE exceptionObject)
         VALUE backtraceLine = rb_funcall(backtrace, rb_intern("[]"), 1, INT2NUM(i));
         printf("%s\n", StringValueCStr(backtraceLine));
     }
-
+    
     return Qnil;
 }
-
-extern "C" VALUE call_protected(VALUE);
-VALUE call_protected(VALUE callParams)
-{
-    VALUE object = rb_ary_shift(callParams);
-    VALUE rbFunctionName = rb_ary_shift(callParams);
-    char* functionName = StringValueCStr(rbFunctionName);
-    return rb_funcall2(object, rb_intern(functionName), RARRAY_LEN(callParams), RARRAY_PTR(callParams));
-}
-
-VALUE callFunctionProtected(VALUE obj, const char* functionName, long argc, const VALUE* argv)
-{
-    VALUE callParams = rb_ary_new();
-    rb_ary_push(callParams, obj);
-    rb_ary_push(callParams, rb_str_new2(functionName));
-    for (int i = 0; i < argc; i++)
-        rb_ary_push(callParams, argv[i]);
-    
-    int exception = 0;
-    rb_gc_register_address(&callParams);
-    VALUE result = rb_protect(&call_protected, callParams, &exception);
-    rb_gc_unregister_address(&callParams);
-    if (exception)
-        printException(rb_errinfo());
-    
-    return result;
-}
-
-} // namespace WebCore
-
-using namespace WebCore;
-
-namespace RB {
 
 class RBFunctionRunner {
 public:
@@ -136,7 +104,7 @@ private:
     VALUE m_exception;
 };
 
-static VALUE callFunctionInternal(VALUE object, const char* functionName, VALUE* exception, int argc, ...)
+static inline VALUE callFunctionVariadic(VALUE object, const char* functionName, VALUE* exception, int argc, ...)
 {
     VALUE *argv = 0;
     va_list argList;
@@ -149,39 +117,43 @@ static VALUE callFunctionInternal(VALUE object, const char* functionName, VALUE*
 
         va_end(argList);
     }
+    
+    return callFunction(object, functionName, argc, argv, exception);
+}
 
+VALUE callFunction(VALUE object, const char* functionName, int argc, VALUE* argv, VALUE* exception)
+{
     VALUE parameters = rb_ary_new4(argc, argv);
     RBFunctionRunner runner(object, functionName, parameters);
     VALUE result = runner.callFunction();
     if (exception)
         *exception = runner.exception();
-
     return result;
 }
 
-VALUE callFunction(VALUE obj, const char* functionName, VALUE* exception)
+VALUE callFunction(VALUE object, const char* functionName, VALUE* exception)
 {
-    return callFunctionInternal(obj, functionName, exception, 0);
+    return callFunctionVariadic(object, functionName, exception, 0);
 }
 
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE* exception)
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE* exception)
 {
-    return callFunctionInternal(obj, functionName, exception, 1, arg1);
+    return callFunctionVariadic(object, functionName, exception, 1, arg1);
 }
 
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE* exception)
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE* exception)
 {
-    return callFunctionInternal(obj, functionName, exception, 2, arg1, arg2);
+    return callFunctionVariadic(object, functionName, exception, 2, arg1, arg2);
 }
 
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE* exception)
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE* exception)
 {
-    return callFunctionInternal(obj, functionName, exception, 3, arg1, arg2, arg3);
+    return callFunctionVariadic(object, functionName, exception, 3, arg1, arg2, arg3);
 }
 
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE arg4, VALUE* exception)
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE arg4, VALUE* exception)
 {
-    return callFunctionInternal(obj, functionName, exception, 4, arg1, arg2, arg3, arg4);
+    return callFunctionVariadic(object, functionName, exception, 4, arg1, arg2, arg3, arg4);
 }
 
 } // namespace RB

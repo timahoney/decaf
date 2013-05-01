@@ -58,14 +58,11 @@ VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int a
     // will crash. For example, window.onload = Proc.new {} works,
     // but window.onload = method(:a) will crash if 'a' takes no arguments.
     // Do we want to allow Methods to specify less arguments?
-    
-    VALUE result = callFunctionProtected(m_proc, "call", argc, argv);
+    VALUE exception;
+    VALUE result = callFunction(m_proc, "call", argc, argv, &exception);
 
-    VALUE exception = rb_errinfo();
-    if (!NIL_P(exception)) {
-        rb_set_errinfo(Qnil);
+    if (!NIL_P(exception))
         RBDOMBinding::reportException(scriptExecutionContext, exception);
-    }
 
     return result;
 }

@@ -33,24 +33,20 @@
 
 #include <Ruby/ruby.h>
 
-namespace WebCore {
-
-// FIXME: Put this in the RB namespace.
-VALUE callFunctionProtected(VALUE obj, const char* functionName, long argc = 0, const VALUE* argv = 0);
-
-} // namespace WebCore
-
 namespace RB {
 
 // Here are a few helpers to call a Ruby function and protect it.
 // If there was an exception, then it will be stored in the 'exception' argument.
-// If you ever run into the problem of needing more than four arguments, then make another function.
-// This feels safer and faster than a variadic function.
-VALUE callFunction(VALUE obj, const char* functionName, VALUE* exception = 0);
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE* exception = 0);
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE* exception = 0);
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE* exception = 0);
-VALUE callFunction(VALUE obj, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE arg4, VALUE* exception = 0);
+VALUE callFunction(VALUE object, const char* functionName, int argc, VALUE* argv, VALUE* exception = 0);
+
+// It makes sense to have a variadic function for these, but defining multiple
+// functions allows us to put the optional exception value at the end.
+// If you ever need to use more than four arguments, then make another function.
+VALUE callFunction(VALUE object, const char* functionName, VALUE* exception = 0);
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE* exception = 0);
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE* exception = 0);
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE* exception = 0);
+VALUE callFunction(VALUE object, const char* functionName, VALUE arg1, VALUE arg2, VALUE arg3, VALUE arg4, VALUE* exception = 0);
 
 } // namespace RB
 
