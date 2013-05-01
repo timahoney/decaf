@@ -220,11 +220,6 @@ VALUE RBDOMBinding::currentWindowRB()
     return toRB(currentWindow());
 }
 
-VALUE RBDOMBinding::bindingFromWindow(DOMWindow* window)
-{
-    return bindingFromContext(window->scriptExecutionContext());
-}
-
 typedef HashMap<String, intptr_t> RBFileNameToSourceIDMap;
 static RBFileNameToSourceIDMap* fileNameSourceIDs;
 

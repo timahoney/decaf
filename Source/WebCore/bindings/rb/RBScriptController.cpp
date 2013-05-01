@@ -52,6 +52,8 @@ using namespace RB;
     
 namespace WebCore {
 
+using namespace RB;
+
 static VALUE globalWindowGetter(ID, VALUE*, struct global_entry*)
 {
     return RBDOMBinding::currentWindowRB();
@@ -86,7 +88,7 @@ RBScriptController::~RBScriptController()
 
 ScriptValue RBScriptController::evaluate(const ScriptSourceCode& source)
 {
-    VALUE binding = RBDOMBinding::bindingFromWindow(frame()->document()->domWindow());
+    VALUE binding = bindingFromContext(frame()->document());
     VALUE scriptString = rb_str_new2(source.source().utf8().data());
     VALUE fileName = rb_str_new2(source.url().string().utf8().data());
     VALUE lineNumber = INT2NUM(1);

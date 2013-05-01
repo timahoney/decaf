@@ -46,12 +46,6 @@ public:
     static DOMWindow* currentWindow();
     static VALUE currentWindowRB();
 
-    // Gets the binding for execution in a Window.
-    // Always use this when executing top-level code for a Window.
-    // If you use a different binding than this one, 
-    // then it will likely not have any of the previously user-defined code.
-    static VALUE bindingFromWindow(DOMWindow*);
-
     static intptr_t sourceIDFromFileName(const char* fileName);
     
     // Finds the global script state for another state.
@@ -61,6 +55,10 @@ public:
 namespace RB {
     ScriptExecutionContext* currentContext();
 
+    // Gets the binding for execution.
+    // Always evaluate any code from the user in this binding.
+    // If you use a different binding than this one, 
+    // then it will likely not have any of the previously user-defined code.
     VALUE bindingFromContext(ScriptExecutionContext* context);
     ScriptExecutionContext* contextFromBinding(VALUE binding);
 } // namespace RB

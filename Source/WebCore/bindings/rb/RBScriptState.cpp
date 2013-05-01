@@ -100,8 +100,7 @@ void RBScriptState::setEvalEnabled(bool enabled)
     
 ScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
 {
-    DOMWindow* window = frame->document()->domWindow();
-    VALUE binding = RBDOMBinding::bindingFromWindow(window);
+    VALUE binding = bindingFromContext(frame->document());
 
     // FIXME: This will get leaked. Fix that!
     return new RBScriptState(binding);

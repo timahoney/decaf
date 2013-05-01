@@ -43,6 +43,8 @@
 
 namespace WebCore {
 
+using namespace RB;
+
 VALUE RBInjectedScriptHost::inspect(VALUE self, VALUE objectId, VALUE rbHints)
 {
     if (!NIL_P(objectId) && !NIL_P(rbHints)) {
@@ -245,7 +247,7 @@ VALUE RBInjectedScriptHost::evaluate(VALUE self, VALUE expression)
     // We might be able to just use currentContext() and bindingFromContext().
     VALUE windowRB = rb_iv_get(self, "@inspected_window");
     DOMWindow* window = impl<DOMWindow>(windowRB);
-    VALUE binding = RBDOMBinding::bindingFromWindow(window);
+    VALUE binding = bindingFromContext(window->document());
     
     VALUE result = rb_funcall(binding, rb_intern("eval"), 2, expression, rb_str_new2(""));
     return result;
