@@ -52,8 +52,8 @@
 namespace WebCore {
 
 JSScriptState::JSScriptState(JSC::ExecState* execState)
-: ScriptState(JSScriptType)
-, m_execState(execState)
+    : ScriptState(JSScriptType)
+    , m_execState(execState)
 {
 }
 
