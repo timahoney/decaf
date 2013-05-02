@@ -49,12 +49,16 @@
 #include <wtf/text/WTFString.h>
 
 using namespace RB;
-    
+
 namespace WebCore {
 
 static VALUE globalWindowGetter(ID, VALUE*, struct global_entry*)
 {
-    return RBDOMBinding::currentWindowRB();
+    ScriptExecutionContext* context = RB::currentContext();
+    if (context->isDocument())
+        return toRB(static_cast<Document*>(context)->domWindow());
+    
+    return Qnil;
 }
     
 static void initRuby()
@@ -94,7 +98,7 @@ ScriptValue RBScriptController::evaluate(const ScriptSourceCode& source)
     VALUE result = callFunction(binding, "eval", scriptString, fileName, lineNumber, &exception);
 
     if (!NIL_P(exception)) {
-        RBDOMBinding::reportException(frame()->document(), exception);
+        RB::reportException(frame()->document(), exception);
         return ScriptValue();
     }
 

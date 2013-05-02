@@ -28,8 +28,8 @@
 
 namespace RB {
 
-    typedef int ExceptionCode;
-    void setDOMException(ExceptionCode ec);
+typedef int ExceptionCode;
+void setDOMException(ExceptionCode ec);
     
 } // namespace RB
 

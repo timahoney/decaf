@@ -1905,7 +1905,7 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(VALUE value, Mes
     VALUE serializedRB = rb_funcall(rb_mMarshal, rb_intern("dump"), 1, value);
 
     if (!NIL_P(rb_errinfo())) {
-        RBDOMBinding::reportCurrentException(RBScriptState::current());
+        RB::reportException(RB::currentContext(), rb_errinfo());
         return 0;
     }
     

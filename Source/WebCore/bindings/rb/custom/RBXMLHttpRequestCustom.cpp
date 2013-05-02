@@ -37,6 +37,8 @@
 #include "RBExceptionHandler.h"
 #include "RBScriptState.h"
 
+using namespace RB;
+
 namespace WebCore {
 
 VALUE RBXMLHttpRequest::response_text_getter(VALUE self)
@@ -129,7 +131,7 @@ VALUE RBXMLHttpRequest::open(int argc, VALUE* argv, VALUE self)
 VALUE RBXMLHttpRequest::send(int argc, VALUE* argv, VALUE self)
 {
     XMLHttpRequest* request = impl<XMLHttpRequest>(self);
-    InspectorInstrumentation::willSendXMLHttpRequest(RBDOMBinding::currentWindow()->scriptExecutionContext(), request->url());
+    InspectorInstrumentation::willSendXMLHttpRequest(currentContext(), request->url());
 
     VALUE data;
     rb_scan_args(argc, argv, "01", &data);

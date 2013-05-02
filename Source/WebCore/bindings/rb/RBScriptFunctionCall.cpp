@@ -76,7 +76,7 @@ static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, cons
     VALUE result = callFunction(proc, "call", object, functionNameRB, argumentsRB, &exception);
     if (!NIL_P(exception)) {
         if (reportExceptions)
-            RBDOMBinding::reportException(state->scriptExecutionContext(), exception);
+            reportException(state->scriptExecutionContext(), exception);
         
         hadException = true;
         return ScriptValue();

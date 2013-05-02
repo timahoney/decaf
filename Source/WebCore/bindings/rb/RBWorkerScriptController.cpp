@@ -38,9 +38,9 @@
 #endif
 #include "ScriptSourceCode.h"
 
-namespace WebCore {
-
 using namespace RB;
+
+namespace WebCore {
 
 RBWorkerScriptController::RBWorkerScriptController(WorkerContext* workerContext)
     : WorkerScriptController(workerContext, RBScriptType)
@@ -98,7 +98,7 @@ void RBWorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
     evaluate(sourceCode, &exception);
     if (!exception.hasNoValue()) {
         VALUE exceptionRB = static_cast<RBScriptValue*>(exception.delegate())->rbValue();
-        RBDOMBinding::reportException(m_workerContext, exceptionRB);
+        reportException(m_workerContext, exceptionRB);
     }
 }
 

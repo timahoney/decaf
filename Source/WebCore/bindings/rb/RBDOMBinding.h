@@ -27,43 +27,36 @@
 #define RBDOMBinding_h
 
 #include "RBScriptState.h"
-#include "ScriptExecutionContext.h"
 #include <Ruby/ruby.h>
 
 namespace WebCore {
 
 class CachedScript;
 class DOMWindow;
-
-// FIXME: Use RB namespace instead of RBDOMBinding class.
-
-class RBDOMBinding {
-public:
-    static void reportException(ScriptExecutionContext*, VALUE exception, CachedScript* = 0);
-    static void reportCurrentException(RBScriptState*, CachedScript* = 0);
-
-    // Returns the window for the current Ruby VM state.
-    static DOMWindow* currentWindow();
-    static VALUE currentWindowRB();
-
-    static intptr_t sourceIDFromFileName(const char* fileName);
-};
+class ScriptExecutionContext;
 
 } // namespace WebCore
 
-using namespace WebCore;
-
 namespace RB {
 
-ScriptExecutionContext* currentContext();
+void reportException(WebCore::ScriptExecutionContext*, VALUE exception, WebCore::CachedScript* = 0);
+void reportCurrentException(WebCore::RBScriptState*, WebCore::CachedScript* = 0);
+
+// Returns the window for the current Ruby VM state.
+WebCore::DOMWindow* currentWindow();
+VALUE currentWindowRB();
+
+intptr_t sourceIDFromFileName(const char* fileName);
+
+WebCore::ScriptExecutionContext* currentContext();
 
 // Gets the binding for execution.
 // Always evaluate any code from the user in this binding.
 // If you use a different binding than this one, 
 // then it will likely not have any of the previously user-defined code.
-VALUE bindingFromContext(ScriptExecutionContext* context);
+VALUE bindingFromContext(WebCore::ScriptExecutionContext* context);
 
-ScriptExecutionContext* contextFromBinding(VALUE binding);
+WebCore::ScriptExecutionContext* contextFromBinding(VALUE binding);
 
 } // namespace RB
 

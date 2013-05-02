@@ -41,6 +41,8 @@
 #include <wtf/HashSet.h>
 #include <wtf/StringHasher.h>
 
+using namespace RB;
+
 namespace WebCore {
 
 RBScriptDebugServer::RBScriptDebugServer()
@@ -69,7 +71,7 @@ void RBScriptDebugServer::createCurrentCallFrame()
     
     TextPosition textPosition(OrdinalNumber::fromOneBasedInt(rb_sourceline()), OrdinalNumber::fromZeroBasedInt(0));
     VALUE binding = rb_binding_new();
-    intptr_t sourceID = RBDOMBinding::sourceIDFromFileName(rb_sourcefile());
+    intptr_t sourceID = sourceIDFromFileName(rb_sourcefile());
     m_currentCallFrame = RBScriptCallFrame::create(binding, m_currentCallFrame, sourceID, textPosition);
     if (m_lastExecutedSourceId != sourceID) {
         m_lastExecutedLine = -1;
@@ -88,7 +90,7 @@ void RBScriptDebugServer::updateCurrentCallFrame()
     
     TextPosition textPosition(OrdinalNumber::fromOneBasedInt(rb_sourceline()), OrdinalNumber::fromZeroBasedInt(0));
     m_doProcessEvents = false;
-    int sourceID = RBDOMBinding::sourceIDFromFileName(rb_sourcefile());
+    int sourceID = sourceIDFromFileName(rb_sourcefile());
     VALUE binding = rb_binding_new();
     currentCallFrame()->update(binding, sourceID, textPosition);
     m_doProcessEvents = true;
@@ -111,7 +113,7 @@ void RBScriptDebugServer::processEventHook(rb_event_flag_t event, VALUE data, VA
     const char* fileName = rb_sourcefile();
     if (!fileName || reinterpret_cast<intptr_t>(fileName) == 1)
         return;
-    intptr_t sourceID = RBDOMBinding::sourceIDFromFileName(fileName);
+    intptr_t sourceID = sourceIDFromFileName(fileName);
 
     if (!m_parsedScriptIds.contains(sourceID) && isValidUrl(fileName)) {
         if (!m_currentCallFrame)
@@ -201,7 +203,7 @@ void RBScriptDebugServer::dispatchDidParseSource(ListenerSet& listeners, const c
     if (!isValidUrl(fileName))
         return;
     
-    String sourceID = String::number(RBDOMBinding::sourceIDFromFileName(fileNamePtr));
+    String sourceID = String::number(sourceIDFromFileName(fileNamePtr));
 
     ScriptDebugListener::Script script;
     script.url = fileName;

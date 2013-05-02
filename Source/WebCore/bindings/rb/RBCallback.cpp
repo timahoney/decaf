@@ -64,7 +64,7 @@ VALUE RBCallback::call(ScriptExecutionContext* scriptExecutionContext, int argc,
     VALUE result = callFunction(m_proc, "call", argc, argv, &exception);
 
     if (!NIL_P(exception))
-        RBDOMBinding::reportException(scriptExecutionContext, exception);
+        reportException(scriptExecutionContext, exception);
 
     return result;
 }

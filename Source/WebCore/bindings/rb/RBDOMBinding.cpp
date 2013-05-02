@@ -52,6 +52,8 @@
 
 namespace RB {
 
+using namespace WebCore;
+
 typedef HashMap<ScriptExecutionContext*, VALUE> RBContextToBindingMap;
 static RBContextToBindingMap* contextBindings;
 typedef HashMap<VALUE, ScriptExecutionContext*> RBModuleToContextMap;
@@ -147,12 +149,6 @@ VALUE bindingFromContext(ScriptExecutionContext* context)
     return binding;
 }
 
-} // namespace RB
-
-using namespace RB;
-
-namespace WebCore {
-
 static ExceptionBase* toExceptionBase(VALUE value) 
 {
     if (IS_RB_KIND(value, DOMCoreException))
@@ -177,7 +173,7 @@ static ExceptionBase* toExceptionBase(VALUE value)
     return 0;
 }
 
-void RBDOMBinding::reportException(ScriptExecutionContext* scriptExecutionContext, VALUE exception, CachedScript* cachedScript)
+void reportException(ScriptExecutionContext* scriptExecutionContext, VALUE exception, CachedScript* cachedScript)
 {
     if (NIL_P(exception))
         return;
@@ -197,7 +193,7 @@ void RBDOMBinding::reportException(ScriptExecutionContext* scriptExecutionContex
     scriptExecutionContext->reportException(errorMessage, lineNumber, exceptionSourceURL, 0, cachedScript);
 }
 
-void RBDOMBinding::reportCurrentException(RBScriptState* state, CachedScript* cachedScript)
+void reportCurrentException(RBScriptState* state, CachedScript* cachedScript)
 {
     VALUE exception = rb_errinfo();
     rb_set_errinfo(Qnil);
@@ -208,24 +204,10 @@ void RBDOMBinding::reportCurrentException(RBScriptState* state, CachedScript* ca
     reportException(state->scriptExecutionContext(), exception, cachedScript);
 }
 
-DOMWindow* RBDOMBinding::currentWindow()
-{
-    ScriptExecutionContext* context = currentContext();
-    if (context->isDocument())
-        return static_cast<Document*>(context)->domWindow();
-    
-    return 0;
-}
-
-VALUE RBDOMBinding::currentWindowRB()
-{
-    return toRB(currentWindow());
-}
-
 typedef HashMap<String, intptr_t> RBFileNameToSourceIDMap;
 static RBFileNameToSourceIDMap* fileNameSourceIDs;
 
-intptr_t RBDOMBinding::sourceIDFromFileName(const char* fileName)
+intptr_t sourceIDFromFileName(const char* fileName)
 {
     if (!fileNameSourceIDs)
         fileNameSourceIDs = new RBFileNameToSourceIDMap();
@@ -240,4 +222,4 @@ intptr_t RBDOMBinding::sourceIDFromFileName(const char* fileName)
     return id;
 }
 
-} // namespace WebCore
+} // namespace RB

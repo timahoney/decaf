@@ -135,7 +135,7 @@ VALUE RBInjectedScriptHost::function_details(VALUE, VALUE value)
         return Qnil;
     VALUE fileName = rb_ary_entry(sourceLocation, 0);
     VALUE lineNumber = rb_ary_entry(sourceLocation, 1);
-    intptr_t sourceID = RBDOMBinding::sourceIDFromFileName(rbToString(fileName).utf8().data());
+    intptr_t sourceID = sourceIDFromFileName(rbToString(fileName).utf8().data());
     VALUE location = rb_hash_new();
     rb_hash_aset(location, ID2SYM(rb_intern("lineNumber")), lineNumber);
     rb_hash_aset(location, ID2SYM(rb_intern("scriptId")), toRB(String::number(sourceID)));

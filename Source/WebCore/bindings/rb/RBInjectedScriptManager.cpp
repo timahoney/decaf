@@ -39,9 +39,9 @@
 #include "RBScriptValue.h"
 #include "ScriptObject.h"
 
-namespace WebCore {
-
 using namespace RB;
+
+namespace WebCore {
 
 ScriptObject rbCreateInjectedScript(const String& source, ScriptState* state, int id, InjectedScriptHost* host)
 {

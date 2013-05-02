@@ -389,7 +389,7 @@ sub RBToNativeConverter
     if ($extendedAttributes->{"Callback"}) {
         $implIncludes{"DOMWindow.h"} = 1;
         $implIncludes{"RBDOMBinding.h"} = 1;
-        return "RB${type}::create($argName, RBDOMBinding::currentWindow()->scriptExecutionContext())";
+        return "RB${type}::create($argName, RB::currentContext())";
     }
     
 
@@ -1879,7 +1879,6 @@ sub GenerateImplementation
     $implIncludes{"<Ruby/ruby.h>"} = 1;
     AddIncludesForType($interfaceName);
     @implContent = ();
-
     push(@implContent, "namespace WebCore {\n\n");
     
     # Declare the static class variable
