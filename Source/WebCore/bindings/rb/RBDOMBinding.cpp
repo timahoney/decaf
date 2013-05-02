@@ -190,6 +190,9 @@ void reportException(ScriptExecutionContext* scriptExecutionContext, VALUE excep
     if (ExceptionBase* exceptionBase = toExceptionBase(exception))
         errorMessage = exceptionBase->message() + ": " + exceptionBase->description();
 
+    if (scriptExecutionContext->isDocument() && !static_cast<Document*>(scriptExecutionContext)->domWindow()->isCurrentlyDisplayedInFrame())
+        return;
+
     scriptExecutionContext->reportException(errorMessage, lineNumber, exceptionSourceURL, 0, cachedScript);
 }
 
@@ -197,10 +200,6 @@ void reportCurrentException(RBScriptState* state, CachedScript* cachedScript)
 {
     VALUE exception = rb_errinfo();
     rb_set_errinfo(Qnil);
-
-    if (state->domWindow() && !state->domWindow()->isCurrentlyDisplayedInFrame())
-        return;
-
     reportException(state->scriptExecutionContext(), exception, cachedScript);
 }
 
