@@ -39,6 +39,8 @@ using namespace RB;
 
 namespace WebCore {
 
+RBScriptState::RBContextToGlobalStateMap* RBScriptState::s_contextGlobalStates;
+
 RBScriptState::RBScriptState(VALUE binding)
     : ScriptState(RBScriptType)
     , m_binding(binding)
@@ -97,19 +99,31 @@ void RBScriptState::setEvalEnabled(bool enabled)
 {
     m_evalEnabled = enabled;
 }
+
+ScriptState* RBScriptState::globalScriptState(ScriptExecutionContext* context)
+{
+    if (!s_contextGlobalStates)
+        s_contextGlobalStates = new RBContextToGlobalStateMap();
+    
+    // FIXME: Delete these ScriptStates when the context is finished.
+    RBScriptState* globalState = s_contextGlobalStates->get(context);
+    if (!globalState) {
+        VALUE binding = bindingFromContext(context);
+        globalState = new RBScriptState(binding);
+        s_contextGlobalStates->set(context, globalState);
+    }
+    
+    return globalState;
+}
     
 ScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
 {
-    VALUE binding = bindingFromContext(frame->document());
-
-    // FIXME: This will get leaked. Fix that!
-    return new RBScriptState(binding);
+    return globalScriptState(frame->document());
 }
 
 ScriptState* RBScriptState::scriptStateFromWorkerContext(WorkerContext* workerContext)
 {
-    VALUE binding = bindingFromContext(workerContext);
-    return RBScriptState::forBinding(binding);
+    return globalScriptState(workerContext);
 }
 
 PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed)

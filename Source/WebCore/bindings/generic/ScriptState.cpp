@@ -57,7 +57,7 @@ static ScriptState* getScriptStateForProtectedPtr(ScriptState* scriptState)
         }
             
         case RBScriptType:
-            return RBDOMBinding::globalScriptState(static_cast<RBScriptState*>(scriptState));
+            return RBScriptState::globalScriptState(scriptState->scriptExecutionContext());
     }
 }
 

@@ -28,6 +28,7 @@
 
 #include "ScriptState.h"
 #include <Ruby/ruby.h>
+#include <wtf/HashMap.h>
 
 namespace WebCore {
 class DOMWindow;
@@ -52,9 +53,14 @@ public:
     static ScriptState* mainWorldScriptState(Frame*);
     static ScriptState* scriptStateFromWorkerContext(WorkerContext*);
 
+    // Returns the ScriptState for an execution context.
+    static ScriptState* globalScriptState(ScriptExecutionContext*);
+
     static PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStackForConsole();
+    
+    typedef HashMap<ScriptExecutionContext*, RBScriptState*> RBContextToGlobalStateMap;
 
 private:
     RBScriptState(VALUE binding);
@@ -62,6 +68,8 @@ private:
 
     VALUE m_binding;
     bool m_evalEnabled;
+
+    static RBContextToGlobalStateMap* s_contextGlobalStates;
 };
 
 } // namespace WebCore

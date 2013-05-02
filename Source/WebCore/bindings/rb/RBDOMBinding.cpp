@@ -240,23 +240,4 @@ intptr_t RBDOMBinding::sourceIDFromFileName(const char* fileName)
     return id;
 }
 
-typedef HashMap<ScriptExecutionContext*, RBScriptState*> RBContextToGlobalStateMap;
-static RBContextToGlobalStateMap* contextGlobalStates;
-
-RBScriptState* RBDOMBinding::globalScriptState(RBScriptState* state)
-{
-    if (!contextGlobalStates)
-        contextGlobalStates = new RBContextToGlobalStateMap();
-    
-    ScriptExecutionContext* context = state->scriptExecutionContext();
-    RBScriptState* globalState = contextGlobalStates->get(context);
-    if (!globalState) {
-        VALUE binding = bindingFromContext(context);
-        globalState = RBScriptState::forBinding(binding);
-        contextGlobalStates->set(context, globalState);
-    }
-    
-    return globalState;
-}
-
 } // namespace WebCore
