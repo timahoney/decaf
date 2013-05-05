@@ -28,6 +28,7 @@
 
 #include "RBHistory.h"
 #include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 
 namespace WebCore {
 
