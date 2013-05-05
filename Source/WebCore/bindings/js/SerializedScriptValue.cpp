@@ -43,6 +43,7 @@
 #include "RBMessagePort.h"
 #include "RBScriptState.h"
 #include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include "ScriptValue.h"
 #include "SerializationDelegate.h"
 #include "SerializationTags.h"
