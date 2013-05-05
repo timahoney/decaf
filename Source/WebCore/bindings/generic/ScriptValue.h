@@ -35,6 +35,8 @@
 #include "SerializedScriptValue.h"
 #include "ScriptState.h"
 #include "ScriptValueDelegate.h"
+#include <Ruby/ruby.h>
+#include <runtime/JSCJSValue.h>
 #include <wtf/PassRefPtr.h>
 #include <wtf/text/WTFString.h>
 
@@ -53,12 +55,12 @@ public:
     ScriptValue();
     ScriptValue(PassRefPtr<ScriptValueDelegate> delegate);
 
-    // FIXME: Delete this. It's a leftover from the non-generic ScriptValue.
-    //        It's still around to ease the transition into the generic ScriptValue.
     ScriptValue(JSC::JSGlobalData&, JSC::JSValue);
+    ScriptValue(VALUE);
 
     virtual ~ScriptValue() {}
 
+    bool isString() const;
     bool getString(ScriptState*, String& result) const;
     String toString(ScriptState*) const;
     bool isEqual(ScriptState*, const ScriptValue&) const;
@@ -69,15 +71,27 @@ public:
     bool hasNoValue() const;
     void clear();
 
-    // FIXME: Delete this. It's left over from the non-generic ScriptValue.
-    //        It's still around to ease the transition into the generic ScriptValue.
+    // Methods for serialization.
+    bool isNumber() const;
+    bool isInt32() const;
+    int32_t asInt32() const;
+    double asDouble() const;
+    double asNumber() const;
+    bool isBoolean() const;
+    bool isTrue() const;
+
+    // FIXME: Rename this function to something more meaningful.
+    // What is a JSCell?
+    bool isCell() const;
+
+    // FIXME: Should we remove these? They aren't very generic, but they're convenient.
     JSC::JSValue jsValue() const;
+    VALUE rbValue() const;
 
     bool operator==(const ScriptValue& other) const;
 
     PassRefPtr<SerializedScriptValue> serialize(ScriptState*, SerializationErrorMode = Throwing);
     PassRefPtr<SerializedScriptValue> serialize(ScriptState*, MessagePortArray*, ArrayBufferArray*, bool&);
-    static ScriptValue deserialize(ScriptState*, SerializedScriptValue*, SerializationErrorMode = Throwing);
 
     ScriptValueDelegate* delegate() const { return m_delegate.get(); }
     ScriptType scriptType() const { return m_delegate->scriptType(); }

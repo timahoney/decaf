@@ -50,6 +50,14 @@ JSScriptValue::~JSScriptValue()
 {
 }
 
+bool JSScriptValue::isString() const
+{
+    if (!m_value)
+        return false;
+
+    return m_value.get().isString();
+}
+
 bool JSScriptValue::getString(ScriptState* scriptState, String& result) const
 {
     if (!m_value)
@@ -111,6 +119,62 @@ bool JSScriptValue::isFunction() const
     return getCallData(m_value.get(), callData) != CallTypeNone;
 }
 
+bool JSScriptValue::isNumber() const
+{
+    if (!m_value)
+        return false;
+    return m_value.get().isNumber();
+}
+
+bool JSScriptValue::isInt32() const
+{
+    if (!m_value)
+        return false;
+    return m_value.get().isInt32();
+}
+
+int32_t JSScriptValue::asInt32() const
+{
+    if (!m_value)
+        return 0;
+    return m_value.get().asInt32();
+}
+
+double JSScriptValue::asDouble() const
+{
+    if (!m_value)
+        return 0;
+    return m_value.get().asDouble();
+}
+
+bool JSScriptValue::isBoolean() const
+{
+    if (!m_value)
+        return false;
+    return m_value.get().isBoolean();
+}
+
+bool JSScriptValue::isTrue() const
+{
+    if (!m_value)
+        return false;
+    return m_value.get().isTrue();
+}
+
+bool JSScriptValue::isCell() const
+{
+    if (!m_value)
+        return false;
+    return m_value.get().isCell();
+}
+
+bool JSScriptValue::operator==(const ScriptValueDelegate& other) const
+{
+    if (other.scriptType() != JSScriptType)
+        return false;
+    return m_value == static_cast<const JSScriptValue&>(other).m_value;
+}
+
 PassRefPtr<SerializedScriptValue> JSScriptValue::serialize(ScriptState* scriptState, SerializationErrorMode throwExceptions)
 {
     JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
@@ -124,12 +188,6 @@ PassRefPtr<SerializedScriptValue> JSScriptValue::serialize(ScriptState* scriptSt
     RefPtr<SerializedScriptValue> serializedValue = SerializedScriptValue::create(toRef(exec), toRef(exec, jsValue()), messagePorts, arrayBuffers, &exception);
     didThrow = exception ? true : false;
     return serializedValue.release();
-}
-
-ScriptValue JSScriptValue::deserialize(ScriptState* scriptState, SerializedScriptValue* value, SerializationErrorMode throwExceptions)
-{
-    JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
-    return ScriptValue(exec->globalData(), value->deserialize(exec, exec->lexicalGlobalObject(), 0, throwExceptions));
 }
 
 #if ENABLE(INSPECTOR)

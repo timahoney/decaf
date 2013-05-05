@@ -29,7 +29,8 @@
 #include "RBConverters.h"
 #include "RBDOMBinding.h"
 #include "RBObject.h"
-#include <Ruby/intern.h>
+#include "RBSerializationDelegate.h"
+#include "SerializedScriptValue.h"
 
 namespace WebCore {
 
@@ -43,6 +44,11 @@ RBScriptValue::RBScriptValue(VALUE object)
 RBScriptValue::~RBScriptValue()
 {
     rb_gc_unregister_address(&m_value);
+}
+
+bool RBScriptValue::isString() const
+{
+    return IS_RB_STRING(m_value);
 }
 
 bool RBScriptValue::getString(ScriptState* scriptState, String& result) const
@@ -78,22 +84,43 @@ bool RBScriptValue::isObject() const
     }
 }
 
+bool RBScriptValue::isCell() const
+{
+    // FIXME: Rename this method.
+    // It seems like something is not a JSCell if  it's some sort of immediate value.
+    // So return false here if this is a boolean, nil, or a number.
+    switch (TYPE(m_value)) {
+    case T_FIXNUM:
+    case T_BIGNUM:
+    case T_TRUE:
+    case T_FALSE:
+    case T_FLOAT:
+    case T_NIL:
+        return false;
+        
+    default:
+        return true;
+    }
+}
+
+bool RBScriptValue::operator==(const ScriptValueDelegate& other) const
+{
+    if (other.scriptType() != RBScriptType)
+        return false;
+    return m_value == static_cast<const RBScriptValue&>(other).m_value;
+}
+
 PassRefPtr<SerializedScriptValue> RBScriptValue::serialize(ScriptState*, SerializationErrorMode)
 {
-    return SerializedScriptValue::create(m_value);
+    return SerializedScriptValue::create(RBSerializationDelegate::create(), m_value, 0, 0);
 }
 
 PassRefPtr<SerializedScriptValue> RBScriptValue::serialize(ScriptState*, MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers, bool& didThrow)
 {
-    RefPtr<SerializedScriptValue> serializedScriptValue = SerializedScriptValue::create(m_value, messagePorts, arrayBuffers);
+    RefPtr<SerializedScriptValue> serializedScriptValue = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                                        m_value, messagePorts, arrayBuffers);
     didThrow = !NIL_P(rb_errinfo());
     return serializedScriptValue.release();
-}
-
-ScriptValue RBScriptValue::deserialize(ScriptState*, SerializedScriptValue* serializedScriptValue, SerializationErrorMode)
-{
-    VALUE rbValue = serializedScriptValue->deserializeRB();
-    return RBScriptValue::scriptValue(rbValue);
 }
 
 #if ENABLE(INSPECTOR)

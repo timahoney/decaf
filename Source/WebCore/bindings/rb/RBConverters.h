@@ -68,7 +68,6 @@ inline VALUE toRB(unsigned long value) { return ULONG2NUM(value); }
 inline VALUE toRB(unsigned long long value) { return ULL2NUM(value); }
 inline VALUE toRB(bool value) { return value ? Qtrue : Qfalse; }
 inline VALUE toRB(const KURL& value) { return rb_str_new2(value.string().utf8().data()); }
-inline VALUE toRB(SerializedScriptValue& value) { return value.deserializeRB(); }
 
 // This is a very hacky way of having multiple toRBs that take doubles.
 // It makes it nicer for the code generator to use this instead of

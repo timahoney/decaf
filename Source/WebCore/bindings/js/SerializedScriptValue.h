@@ -28,9 +28,6 @@
 #define SerializedScriptValue_h
 
 #include "ScriptState.h"
-#include <heap/Strong.h>
-#include <runtime/JSCJSValue.h>
-#include <Ruby/ruby.h>
 #include <wtf/ArrayBuffer.h>
 #include <wtf/Forward.h>
 #include <wtf/PassRefPtr.h>
@@ -40,11 +37,19 @@
 typedef const struct OpaqueJSContext* JSContextRef;
 typedef const struct OpaqueJSValue* JSValueRef;
 
+namespace JSC {
+
+class JSGlobalObject;
+class JSValue;
+
+}
+
 namespace WebCore {
 
 class MessagePort;
 typedef Vector<RefPtr<MessagePort>, 1> MessagePortArray;
 typedef Vector<RefPtr<WTF::ArrayBuffer>, 1> ArrayBufferArray;
+class SerializationDelegate;
  
 enum SerializationReturnCode {
     SuccessfullyCompleted,
@@ -68,14 +73,17 @@ class SerializedScriptValue :
     public RefCounted<SerializedScriptValue> {
 #endif
 public:
+    static PassRefPtr<SerializedScriptValue> create(PassOwnPtr<SerializationDelegate>, const ScriptValue&, 
+                                                    MessagePortArray*, ArrayBufferArray*,
+                                                    SerializationErrorMode = Throwing);
+
+    static PassRefPtr<SerializedScriptValue> create(const String&);
+
+    // FIXME: Remove these language-specific create methods.
     static PassRefPtr<SerializedScriptValue> create(JSC::ExecState*, JSC::JSValue, MessagePortArray*, ArrayBufferArray*,
                                                     SerializationErrorMode = Throwing);
     static PassRefPtr<SerializedScriptValue> create(JSContextRef, JSValueRef, MessagePortArray*, ArrayBufferArray*, JSValueRef* exception);
     static PassRefPtr<SerializedScriptValue> create(JSContextRef, JSValueRef, JSValueRef* exception);
-
-    static PassRefPtr<SerializedScriptValue> create(const String&);
-    static PassRefPtr<SerializedScriptValue> create(VALUE);
-    static PassRefPtr<SerializedScriptValue> create(VALUE, MessagePortArray*, ArrayBufferArray*);
     
     static PassRefPtr<SerializedScriptValue> adopt(Vector<uint8_t>& buffer)
     {
@@ -91,10 +99,12 @@ public:
 
     String toString();
     
+    ScriptValue deserialize(PassOwnPtr<SerializationDelegate>, MessagePortArray*, SerializationErrorMode = Throwing);
+        
+    // FIXME: Remove these language-specific serialization methods.
     JSC::JSValue deserialize(JSC::ExecState*, JSC::JSGlobalObject*, MessagePortArray*, SerializationErrorMode = Throwing);
     JSValueRef deserialize(JSContextRef, JSValueRef* exception, MessagePortArray*);
     JSValueRef deserialize(JSContextRef, JSValueRef* exception);
-    VALUE deserializeRB(MessagePortArray* = 0);
 
 #if ENABLE(INSPECTOR)
     ScriptValue deserializeForInspector(ScriptState*);
@@ -119,7 +129,6 @@ public:
 
 private:
     typedef Vector<WTF::ArrayBufferContents> ArrayBufferContentsArray;
-    static void maybeThrowExceptionIfSerializationFailed(JSC::ExecState*, SerializationReturnCode);
     static bool serializationDidCompleteSuccessfully(SerializationReturnCode);
     static PassOwnPtr<ArrayBufferContentsArray> transferArrayBuffers(ArrayBufferArray&, SerializationReturnCode&);
 

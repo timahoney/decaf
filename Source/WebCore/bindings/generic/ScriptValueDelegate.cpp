@@ -35,9 +35,9 @@ bool EmptyScriptValueDelegate::isEqual(ScriptState*, const ScriptValue& other) c
     return other.scriptType() == scriptType();
 }
 
-bool EmptyScriptValueDelegate::operator==(const ScriptValue& other) const
+bool EmptyScriptValueDelegate::operator==(const ScriptValueDelegate& other) const
 {
-    return other.scriptType() == scriptType();
+    return other.hasNoValue();
 }
 
 } // namespace WebCore

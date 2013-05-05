@@ -28,30 +28,14 @@
 #include "SerializedScriptValue.h"
 
 #include "Blob.h"
+#include "DataView.h"
 #include "ExceptionCode.h"
 #include "File.h"
 #include "FileList.h"
 #include "ImageData.h"
-#include "JSArrayBuffer.h"
-#include "JSArrayBufferView.h"
-#include "JSBlob.h"
-#include "JSDataView.h"
-#include "JSDOMGlobalObject.h"
-#include "JSFile.h"
-#include "JSFileList.h"
-#include "JSFloat32Array.h"
-#include "JSFloat64Array.h"
-#include "JSImageData.h"
-#include "JSInt16Array.h"
-#include "JSInt32Array.h"
-#include "JSInt8Array.h"
-#include "JSMessagePort.h"
-#include "JSNavigator.h"
 #include "JSScriptState.h"
-#include "JSUint16Array.h"
-#include "JSUint32Array.h"
-#include "JSUint8Array.h"
-#include "JSUint8ClampedArray.h"
+#include "JSScriptValue.h"
+#include "JSSerializationDelegate.h"
 #include "NotImplemented.h"
 #include "RBArrayBuffer.h"
 #include "RBConverters.h"
@@ -60,25 +44,26 @@
 #include "RBScriptState.h"
 #include "RBScriptValue.h"
 #include "ScriptValue.h"
+#include "SerializationDelegate.h"
+#include "SerializationTags.h"
 #include "SharedBuffer.h"
-#include <limits>
 #include <JavaScriptCore/APICast.h>
 #include <JavaScriptCore/APIShims.h>
-#include <runtime/BooleanObject.h>
-#include <runtime/DateInstance.h>
-#include <runtime/Error.h>
-#include <runtime/ExceptionHelpers.h>
-#include <runtime/ObjectConstructor.h>
-#include <runtime/Operations.h>
-#include <runtime/PropertyNameArray.h>
-#include <runtime/RegExp.h>
-#include <runtime/RegExpObject.h>
+#include <limits>
 #include <wtf/ArrayBuffer.h>
+#include <wtf/ArrayBufferView.h>
 #include <wtf/HashTraits.h>
+#include <wtf/Int8Array.h>
+#include <wtf/Uint8Array.h>
 #include <wtf/Uint8ClampedArray.h>
+#include <wtf/Int16Array.h>
+#include <wtf/Uint16Array.h>
+#include <wtf/Int32Array.h>
+#include <wtf/Uint32Array.h>
+#include <wtf/Float32Array.h>
+#include <wtf/Float64Array.h>
 #include <wtf/Vector.h>
 
-using namespace JSC;
 using namespace std;
 
 #if CPU(BIG_ENDIAN) || CPU(MIDDLE_ENDIAN) || CPU(NEEDS_ALIGNED_ACCESS)
@@ -93,52 +78,6 @@ static const unsigned maximumFilterRecursion = 40000;
 
 enum WalkerState { StateUnknown, ArrayStartState, ArrayStartVisitMember, ArrayEndVisitMember,
     ObjectStartState, ObjectStartVisitMember, ObjectEndVisitMember };
-
-// These can't be reordered, and any new types must be added to the end of the list
-enum SerializationTag {
-    ArrayTag = 1,
-    ObjectTag = 2,
-    UndefinedTag = 3,
-    NullTag = 4,
-    IntTag = 5,
-    ZeroTag = 6,
-    OneTag = 7,
-    FalseTag = 8,
-    TrueTag = 9,
-    DoubleTag = 10,
-    DateTag = 11,
-    FileTag = 12,
-    FileListTag = 13,
-    ImageDataTag = 14,
-    BlobTag = 15,
-    StringTag = 16,
-    EmptyStringTag = 17,
-    RegExpTag = 18,
-    ObjectReferenceTag = 19,
-    MessagePortReferenceTag = 20,
-    ArrayBufferTag = 21,
-    ArrayBufferViewTag = 22,
-    ArrayBufferTransferTag = 23,
-    TrueObjectTag = 24,
-    FalseObjectTag = 25,
-    StringObjectTag = 26,
-    EmptyStringObjectTag = 27,
-    NumberObjectTag = 28,
-    ErrorTag = 255
-};
-
-enum ArrayBufferViewSubtag {
-    DataViewTag = 0,
-    Int8ArrayTag = 1,
-    Uint8ArrayTag = 2,
-    Uint8ClampedArrayTag = 3,
-    Int16ArrayTag = 4,
-    Uint16ArrayTag = 5,
-    Int32ArrayTag = 6,
-    Uint32ArrayTag = 7,
-    Float32ArrayTag = 8,
-    Float64ArrayTag = 9
-};
 
 static unsigned typedArrayElementSize(ArrayBufferViewSubtag tag)
 {
@@ -257,40 +196,39 @@ static const unsigned NonIndexPropertiesTag = 0xFFFFFFFD;
  *    ArrayBufferTag <length:uint32_t> <contents:byte{length}>
  */
 
-typedef pair<JSC::JSValue, SerializationReturnCode> DeserializationResult;
+typedef pair<ScriptValue, SerializationReturnCode> DeserializationResult;
 
 class CloneBase {
 protected:
-    CloneBase(ExecState* exec)
-        : m_exec(exec)
-        , m_failed(false)
-        , m_timeoutChecker(exec->globalData().timeoutChecker)
+    CloneBase(SerializationDelegate* delegate)
+        : m_failed(false)
+        , m_delegate(delegate)
     {
     }
 
     bool shouldTerminate()
     {
-        return m_exec->hadException();
+        return m_delegate->shouldTerminate();
     }
 
     unsigned ticksUntilNextCheck()
     {
-        return m_timeoutChecker.ticksUntilNextCheck();
+        return m_delegate->ticksUntilNextCheck();
     }
 
     bool didTimeOut()
     {
-        return m_timeoutChecker.didTimeOut(m_exec);
+        return m_delegate->didTimeOut();
     }
 
     void throwStackOverflow()
     {
-        throwError(m_exec, createStackOverflowError(m_exec));
+        m_delegate->throwStackOverflow();
     }
 
     void throwInterruptedException()
     {
-        throwError(m_exec, createInterruptedExecutionException(&m_exec->globalData()));
+        m_delegate->throwInterruptedException();
     }
 
     NO_RETURN_DUE_TO_ASSERT
@@ -300,10 +238,9 @@ protected:
         m_failed = true;
     }
 
-    ExecState* m_exec;
     bool m_failed;
-    TimeoutChecker m_timeoutChecker;
-    MarkedArgumentBuffer m_gcBuffer;
+    Vector<ScriptValue> m_gcBuffer;
+    SerializationDelegate* m_delegate;
 };
 
 #if ASSUME_LITTLE_ENDIAN
@@ -347,11 +284,11 @@ template <typename T> static bool writeLittleEndian(Vector<uint8_t>& buffer, con
 
 class CloneSerializer : CloneBase {
 public:
-    static SerializationReturnCode serialize(ExecState* exec, JSValue value,
+    static SerializationReturnCode serialize(SerializationDelegate* delegate, const ScriptValue& value,
                                              MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers,
                                              Vector<String>& blobURLs, Vector<uint8_t>& out)
     {
-        CloneSerializer serializer(exec, messagePorts, arrayBuffers, blobURLs, out);
+        CloneSerializer serializer(delegate, messagePorts, arrayBuffers, blobURLs, out);
         return serializer.serialize(value);
     }
 
@@ -392,13 +329,12 @@ public:
     }
 
 private:
-    typedef HashMap<JSObject*, uint32_t> ObjectPool;
+    typedef Vector<ScriptValue> ObjectPool;
 
-    CloneSerializer(ExecState* exec, MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers, Vector<String>& blobURLs, Vector<uint8_t>& out)
-        : CloneBase(exec)
+    CloneSerializer(SerializationDelegate* delegate, MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers, Vector<String>& blobURLs, Vector<uint8_t>& out)
+        : CloneBase(delegate)
         , m_buffer(out)
         , m_blobURLs(blobURLs)
-        , m_emptyIdentifier(exec, emptyString())
     {
         write(CurrentVersion);
         fillTransferMap(messagePorts, m_transferredMessagePorts);
@@ -410,48 +346,43 @@ private:
     {
         if (!input)
             return;
-        JSDOMGlobalObject* globalObject = jsCast<JSDOMGlobalObject*>(m_exec->lexicalGlobalObject());
         for (size_t i = 0; i < input->size(); i++) {
-            JSC::JSValue value = toJS(m_exec, globalObject, input->at(i).get());
-            JSC::JSObject* obj = value.getObject();
-            if (obj && !result.contains(obj))
-                result.add(obj, i);
+            ScriptValue obj = m_delegate->toScriptValue(input->at(i).get());
+            if (!obj.hasNoValue() && !result.contains(obj))
+                result.append(obj);
         }
     }
 
-    SerializationReturnCode serialize(JSValue in);
+    SerializationReturnCode serialize(const ScriptValue& in);
 
-    bool isArray(JSValue value)
+    bool isArray(const ScriptValue& value)
     {
-        if (!value.isObject())
-            return false;
-        JSObject* object = asObject(value);
-        return isJSArray(object) || object->inherits(&JSArray::s_info);
+        return m_delegate->isArray(value);
     }
 
-    bool checkForDuplicate(JSObject* object)
+    bool checkForDuplicate(const ScriptValue& object)
     {
         // Record object for graph reconstruction
-        ObjectPool::const_iterator found = m_objectPool.find(object);
+        size_t index = m_objectPool.find(object);
 
         // Handle duplicate references
-        if (found != m_objectPool.end()) {
+        if (index != notFound) {
             write(ObjectReferenceTag);
-            ASSERT(static_cast<int32_t>(found->value) < m_objectPool.size());
-            writeObjectIndex(found->value);
+            ASSERT(index < m_objectPool.size());
+            writeObjectIndex(index);
             return true;
         }
 
         return false;
     }
 
-    void recordObject(JSObject* object)
+    void recordObject(const ScriptValue& object)
     {
-        m_objectPool.add(object, m_objectPool.size());
+        m_objectPool.append(object);
         m_gcBuffer.append(object);
     }
 
-    bool startObjectInternal(JSObject* object)
+    bool startObjectInternal(const ScriptValue& object)
     {
         if (checkForDuplicate(object))
             return false;
@@ -459,7 +390,7 @@ private:
         return true;
     }
 
-    bool startObject(JSObject* object)
+    bool startObject(const ScriptValue& object)
     {
         if (!startObjectInternal(object))
             return false;
@@ -467,12 +398,12 @@ private:
         return true;
     }
 
-    bool startArray(JSArray* array)
+    bool startArray(const ScriptValue& array)
     {
         if (!startObjectInternal(array))
             return false;
 
-        unsigned length = array->length();
+        unsigned length = m_delegate->arrayLength(array);
         write(ArrayTag);
         write(length);
         return true;
@@ -483,15 +414,12 @@ private:
         write(TerminatorTag);
     }
 
-    JSValue getProperty(JSObject* object, const Identifier& propertyName)
+    ScriptValue getProperty(const ScriptValue& value, const char* propertyName)
     {
-        PropertySlot slot(object);
-        if (object->methodTable()->getOwnPropertySlot(object, m_exec, propertyName, slot))
-            return slot.getValue(m_exec, propertyName);
-        return JSValue();
+        return m_delegate->getProperty(value, propertyName);
     }
 
-    void dumpImmediate(JSValue value)
+    void dumpImmediate(const ScriptValue& value)
     {
         if (value.isNull())
             write(NullTag);
@@ -539,33 +467,47 @@ private:
         }
     }
 
-    bool dumpArrayBufferView(JSObject* obj, SerializationReturnCode& code)
+    bool dumpArrayBufferView(const ScriptValue& scriptValue, SerializationReturnCode& code)
     {
         write(ArrayBufferViewTag);
-        if (obj->inherits(&JSDataView::s_info))
-            write(DataViewTag);
-        else if (obj->inherits(&JSUint8ClampedArray::s_info))
-            write(Uint8ClampedArrayTag);
-        else if (obj->inherits(&JSInt8Array::s_info))
-            write(Int8ArrayTag);
-        else if (obj->inherits(&JSUint8Array::s_info))
-            write(Uint8ArrayTag);
-        else if (obj->inherits(&JSInt16Array::s_info))
-            write(Int16ArrayTag);
-        else if (obj->inherits(&JSUint16Array::s_info))
-            write(Uint16ArrayTag);
-        else if (obj->inherits(&JSInt32Array::s_info))
-            write(Int32ArrayTag);
-        else if (obj->inherits(&JSUint32Array::s_info))
-            write(Uint32ArrayTag);
-        else if (obj->inherits(&JSFloat32Array::s_info))
-            write(Float32ArrayTag);
-        else if (obj->inherits(&JSFloat64Array::s_info))
-            write(Float64ArrayTag);
-        else
-            return false;
 
-        RefPtr<ArrayBufferView> arrayBufferView = toArrayBufferView(obj);
+        RefPtr<ArrayBufferView> arrayBufferView = m_delegate->toArrayBufferView(scriptValue);
+
+        switch (arrayBufferView->getType()) {
+        case ArrayBufferView::TypeDataView:
+            write(DataViewTag);
+            break;
+        case ArrayBufferView::TypeUint8Clamped:
+            write(Uint8ClampedArrayTag);
+            break;
+        case ArrayBufferView::TypeInt8:
+            write(Int8ArrayTag);
+            break;
+        case ArrayBufferView::TypeUint8:
+            write(Uint8ArrayTag);
+            break;
+        case ArrayBufferView::TypeInt16:
+            write(Int16ArrayTag);
+            break;
+        case ArrayBufferView::TypeUint16:
+            write(Uint16ArrayTag);
+            break;
+        case ArrayBufferView::TypeInt32:
+            write(Int32ArrayTag);
+            break;
+        case ArrayBufferView::TypeUint32:
+            write(Uint32ArrayTag);
+            break;
+        case ArrayBufferView::TypeFloat32:
+            write(Float32ArrayTag);
+            break;
+        case ArrayBufferView::TypeFloat64:
+            write(Float64ArrayTag);
+            break;
+        default:
+            return false;
+        }    
+
         write(static_cast<uint32_t>(arrayBufferView->byteOffset()));
         write(static_cast<uint32_t>(arrayBufferView->byteLength()));
         RefPtr<ArrayBuffer> arrayBuffer = arrayBufferView->buffer();
@@ -573,11 +515,12 @@ private:
             code = ValidationError;
             return true;
         }
-        JSValue bufferObj = toJS(m_exec, jsCast<JSDOMGlobalObject*>(m_exec->lexicalGlobalObject()), arrayBuffer.get());
+
+        ScriptValue bufferObj = m_delegate->toScriptValue(arrayBuffer.get());
         return dumpIfTerminal(bufferObj, code);
     }
 
-    bool dumpIfTerminal(JSValue value, SerializationReturnCode& code)
+    bool dumpIfTerminal(const ScriptValue& value, SerializationReturnCode& code)
     {
         if (!value.isCell()) {
             dumpImmediate(value);
@@ -585,7 +528,7 @@ private:
         }
 
         if (value.isString()) {
-            String str = asString(value)->value(m_exec);
+            String str = m_delegate->asString(value);
             dumpString(str);
             return true;
         }
@@ -596,9 +539,9 @@ private:
             return true;
         }
 
-        if (value.isObject() && asObject(value)->inherits(&DateInstance::s_info)) {
+        if (value.isObject() && m_delegate->isDate(value)) {
             write(DateTag);
-            write(asDateInstance(value)->internalNumber());
+            write(m_delegate->asDateValue(value));
             return true;
         }
 
@@ -606,35 +549,36 @@ private:
             return false;
 
         if (value.isObject()) {
-            JSObject* obj = asObject(value);
-            if (obj->inherits(&BooleanObject::s_info)) {
-                if (!startObjectInternal(obj)) // handle duplicates
+            SerializationTag tag = m_delegate->tagForObject(value);
+            switch (tag) {
+            case TrueObjectTag:
+            case FalseObjectTag:
+                if (!startObjectInternal(value)) // handle duplicates
                     return true;
-                write(asBooleanObject(value)->internalValue().toBoolean(m_exec) ? TrueObjectTag : FalseObjectTag);
+                write(tag);
                 return true;
-            }
-            if (obj->inherits(&StringObject::s_info)) {
-                if (!startObjectInternal(obj)) // handle duplicates
+                
+            case StringObjectTag: {
+                if (!startObjectInternal(value)) // handle duplicates
                     return true;
-                String str = asString(asStringObject(value)->internalValue())->value(m_exec);
+                String str = m_delegate->asString(value);
                 dumpStringObject(str);
                 return true;
             }
-            if (obj->inherits(&NumberObject::s_info)) {
-                if (!startObjectInternal(obj)) // handle duplicates
+            case NumberObjectTag: {
+                if (!startObjectInternal(value)) // handle duplicates
                     return true;
                 write(NumberObjectTag);
-                NumberObject* obj = static_cast<NumberObject*>(asObject(value));
-                write(obj->internalValue().asNumber());
+                write(m_delegate->asNumber(value));
                 return true;
             }
-            if (obj->inherits(&JSFile::s_info)) {
+            case FileTag: {
                 write(FileTag);
-                write(toFile(obj));
+                write(m_delegate->toFile(value));
                 return true;
             }
-            if (obj->inherits(&JSFileList::s_info)) {
-                FileList* list = toFileList(obj);
+            case FileListTag: {
+                FileList* list = m_delegate->toFileList(value);
                 write(FileListTag);
                 unsigned length = list->length();
                 write(length);
@@ -642,17 +586,17 @@ private:
                     write(list->item(i));
                 return true;
             }
-            if (obj->inherits(&JSBlob::s_info)) {
+            case BlobTag: {
                 write(BlobTag);
-                Blob* blob = toBlob(obj);
+                Blob* blob = m_delegate->toBlob(value);
                 m_blobURLs.append(blob->url());
                 write(blob->url());
                 write(blob->type());
                 write(blob->size());
                 return true;
             }
-            if (obj->inherits(&JSImageData::s_info)) {
-                ImageData* data = toImageData(obj);
+            case ImageDataTag: {
+                ImageData* data = m_delegate->toImageData(value);
                 write(ImageDataTag);
                 write(data->width());
                 write(data->height());
@@ -660,60 +604,61 @@ private:
                 write(data->data()->data(), data->data()->length());
                 return true;
             }
-            if (obj->inherits(&RegExpObject::s_info)) {
-                RegExpObject* regExp = asRegExpObject(obj);
+            case RegExpTag: {
                 char flags[3];
                 int flagCount = 0;
-                if (regExp->regExp()->global())
+                if (m_delegate->isRegExpGlobal(value))
                     flags[flagCount++] = 'g';
-                if (regExp->regExp()->ignoreCase())
+                if (m_delegate->isRegExpIgnoreCase(value))
                     flags[flagCount++] = 'i';
-                if (regExp->regExp()->multiline())
+                if (m_delegate->isRegExpMultiline(value))
                     flags[flagCount++] = 'm';
                 write(RegExpTag);
-                write(regExp->regExp()->pattern());
+                write(m_delegate->asRegExpPattern(value));
                 write(String(flags, flagCount));
                 return true;
             }
-            if (obj->inherits(&JSMessagePort::s_info)) {
-                ObjectPool::iterator index = m_transferredMessagePorts.find(obj);
-                if (index != m_transferredMessagePorts.end()) {
+            case MessagePortReferenceTag: {
+                size_t index = m_transferredMessagePorts.find(value);
+                if (index != notFound) {
                     write(MessagePortReferenceTag);
-                    write(index->value);
+                    write(static_cast<uint32_t>(index));
                     return true;
                 }
                 // MessagePort object could not be found in transferred message ports
                 code = ValidationError;
                 return true;
             }
-            if (obj->inherits(&JSArrayBuffer::s_info)) {
-                RefPtr<ArrayBuffer> arrayBuffer = toArrayBuffer(obj);
+            case ArrayBufferTag: {
+                RefPtr<ArrayBuffer> arrayBuffer = m_delegate->toArrayBuffer(value);
                 if (arrayBuffer->isNeutered()) {
                     code = ValidationError;
                     return true;
                 }
-                ObjectPool::iterator index = m_transferredArrayBuffers.find(obj);
-                if (index != m_transferredArrayBuffers.end()) {
+                size_t index = m_transferredArrayBuffers.find(value);
+                if (index != notFound) {
                     write(ArrayBufferTransferTag);
-                    write(index->value);
+                    write(static_cast<uint32_t>(index));
                     return true;
                 }
-                if (!startObjectInternal(obj)) // handle duplicates
+                if (!startObjectInternal(value)) // handle duplicates
                     return true;
                 write(ArrayBufferTag);
                 write(arrayBuffer->byteLength());
                 write(static_cast<const uint8_t *>(arrayBuffer->data()), arrayBuffer->byteLength());
                 return true;
             }
-            if (obj->inherits(&JSArrayBufferView::s_info)) {
-                if (checkForDuplicate(obj))
+            case ArrayBufferViewTag: {
+                if (checkForDuplicate(value))
                     return true;
-                bool success = dumpArrayBufferView(obj, code);
-                recordObject(obj);
+                bool success = dumpArrayBufferView(value, code);
+                recordObject(value);
                 return success;
             }
-
-            return false;
+                    
+            default:
+                return false;
+            }
         }
         // Any other types are expected to serialize as null.
         write(NullTag);
@@ -777,7 +722,7 @@ private:
 
     template <class T> void writeConstantPoolIndex(const T& constantPool, unsigned i)
     {
-        ASSERT(static_cast<int32_t>(i) < constantPool.size());
+        ASSERT(static_cast<int32_t>(i) < static_cast<int32_t>(constantPool.size()));
         if (constantPool.size() <= 0xFF)
             write(static_cast<uint8_t>(i));
         else if (constantPool.size() <= 0xFFFF)
@@ -786,40 +731,35 @@ private:
             write(static_cast<uint32_t>(i));
     }
 
-    void write(const Identifier& ident)
-    {
-        const String& str = ident.string();
-        StringConstantPool::AddResult addResult = m_constantPool.add(str.impl(), m_constantPool.size());
-        if (!addResult.isNewEntry) {
-            write(StringPoolTag);
-            writeStringIndex(addResult.iterator->value);
-            return;
-        }
-
-        // This condition is unlikely to happen as they would imply an ~8gb
-        // string but we should guard against it anyway
-        if (str.length() >= StringPoolTag) {
-            fail();
-            return;
-        }
-
-        // Guard against overflow
-        if (str.length() > (numeric_limits<uint32_t>::max() - sizeof(uint32_t)) / sizeof(UChar)) {
-            fail();
-            return;
-        }
-
-        writeLittleEndian<uint32_t>(m_buffer, str.length());
-        if (!writeLittleEndian<uint16_t>(m_buffer, reinterpret_cast<const uint16_t*>(str.characters()), str.length()))
-            fail();
-    }
-
     void write(const String& str)
     {
-        if (str.isNull())
-            write(m_emptyIdentifier);
-        else
-            write(Identifier(m_exec, str));
+        if (str.isNull()) {
+            write(emptyString());
+        } else {
+            StringConstantPool::AddResult addResult = m_constantPool.add(str.impl(), m_constantPool.size());
+            if (!addResult.isNewEntry) {
+                write(StringPoolTag);
+                writeStringIndex(addResult.iterator->value);
+                return;
+            }
+
+            // This condition is unlikely to happen as they would imply an ~8gb
+            // string but we should guard against it anyway
+            if (str.length() >= StringPoolTag) {
+                fail();
+                return;
+            }
+
+            // Guard against overflow
+            if (str.length() > (numeric_limits<uint32_t>::max() - sizeof(uint32_t)) / sizeof(UChar)) {
+                fail();
+                return;
+            }
+
+            writeLittleEndian<uint32_t>(m_buffer, str.length());
+            if (!writeLittleEndian<uint16_t>(m_buffer, reinterpret_cast<const uint16_t*>(str.characters()), str.length()))
+                fail();
+        }
     }
 
     void write(const File* file)
@@ -840,34 +780,32 @@ private:
     ObjectPool m_objectPool;
     ObjectPool m_transferredMessagePorts;
     ObjectPool m_transferredArrayBuffers;
-    typedef HashMap<RefPtr<StringImpl>, uint32_t, IdentifierRepHash> StringConstantPool;
+    typedef HashMap<RefPtr<StringImpl>, uint32_t> StringConstantPool;
     StringConstantPool m_constantPool;
-    Identifier m_emptyIdentifier;
 };
 
-SerializationReturnCode CloneSerializer::serialize(JSValue in)
+SerializationReturnCode CloneSerializer::serialize(const ScriptValue& in)
 {
     Vector<uint32_t, 16> indexStack;
     Vector<uint32_t, 16> lengthStack;
-    Vector<PropertyNameArray, 16> propertyStack;
-    Vector<JSObject*, 32> inputObjectStack;
+    Vector<Vector<String>, 16> propertyStack;
+    Vector<ScriptValue, 32> inputObjectStack;
     Vector<WalkerState, 16> stateStack;
     WalkerState state = StateUnknown;
-    JSValue inValue = in;
+    ScriptValue inValue = in;
     unsigned tickCount = ticksUntilNextCheck();
     while (1) {
         switch (state) {
             arrayStartState:
             case ArrayStartState: {
-                ASSERT(isArray(inValue));
+                ASSERT(m_delegate->isArray(inValue));
                 if (inputObjectStack.size() > maximumFilterRecursion)
                     return StackOverflowError;
 
-                JSArray* inArray = asArray(inValue);
-                unsigned length = inArray->length();
-                if (!startArray(inArray))
+                unsigned length = m_delegate->arrayLength(inValue);
+                if (!startArray(inValue))
                     break;
-                inputObjectStack.append(inArray);
+                inputObjectStack.append(inValue);
                 indexStack.append(0);
                 lengthStack.append(length);
                 // fallthrough
@@ -880,14 +818,14 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                     tickCount = ticksUntilNextCheck();
                 }
 
-                JSObject* array = inputObjectStack.last();
+                const ScriptValue& array = inputObjectStack.last();
                 uint32_t index = indexStack.last();
                 if (index == lengthStack.last()) {
                     indexStack.removeLast();
                     lengthStack.removeLast();
 
-                    propertyStack.append(PropertyNameArray(m_exec));
-                    array->methodTable()->getOwnNonIndexPropertyNames(array, m_exec, propertyStack.last(), ExcludeDontEnumProperties);
+                    propertyStack.append(Vector<String>());
+                    m_delegate->getOwnNonIndexPropertyNames(array, propertyStack.last());
                     if (propertyStack.last().size()) {
                         write(NonIndexPropertiesTag);
                         indexStack.append(0);
@@ -899,8 +837,8 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                     inputObjectStack.removeLast();
                     break;
                 }
-                inValue = array->getDirectIndex(m_exec, index);
-                if (!inValue) {
+                inValue = m_delegate->objectAtIndex(array, index);
+                if (inValue.hasNoValue()) {
                     indexStack.last()++;
                     goto arrayStartVisitMember;
                 }
@@ -925,19 +863,18 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                 ASSERT(inValue.isObject());
                 if (inputObjectStack.size() > maximumFilterRecursion)
                     return StackOverflowError;
-                JSObject* inObject = asObject(inValue);
-                if (!startObject(inObject))
+                if (!startObject(inValue))
                     break;
                 // At this point, all supported objects other than Object
                 // objects have been handled. If we reach this point and
                 // the input is not an Object object then we should throw
                 // a DataCloneError.
-                if (inObject->classInfo() != &JSFinalObject::s_info)
+                if (!m_delegate->isFinalObject(inValue))
                     return DataCloneError;
-                inputObjectStack.append(inObject);
+                inputObjectStack.append(inValue);
                 indexStack.append(0);
-                propertyStack.append(PropertyNameArray(m_exec));
-                inObject->methodTable()->getOwnPropertyNames(inObject, m_exec, propertyStack.last(), ExcludeDontEnumProperties);
+                propertyStack.append(Vector<String>());
+                m_delegate->getOwnPropertyNames(inValue, propertyStack.last());
                 // fallthrough
             }
             objectStartVisitMember:
@@ -948,9 +885,9 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                     tickCount = ticksUntilNextCheck();
                 }
 
-                JSObject* object = inputObjectStack.last();
+                ScriptValue& object = inputObjectStack.last();
                 uint32_t index = indexStack.last();
-                PropertyNameArray& properties = propertyStack.last();
+                Vector<String>& properties = propertyStack.last();
                 if (index == properties.size()) {
                     endObject();
                     inputObjectStack.removeLast();
@@ -958,11 +895,11 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                     propertyStack.removeLast();
                     break;
                 }
-                inValue = getProperty(object, properties[index]);
+                inValue = m_delegate->getProperty(object, properties[index]);
                 if (shouldTerminate())
                     return ExistingExceptionError;
 
-                if (!inValue) {
+                if (inValue.hasNoValue()) {
                     // Property was removed during serialisation
                     indexStack.last()++;
                     goto objectStartVisitMember;
@@ -997,7 +934,7 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
                     break;
                 }
 
-                if (isArray(inValue))
+                if (m_delegate->isArray(inValue))
                     goto arrayStartState;
                 goto objectStartState;
             }
@@ -1043,15 +980,15 @@ public:
         return String(str.impl());
     }
 
-    static DeserializationResult deserialize(ExecState* exec, JSGlobalObject* globalObject,
+    static DeserializationResult deserialize(SerializationDelegate* delegate,
                                              MessagePortArray* messagePorts, ArrayBufferContentsArray* arrayBufferContentsArray,
                                              const Vector<uint8_t>& buffer)
     {
         if (!buffer.size())
-            return make_pair(jsNull(), UnspecifiedError);
-        CloneDeserializer deserializer(exec, globalObject, messagePorts, arrayBufferContentsArray, buffer);
+            return make_pair(delegate->null(), UnspecifiedError);
+        CloneDeserializer deserializer(delegate, messagePorts, arrayBufferContentsArray, buffer);
         if (!deserializer.isValid())
-            return make_pair(JSValue(), ValidationError);
+            return make_pair(ScriptValue(), ValidationError);
         return deserializer.deserialize();
     }
 
@@ -1062,17 +999,17 @@ private:
         {
         }
 
-        JSValue jsString(ExecState* exec)
+        ScriptValue& scriptString(SerializationDelegate* delegate)
         {
-            if (!m_jsString)
-                m_jsString = JSC::jsString(exec, m_string);
-            return m_jsString;
+            if (m_scriptString.hasNoValue())
+                m_scriptString = delegate->toScriptValue(m_string);
+            return m_scriptString;
         }
         const String& string() { return m_string; }
 
     private:
         String m_string;
-        JSValue m_jsString;
+        ScriptValue m_scriptString;
     };
 
     struct CachedStringRef {
@@ -1094,12 +1031,10 @@ private:
         size_t m_index;
     };
 
-    CloneDeserializer(ExecState* exec, JSGlobalObject* globalObject, 
+    CloneDeserializer(SerializationDelegate* delegate,
                       MessagePortArray* messagePorts, ArrayBufferContentsArray* arrayBufferContents,
                       const Vector<uint8_t>& buffer)
-        : CloneBase(exec)
-        , m_globalObject(globalObject)
-        , m_isDOMGlobalObject(globalObject->inherits(&JSDOMGlobalObject::s_info))
+        : CloneBase(delegate)
         , m_ptr(buffer.data())
         , m_end(buffer.data() + buffer.size())
         , m_version(0xFFFFFFFF)
@@ -1115,7 +1050,7 @@ private:
 
     void throwValidationError()
     {
-        throwError(m_exec, createTypeError(m_exec, "Unable to deserialize data."));
+        m_delegate->throwValidationError();
     }
 
     bool isValid() const { return m_version <= CurrentVersion; }
@@ -1300,14 +1235,14 @@ private:
         return true;
     }
 
-    void putProperty(JSObject* object, unsigned index, JSValue value)
+    void putProperty(const ScriptValue& object, unsigned index, const ScriptValue& value)
     {
-        object->putDirectIndex(m_exec, index, value);
+        m_delegate->setArrayElement(object, index, value);
     }
 
-    void putProperty(JSObject* object, const Identifier& property, JSValue value)
+    void putProperty(const ScriptValue& object, const String& propertyName, const ScriptValue& value)
     {
-        object->putDirectMayBeIndex(m_exec, property, value);
+        m_delegate->setObjectProperty(object, propertyName, value);
     }
 
     bool readFile(RefPtr<File>& file)
@@ -1321,8 +1256,7 @@ private:
         CachedStringRef type;
         if (!readStringData(type))
             return 0;
-        if (m_isDOMGlobalObject)
-            file = File::create(path->string(), KURL(KURL(), url->string()), type->string());
+        file = File::create(path->string(), KURL(KURL(), url->string()), type->string());
         return true;
     }
 
@@ -1338,7 +1272,7 @@ private:
         return true;
     }
 
-    bool readArrayBufferView(JSValue& arrayBufferView)
+    bool readArrayBufferView(ScriptValue& arrayBufferView)
     {
         ArrayBufferViewSubtag arrayBufferViewSubtag;
         if (!readArrayBufferViewSubtag(arrayBufferViewSubtag))
@@ -1349,8 +1283,8 @@ private:
         uint32_t byteLength;
         if (!read(byteLength))
             return false;
-        JSObject* arrayBufferObj = asObject(readTerminal());
-        if (!arrayBufferObj || !arrayBufferObj->inherits(&JSArrayBuffer::s_info))
+        ScriptValue arrayBufferObj = readTerminal();
+        if (arrayBufferObj.hasNoValue() || m_delegate->tagForObject(arrayBufferObj) != ArrayBufferTag)
             return false;
 
         unsigned elementSize = typedArrayElementSize(arrayBufferViewSubtag);
@@ -1360,202 +1294,182 @@ private:
         if (length * elementSize != byteLength)
             return false;
 
-        RefPtr<ArrayBuffer> arrayBuffer = toArrayBuffer(arrayBufferObj);
+        RefPtr<ArrayBuffer> arrayBuffer = m_delegate->toArrayBuffer(arrayBufferObj);
         switch (arrayBufferViewSubtag) {
         case DataViewTag:
-            arrayBufferView = getJSValue(DataView::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(DataView::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Int8ArrayTag:
-            arrayBufferView = getJSValue(Int8Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Int8Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Uint8ArrayTag:
-            arrayBufferView = getJSValue(Uint8Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Uint8Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Uint8ClampedArrayTag:
-            arrayBufferView = getJSValue(Uint8ClampedArray::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Uint8ClampedArray::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Int16ArrayTag:
-            arrayBufferView = getJSValue(Int16Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Int16Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Uint16ArrayTag:
-            arrayBufferView = getJSValue(Uint16Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Uint16Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Int32ArrayTag:
-            arrayBufferView = getJSValue(Int32Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Int32Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Uint32ArrayTag:
-            arrayBufferView = getJSValue(Uint32Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Uint32Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Float32ArrayTag:
-            arrayBufferView = getJSValue(Float32Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Float32Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         case Float64ArrayTag:
-            arrayBufferView = getJSValue(Float64Array::create(arrayBuffer, byteOffset, length).get());
+            arrayBufferView = m_delegate->toScriptValue(Float64Array::create(arrayBuffer, byteOffset, length).get());
             return true;
         default:
             return false;
         }
     }
 
-    template<class T>
-    JSValue getJSValue(T* nativeObj)
-    {
-        return toJS(m_exec, jsCast<JSDOMGlobalObject*>(m_globalObject), nativeObj);
-    }
-
-    JSValue readTerminal()
+    ScriptValue readTerminal()
     {
         SerializationTag tag = readTag();
         switch (tag) {
         case UndefinedTag:
-            return jsUndefined();
+            return m_delegate->undefined();
         case NullTag:
-            return jsNull();
+            return m_delegate->null();
         case IntTag: {
             int32_t i;
             if (!read(i))
-                return JSValue();
-            return jsNumber(i);
+                return ScriptValue();
+            return m_delegate->toScriptValue(i);
         }
         case ZeroTag:
-            return jsNumber(0);
+            return m_delegate->toScriptValue(0);
         case OneTag:
-            return jsNumber(1);
+            return m_delegate->toScriptValue(1);
         case FalseTag:
-            return jsBoolean(false);
+            return m_delegate->toScriptValue(false);
         case TrueTag:
-            return jsBoolean(true);
+            return m_delegate->toScriptValue(true);
         case FalseObjectTag: {
-            BooleanObject* obj = BooleanObject::create(m_exec->globalData(), m_globalObject->booleanObjectStructure());
-            obj->setInternalValue(m_exec->globalData(), jsBoolean(false));
-            m_gcBuffer.append(obj);
-            return obj;
+            ScriptValue value = m_delegate->toBooleanObjectScriptValue(false);
+            m_gcBuffer.append(value);
+            return value;
         }
         case TrueObjectTag: {
-            BooleanObject* obj = BooleanObject::create(m_exec->globalData(), m_globalObject->booleanObjectStructure());
-            obj->setInternalValue(m_exec->globalData(), jsBoolean(true));
-             m_gcBuffer.append(obj);
-            return obj;
+            ScriptValue value = m_delegate->toBooleanObjectScriptValue(true);
+            m_gcBuffer.append(value);
+            return value;
         }
         case DoubleTag: {
             double d;
             if (!read(d))
-                return JSValue();
-            return jsNumber(d);
+                return ScriptValue();
+            return m_delegate->toScriptValue(d);
         }
         case NumberObjectTag: {
             double d;
             if (!read(d))
-                return JSValue();
-            NumberObject* obj = constructNumber(m_exec, m_globalObject, jsNumber(d));
-            m_gcBuffer.append(obj);
-            return obj;
+                return ScriptValue();
+            ScriptValue value = m_delegate->toNumberObjectScriptValue(d);
+            m_gcBuffer.append(value);
+            return value;
         }
         case DateTag: {
             double d;
             if (!read(d))
-                return JSValue();
-            return DateInstance::create(m_exec, m_globalObject->dateStructure(), d);
+                return ScriptValue();
+            return m_delegate->toDateScriptValue(d);
         }
         case FileTag: {
             RefPtr<File> file;
             if (!readFile(file))
-                return JSValue();
-            if (!m_isDOMGlobalObject)
-                return jsNull();
-            return toJS(m_exec, jsCast<JSDOMGlobalObject*>(m_globalObject), file.get());
+                return ScriptValue();
+            return m_delegate->toScriptValue(file.get());
         }
         case FileListTag: {
             unsigned length = 0;
             if (!read(length))
-                return JSValue();
+                return ScriptValue();
             RefPtr<FileList> result = FileList::create();
             for (unsigned i = 0; i < length; i++) {
                 RefPtr<File> file;
                 if (!readFile(file))
-                    return JSValue();
-                if (m_isDOMGlobalObject)
-                    result->append(file.get());
+                    return ScriptValue();
+                result->append(file.get());
             }
-            if (!m_isDOMGlobalObject)
-                return jsNull();
-            return getJSValue(result.get());
+            return m_delegate->toScriptValue(result.get());
         }
         case ImageDataTag: {
             int32_t width;
             if (!read(width))
-                return JSValue();
+                return ScriptValue();
             int32_t height;
             if (!read(height))
-                return JSValue();
+                return ScriptValue();
             uint32_t length;
             if (!read(length))
-                return JSValue();
+                return ScriptValue();
             if (m_end < ((uint8_t*)0) + length || m_ptr > m_end - length) {
                 fail();
-                return JSValue();
-            }
-            if (!m_isDOMGlobalObject) {
-                m_ptr += length;
-                return jsNull();
+                return ScriptValue();
             }
             RefPtr<ImageData> result = ImageData::create(IntSize(width, height));
             memcpy(result->data()->data(), m_ptr, length);
             m_ptr += length;
-            return getJSValue(result.get());
+            return m_delegate->toScriptValue(result.get());
         }
         case BlobTag: {
             CachedStringRef url;
             if (!readStringData(url))
-                return JSValue();
+                return ScriptValue();
             CachedStringRef type;
             if (!readStringData(type))
-                return JSValue();
+                return ScriptValue();
             unsigned long long size = 0;
             if (!read(size))
-                return JSValue();
-            if (!m_isDOMGlobalObject)
-                return jsNull();
-            return getJSValue(Blob::create(KURL(KURL(), url->string()), type->string(), size).get());
+                return ScriptValue();
+            
+            RefPtr<Blob> result = Blob::create(KURL(KURL(), url->string()), type->string(), size);
+            return m_delegate->toScriptValue(result.get());
         }
         case StringTag: {
             CachedStringRef cachedString;
             if (!readStringData(cachedString))
-                return JSValue();
-            return cachedString->jsString(m_exec);
+                return ScriptValue();
+            return cachedString->scriptString(m_delegate);
         }
         case EmptyStringTag:
-            return jsEmptyString(&m_exec->globalData());
+            return m_delegate->emptyString();
         case StringObjectTag: {
             CachedStringRef cachedString;
             if (!readStringData(cachedString))
-                return JSValue();
-            StringObject* obj = constructString(m_exec, m_globalObject, cachedString->jsString(m_exec));
-            m_gcBuffer.append(obj);
-            return obj;
+                return ScriptValue();
+            ScriptValue value = m_delegate->toStringObjectScriptValue(cachedString->string());
+            m_gcBuffer.append(value);
+            return value;
         }
         case EmptyStringObjectTag: {
-            StringObject* obj = constructString(m_exec, m_globalObject, jsEmptyString(&m_exec->globalData()));
-            m_gcBuffer.append(obj);
-            return obj;
+            ScriptValue value = m_delegate->toStringObjectScriptValue(emptyString());
+            m_gcBuffer.append(value);
+            return value;
         }
         case RegExpTag: {
             CachedStringRef pattern;
             if (!readStringData(pattern))
-                return JSValue();
+                return ScriptValue();
             CachedStringRef flags;
             if (!readStringData(flags))
-                return JSValue();
-            RegExpFlags reFlags = regExpFlags(flags->string());
-            ASSERT(reFlags != InvalidFlags);
-            RegExp* regExp = RegExp::create(m_exec->globalData(), pattern->string(), reFlags);
-            return RegExpObject::create(m_exec, m_exec->lexicalGlobalObject(), m_globalObject->regExpStructure(), regExp); 
+                return ScriptValue();
+            return m_delegate->toRegExpScriptValue(flags->string(), pattern->string());
         }
         case ObjectReferenceTag: {
             unsigned index = 0;
             if (!readConstantPoolIndex(m_gcBuffer, index)) {
                 fail();
-                return JSValue();
+                return ScriptValue();
             }
             return m_gcBuffer.at(index);
         }
@@ -1564,17 +1478,17 @@ private:
             bool indexSuccessfullyRead = read(index);
             if (!indexSuccessfullyRead || !m_messagePorts || index >= m_messagePorts->size()) {
                 fail();
-                return JSValue();
+                return ScriptValue();
             }
-            return getJSValue(m_messagePorts->at(index).get());
+            return m_delegate->toScriptValue(m_messagePorts->at(index).get());
         }
         case ArrayBufferTag: {
             RefPtr<ArrayBuffer> arrayBuffer;
             if (!readArrayBuffer(arrayBuffer)) {
                 fail();
-                return JSValue();
+                return ScriptValue();
             }
-            JSValue result = getJSValue(arrayBuffer.get());
+            ScriptValue result = m_delegate->toScriptValue(arrayBuffer.get());
             m_gcBuffer.append(result);
             return result;
         }
@@ -1583,31 +1497,29 @@ private:
             bool indexSuccessfullyRead = read(index);
             if (!indexSuccessfullyRead || index >= m_arrayBuffers.size()) {
                 fail();
-                return JSValue();
+                return ScriptValue();
             }
 
             if (!m_arrayBuffers[index])
                 m_arrayBuffers[index] = ArrayBuffer::create(m_arrayBufferContents->at(index));
 
-            return getJSValue(m_arrayBuffers[index].get());
+            return m_delegate->toScriptValue(m_arrayBuffers[index].get());
         }
         case ArrayBufferViewTag: {
-            JSValue arrayBufferView;
+            ScriptValue arrayBufferView;
             if (!readArrayBufferView(arrayBufferView)) {
                 fail();
-                return JSValue();
+                return ScriptValue();
             }
             m_gcBuffer.append(arrayBufferView);
             return arrayBufferView;
         }
         default:
             m_ptr--; // Push the tag back
-            return JSValue();
+            return ScriptValue();
         }
     }
 
-    JSGlobalObject* m_globalObject;
-    bool m_isDOMGlobalObject;
     const uint8_t* m_ptr;
     const uint8_t* m_end;
     unsigned m_version;
@@ -1620,11 +1532,11 @@ private:
 DeserializationResult CloneDeserializer::deserialize()
 {
     Vector<uint32_t, 16> indexStack;
-    Vector<Identifier, 16> propertyNameStack;
-    Vector<JSObject*, 32> outputObjectStack;
+    Vector<String, 16> propertyNameStack;
+    Vector<ScriptValue, 32> outputObjectStack;
     Vector<WalkerState, 16> stateStack;
     WalkerState state = StateUnknown;
-    JSValue outValue;
+    ScriptValue outValue;
 
     unsigned tickCount = ticksUntilNextCheck();
     while (1) {
@@ -1636,7 +1548,7 @@ DeserializationResult CloneDeserializer::deserialize()
                 fail();
                 goto error;
             }
-            JSArray* outArray = constructEmptyArray(m_exec, 0, m_globalObject, length);
+            ScriptValue outArray = m_delegate->constructEmptyArray(length);
             m_gcBuffer.append(outArray);
             outputObjectStack.append(outArray);
             // fallthrough
@@ -1645,7 +1557,7 @@ DeserializationResult CloneDeserializer::deserialize()
         case ArrayStartVisitMember: {
             if (!--tickCount) {
                 if (didTimeOut())
-                    return make_pair(JSValue(), InterruptedExecutionError);
+                    return make_pair(ScriptValue(), InterruptedExecutionError);
                 tickCount = ticksUntilNextCheck();
             }
 
@@ -1655,15 +1567,16 @@ DeserializationResult CloneDeserializer::deserialize()
                 goto error;
             }
             if (index == TerminatorTag) {
-                JSObject* outArray = outputObjectStack.last();
+                ScriptValue outArray = outputObjectStack.last();
                 outValue = outArray;
                 outputObjectStack.removeLast();
                 break;
             } else if (index == NonIndexPropertiesTag) {
                 goto objectStartVisitMember;
             }
-
-            if (JSValue terminal = readTerminal()) {
+            
+            ScriptValue terminal = readTerminal();
+            if (!terminal.hasNoValue()) {
                 putProperty(outputObjectStack.last(), index, terminal);
                 goto arrayStartVisitMember;
             }
@@ -1674,7 +1587,7 @@ DeserializationResult CloneDeserializer::deserialize()
             goto stateUnknown;
         }
         case ArrayEndVisitMember: {
-            JSObject* outArray = outputObjectStack.last();
+            ScriptValue outArray = outputObjectStack.last();
             putProperty(outArray, indexStack.last(), outValue);
             indexStack.removeLast();
             goto arrayStartVisitMember;
@@ -1682,8 +1595,8 @@ DeserializationResult CloneDeserializer::deserialize()
         objectStartState:
         case ObjectStartState: {
             if (outputObjectStack.size() > maximumFilterRecursion)
-                return make_pair(JSValue(), StackOverflowError);
-            JSObject* outObject = constructEmptyObject(m_exec, m_globalObject->objectPrototype());
+                return make_pair(ScriptValue(), StackOverflowError);
+            ScriptValue outObject = m_delegate->constructEmptyObject();
             m_gcBuffer.append(outObject);
             outputObjectStack.append(outObject);
             // fallthrough
@@ -1692,7 +1605,7 @@ DeserializationResult CloneDeserializer::deserialize()
         case ObjectStartVisitMember: {
             if (!--tickCount) {
                 if (didTimeOut())
-                    return make_pair(JSValue(), InterruptedExecutionError);
+                    return make_pair(ScriptValue(), InterruptedExecutionError);
                 tickCount = ticksUntilNextCheck();
             }
 
@@ -1702,18 +1615,19 @@ DeserializationResult CloneDeserializer::deserialize()
                 if (!wasTerminator)
                     goto error;
 
-                JSObject* outObject = outputObjectStack.last();
+                ScriptValue outObject = outputObjectStack.last();
                 outValue = outObject;
                 outputObjectStack.removeLast();
                 break;
             }
 
-            if (JSValue terminal = readTerminal()) {
-                putProperty(outputObjectStack.last(), Identifier(m_exec, cachedString->string()), terminal);
+            ScriptValue terminal = readTerminal();
+            if (!terminal.hasNoValue()) {
+                putProperty(outputObjectStack.last(), cachedString->string(), terminal);
                 goto objectStartVisitMember;
             }
             stateStack.append(ObjectEndVisitMember);
-            propertyNameStack.append(Identifier(m_exec, cachedString->string()));
+            propertyNameStack.append(cachedString->string());
             goto stateUnknown;
         }
         case ObjectEndVisitMember: {
@@ -1723,7 +1637,8 @@ DeserializationResult CloneDeserializer::deserialize()
         }
         stateUnknown:
         case StateUnknown:
-            if (JSValue terminal = readTerminal()) {
+            ScriptValue terminal = readTerminal();
+            if (!terminal.hasNoValue()) {
                 outValue = terminal;
                 break;
             }
@@ -1742,16 +1657,16 @@ DeserializationResult CloneDeserializer::deserialize()
 
         if (!--tickCount) {
             if (didTimeOut())
-                return make_pair(JSValue(), InterruptedExecutionError);
+                return make_pair(ScriptValue(), InterruptedExecutionError);
             tickCount = ticksUntilNextCheck();
         }
     }
-    ASSERT(outValue);
+    ASSERT(!outValue.hasNoValue());
     ASSERT(!m_failed);
     return make_pair(outValue, SuccessfullyCompleted);
 error:
     fail();
-    return make_pair(JSValue(), ValidationError);
+    return make_pair(ScriptValue(), ValidationError);
 }
 
 
@@ -1812,14 +1727,14 @@ PassOwnPtr<SerializedScriptValue::ArrayBufferContentsArray> SerializedScriptValu
     return contents.release();
 }
 
-
-PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(ExecState* exec, JSValue value,
+PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(PassOwnPtr<SerializationDelegate> popDelegate, const ScriptValue& value,
                                                                 MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers,
                                                                 SerializationErrorMode throwExceptions)
 {
     Vector<uint8_t> buffer;
     Vector<String> blobURLs;
-    SerializationReturnCode code = CloneSerializer::serialize(exec, value, messagePorts, arrayBuffers, blobURLs, buffer);
+    OwnPtr<SerializationDelegate> delegate = popDelegate;
+    SerializationReturnCode code = CloneSerializer::serialize(delegate.get(), value, messagePorts, arrayBuffers, blobURLs, buffer);
 
     OwnPtr<ArrayBufferContentsArray> arrayBufferContentsArray;
 
@@ -1827,12 +1742,22 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(ExecState* exec,
         arrayBufferContentsArray = transferArrayBuffers(*arrayBuffers, code);
 
     if (throwExceptions == Throwing)
-        maybeThrowExceptionIfSerializationFailed(exec, code);
+        delegate->maybeThrowExceptionIfSerializationFailed(code);
 
     if (!serializationDidCompleteSuccessfully(code))
         return 0;
 
     return adoptRef(new SerializedScriptValue(buffer, blobURLs, arrayBufferContentsArray.release()));
+}
+
+
+PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(JSC::ExecState* exec, JSC::JSValue value,
+                                                                MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers,
+                                                                SerializationErrorMode throwExceptions)
+{
+    OwnPtr<JSSerializationDelegate> delegate = JSSerializationDelegate::create(exec);
+    ScriptValue scriptValue = JSScriptValue::scriptValue(exec->globalData(), value);
+    return create(delegate.release(), scriptValue, messagePorts, arrayBuffers, throwExceptions);
 }
 
 PassRefPtr<SerializedScriptValue> SerializedScriptValue::create()
@@ -1864,7 +1789,7 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::numberValue(double valu
 
 JSValue SerializedScriptValue::deserialize(JSC::ExecState* exec, JSC::JSGlobalObject* globalObject)
 {
-    return deserialize(exec, globalObject, 0);
+    return deserialize(JSSerializationDelegate::create(exec, globalObject), 0);
 }
 #endif
 
@@ -1872,9 +1797,9 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(JSContextRef ori
                                                                 MessagePortArray* messagePorts, ArrayBufferArray* arrayBuffers,
                                                                 JSValueRef* exception)
 {
-    ExecState* exec = toJS(originContext);
-    APIEntryShim entryShim(exec);
-    JSValue value = toJS(exec, apiValue);
+    JSC::ExecState* exec = toJS(originContext);
+    JSC::APIEntryShim entryShim(exec);
+    JSC::JSValue value = toJS(exec, apiValue);
     RefPtr<SerializedScriptValue> serializedValue = SerializedScriptValue::create(exec, value, messagePorts, arrayBuffers);
     if (exec->hadException()) {
         if (exception)
@@ -1891,79 +1816,56 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(JSContextRef ori
 {
     return create(originContext, apiValue, 0, 0, exception);
 }
-    
-PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(VALUE value)
-{
-    return create(value, 0, 0);
-}
-
-PassRefPtr<SerializedScriptValue> SerializedScriptValue::create(VALUE value, MessagePortArray*, ArrayBufferArray* arrayBuffers)
-{
-    // FIXME: Add the Blob/File URLs to the m_blobURLs vector.
-
-    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
-    VALUE serializedRB = rb_funcall(rb_mMarshal, rb_intern("dump"), 1, value);
-
-    if (!NIL_P(rb_errinfo())) {
-        RB::reportException(RB::currentContext(), rb_errinfo());
-        return 0;
-    }
-    
-    // We have to explicitly provide the length
-    // because Ruby's Marshal might write null characters at the end of a string.
-    // This would confuse the string length calculator.
-    String serializedString(RSTRING_PTR(serializedRB), RSTRING_LEN(serializedRB));
-    Vector<uint8_t> buffer;
-    if (!CloneSerializer::serialize(serializedString, buffer))
-        return 0;
-
-    SerializationReturnCode code;
-    OwnPtr<ArrayBufferContentsArray> arrayBufferContentsArray;
-    if (arrayBuffers)
-        arrayBufferContentsArray = transferArrayBuffers(*arrayBuffers, code);
-
-    Vector<String> blobURLs;
-    return adoptRef(new SerializedScriptValue(buffer, blobURLs, arrayBufferContentsArray.release()));
-}
 
 String SerializedScriptValue::toString()
 {
     return CloneDeserializer::deserializeString(m_data);
 }
-
-JSValue SerializedScriptValue::deserialize(ExecState* exec, JSGlobalObject* globalObject,
-                                           MessagePortArray* messagePorts, SerializationErrorMode throwExceptions)
+    
+ScriptValue SerializedScriptValue::deserialize(PassOwnPtr<SerializationDelegate> popDelegate,
+                                               MessagePortArray* messagePorts, SerializationErrorMode throwExceptions)
 {
-    DeserializationResult result = CloneDeserializer::deserialize(exec, globalObject, messagePorts,
+    OwnPtr<SerializationDelegate> delegate = popDelegate;
+    DeserializationResult result = CloneDeserializer::deserialize(delegate.get(), messagePorts,
                                                                   m_arrayBufferContentsArray.get(), m_data);
     if (throwExceptions == Throwing)
-        maybeThrowExceptionIfSerializationFailed(exec, result.second);
+        delegate->maybeThrowExceptionIfSerializationFailed(result.second);
     return result.first;
+}
+
+JSC::JSValue SerializedScriptValue::deserialize(JSC::ExecState* exec, JSC::JSGlobalObject* globalObject,
+                                           MessagePortArray* messagePorts, SerializationErrorMode throwExceptions)
+{
+    ScriptValue value = deserialize(JSSerializationDelegate::create(exec, globalObject), messagePorts, throwExceptions);
+    return static_cast<JSScriptValue*>(value.delegate())->jsValue();
 }
 
 #if ENABLE(INSPECTOR)
 ScriptValue SerializedScriptValue::deserializeForInspector(ScriptState* scriptState)
 {
+    OwnPtr<SerializationDelegate> delegate;
     switch (scriptState->scriptType()) {
-        case JSScriptType: {
-            JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
-            JSValue value = deserialize(exec, exec->lexicalGlobalObject(), 0);
-            return ScriptValue(exec->globalData(), value);
-        }
-            
-        case RBScriptType: {
-            VALUE rbValue = deserializeRB();
-            return RBScriptValue::scriptValue(rbValue);
-        }
+    case JSScriptType: {
+        JSC::ExecState* exec = static_cast<JSScriptState*>(scriptState)->execState();
+        delegate = JSSerializationDelegate::create(exec, exec->lexicalGlobalObject());
+        break;
     }
+        
+    case RBScriptType: {
+        delegate = RBSerializationDelegate::create();
+        break;
+    }
+    }
+
+    return deserialize(delegate.release(), 0);
 }
 #endif
 
 JSValueRef SerializedScriptValue::deserialize(JSContextRef destinationContext, JSValueRef* exception, MessagePortArray* messagePorts)
 {
-    ExecState* exec = toJS(destinationContext);
-    APIEntryShim entryShim(exec);
-    JSValue value = deserialize(exec, exec->lexicalGlobalObject(), messagePorts);
+    JSC::ExecState* exec = toJS(destinationContext);
+    JSC::APIEntryShim entryShim(exec);
+    JSC::JSValue value = deserialize(exec, exec->lexicalGlobalObject(), messagePorts);
     if (exec->hadException()) {
         if (exception)
             *exception = toRef(exec, exec->exception());
@@ -1977,56 +1879,6 @@ JSValueRef SerializedScriptValue::deserialize(JSContextRef destinationContext, J
 JSValueRef SerializedScriptValue::deserialize(JSContextRef destinationContext, JSValueRef* exception)
 {
     return deserialize(destinationContext, exception, 0);
-}
-
-typedef struct {
-    size_t currentArrayBufferIndex = 0;
-    size_t currentMessagePortIndex = 0;
-    ArrayBufferContentsArray* arrayBufferContents;
-    MessagePortArray* messagePorts;
-} RBDeserializationInfo;
-
-static VALUE checkForTransferable(VALUE loadedObject, VALUE infoValue)
-{
-    RBDeserializationInfo* info = (RBDeserializationInfo*)infoValue;
-
-    if (IS_RB_KIND(loadedObject, ArrayBuffer)) {
-        if (info->currentArrayBufferIndex >= info->arrayBufferContents->size()) {
-            rb_raise(rb_eArgError, "Ruby currently does not support non-transferrable ArrayBuffers.");
-            return Qnil;
-        }
-            
-        VALUE buffer = toRB(ArrayBuffer::create(info->arrayBufferContents->at(info->currentArrayBufferIndex)));
-        info->currentArrayBufferIndex++;
-        return buffer;
-    }
-    
-    if (IS_RB_KIND(loadedObject, MessagePort)) {
-        if (info->currentMessagePortIndex >= info->messagePorts->size()) {
-            rb_raise(rb_eArgError, "Ruby currently does not support non-transferrable MessagePorts.");
-            return Qnil;
-        }
-        
-        VALUE port = toRB(info->messagePorts->at(info->currentMessagePortIndex).release());
-        info->currentMessagePortIndex++;
-        return port;
-    }
-
-    return loadedObject;
-}
-
-VALUE SerializedScriptValue::deserializeRB(MessagePortArray* messagePorts)
-{
-    String serializedString = CloneDeserializer::deserializeString(m_data);
-    VALUE serializedRB = rb_str_new(serializedString.utf8().data(), serializedString.length());
-    VALUE rb_mMarshal = rb_const_get(rb_cObject, rb_intern("Marshal"));
-    RBDeserializationInfo info;
-    info.arrayBufferContents = m_arrayBufferContentsArray.get();
-    info.messagePorts = messagePorts;
-    VALUE loadCallback = rb_proc_new(RUBY_METHOD_FUNC(&checkForTransferable), (VALUE)&info);
-    VALUE deserialized = rb_funcall(rb_mMarshal, rb_intern("load"), 2, serializedRB, loadCallback);
-
-    return deserialized;
 }
 
 PassRefPtr<SerializedScriptValue> SerializedScriptValue::nullValue()
@@ -2046,33 +1898,6 @@ PassRefPtr<SerializedScriptValue> SerializedScriptValue::booleanValue(bool value
     Vector<uint8_t> buffer;
     CloneSerializer::serializeBoolean(value, buffer);
     return adoptRef(new SerializedScriptValue(buffer));
-}
-
-void SerializedScriptValue::maybeThrowExceptionIfSerializationFailed(ExecState* exec, SerializationReturnCode code)
-{
-    if (code == SuccessfullyCompleted)
-        return;
-    
-    switch (code) {
-    case StackOverflowError:
-        throwError(exec, createStackOverflowError(exec));
-        break;
-    case InterruptedExecutionError:
-        throwError(exec, createInterruptedExecutionException(&exec->globalData()));
-        break;
-    case ValidationError:
-        throwError(exec, createTypeError(exec, "Unable to deserialize data."));
-        break;
-    case DataCloneError:
-        setDOMException(exec, DATA_CLONE_ERR);
-        break;
-    case ExistingExceptionError:
-        break;
-    case UnspecifiedError:
-        break;
-    default:
-        ASSERT_NOT_REACHED();
-    }
 }
 
 bool SerializedScriptValue::serializationDidCompleteSuccessfully(SerializationReturnCode code)

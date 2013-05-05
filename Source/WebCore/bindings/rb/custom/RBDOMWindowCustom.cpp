@@ -31,6 +31,8 @@
 #include "RBMessagePortCustom.h"
 #include "RBScheduledAction.h"
 #include "RBScriptState.h"
+#include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include <wtf/Vector.h>
 
 namespace WebCore {
@@ -113,7 +115,9 @@ static VALUE handlePostMessage(int argc, VALUE* argv, VALUE self)
         fillMessagePortArray(rbTransferables, messagePorts, arrayBuffers);
     }
 
-    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(rbMessage, &messagePorts, &arrayBuffers);
+    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                          RBScriptValue::scriptValue(rbMessage),
+                                                                          &messagePorts, &arrayBuffers);
     String targetOrigin = StringValueCStr(rbTargetOrigin);
     ExceptionCode ec = 0;
     RBScriptState* state = RBScriptState::current();
