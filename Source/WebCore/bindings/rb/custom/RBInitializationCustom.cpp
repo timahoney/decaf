@@ -26,15 +26,9 @@
 #include "config.h"
 #include "RBInitializationCustom.h"
 
-#include "RBArrayBufferCustom.h"
-#include "RBBlobCustom.h"
 #include "RBConverters.h"
 #include "RBDataViewCustom.h"
 #include "RBDOMBinding.h"
-#include "RBFileCustom.h"
-#include "RBFileListCustom.h"
-#include "RBImageDataCustom.h"
-#include "RBMessagePortCustom.h"
 #include "RBWorker.h"
 
 using namespace RB;
@@ -45,13 +39,7 @@ extern "C" VALUE worker_new_custom(int, VALUE*, VALUE);
 
 void RBInitializationCustom::initializeCustomRubyClasses()
 {
-    RBArrayBufferCustom::Init_ArrayBufferCustom();
-    RBBlobCustom::Init_BlobCustom();
     RBDataViewCustom::Init_DataViewCustom();
-    RBFileCustom::Init_FileCustom();
-    RBFileListCustom::Init_FileListCustom();
-    RBImageDataCustom::Init_ImageDataCustom();
-    RBMessagePortCustom::Init_MessagePortCustom();
     
     // FIXME: Remove this when Ruby is ready for Workers.
     rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(worker_new_custom), -1);

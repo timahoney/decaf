@@ -26,33 +26,9 @@
 #include "config.h"
 #include "RBArrayBuffer.h"
 
-#include "RBArrayBufferCustom.h"
 #include "RBConverters.h"
 
 namespace WebCore {
-
-VALUE RBArrayBufferCustom::marshal_load(VALUE, VALUE data)
-{
-    // FIXME: Support non-transferable ArrayBuffers.
-    VALUE byteLengthRB = rb_funcall(data, rb_intern("to_i"), 0);
-    unsigned byteLength = NUM2UINT(byteLengthRB);
-    unsigned numElements = 0;
-    RefPtr<ArrayBuffer> buffer = ArrayBuffer::create(numElements, byteLength);
-    return toRB(buffer.release());
-}
-
-VALUE RBArrayBufferCustom::marshal_dump(VALUE self, VALUE)
-{
-    // FIXME: Support non-transferable ArrayBuffers.
-    ArrayBuffer* buffer = impl<ArrayBuffer>(self);
-    return toRB(String::number(buffer->byteLength()));
-}
-
-void RBArrayBufferCustom::Init_ArrayBufferCustom()
-{
-    rb_define_method(RBArrayBuffer::rubyClass(), "_dump", RUBY_METHOD_FUNC(&RBArrayBufferCustom::marshal_dump), 1);
-    rb_define_module_function(RBArrayBuffer::rubyClass(), "_load", RUBY_METHOD_FUNC(&RBArrayBufferCustom::marshal_load), 1);
-}
 
 VALUE RBArrayBuffer::rb_new(int argc, VALUE* argv, VALUE)
 {

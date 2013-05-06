@@ -60,14 +60,6 @@ inline VALUE handlePostMessage(int argc, VALUE* argv, T* impl)
     return Qnil;
 }
 
-class RBMessagePortCustom {
-public:
-    static VALUE marshal_load(VALUE klass, VALUE data);
-    static VALUE marshal_dump(VALUE self, VALUE level);
-    
-    static void Init_MessagePortCustom();
-};
-
 } // namespace WebCore
 
 #endif // RBMessagePortCustom_h

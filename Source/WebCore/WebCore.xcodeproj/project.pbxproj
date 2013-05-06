@@ -706,12 +706,6 @@
 		228C284510D82500009D0D0E /* ScriptWrappable.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C284410D82500009D0D0E /* ScriptWrappable.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2292B27C1356669400CF11EF /* ImageBufferDataCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */; };
 		22A7232F170C822D0086B67F /* libRuby.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A7232E170C822D0086B67F /* libRuby.a */; };
-		22B9929C1725F4E900A0537B /* RBFileCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B9929A1725F4E900A0537B /* RBFileCustom.cpp */; };
-		22B9929D1725F4E900A0537B /* RBFileCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B9929B1725F4E900A0537B /* RBFileCustom.h */; };
-		22B9929F1725F9F900A0537B /* RBBlobCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B9929E1725F9F900A0537B /* RBBlobCustom.h */; };
-		22B992A21725FD1700A0537B /* RBFileListCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992A01725FD1700A0537B /* RBFileListCustom.cpp */; };
-		22B992A31725FD1700A0537B /* RBFileListCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A11725FD1700A0537B /* RBFileListCustom.h */; };
-		22B992A51726004900A0537B /* RBImageDataCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A41726004900A0537B /* RBImageDataCustom.h */; };
 		22B992AA1729D5EA00A0537B /* WorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992A61729D5E900A0537B /* WorkerScriptController.cpp */; };
 		22B992AB1729D5EA00A0537B /* WorkerScriptController.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A71729D5E900A0537B /* WorkerScriptController.h */; };
 		22B992B01729D60500A0537B /* JSWorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992AE1729D60500A0537B /* JSWorkerScriptController.cpp */; };
@@ -795,7 +789,6 @@
 		22FEA6BB170B4C4F00BAFA4B /* ScriptType.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FEA6B9170B4C4F00BAFA4B /* ScriptType.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		22FEA6BD170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6BC170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp */; };
 		22FEA746170B4C7500BAFA4B /* RBArrayBufferCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */; };
-		22FEA747170B4C7500BAFA4B /* RBArrayBufferCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */; };
 		22FEA748170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */; };
 		22FEA749170B4C7500BAFA4B /* RBAudioContextCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */; };
 		22FEA74A170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */; };
@@ -9402,12 +9395,6 @@
 		228C284410D82500009D0D0E /* ScriptWrappable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptWrappable.h; sourceTree = "<group>"; };
 		2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageBufferDataCG.cpp; sourceTree = "<group>"; };
 		22A7232E170C822D0086B67F /* libRuby.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRuby.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		22B9929A1725F4E900A0537B /* RBFileCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBFileCustom.cpp; sourceTree = "<group>"; };
-		22B9929B1725F4E900A0537B /* RBFileCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBFileCustom.h; sourceTree = "<group>"; };
-		22B9929E1725F9F900A0537B /* RBBlobCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBBlobCustom.h; sourceTree = "<group>"; };
-		22B992A01725FD1700A0537B /* RBFileListCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBFileListCustom.cpp; sourceTree = "<group>"; };
-		22B992A11725FD1700A0537B /* RBFileListCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBFileListCustom.h; sourceTree = "<group>"; };
-		22B992A41726004900A0537B /* RBImageDataCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBImageDataCustom.h; sourceTree = "<group>"; };
 		22B992A61729D5E900A0537B /* WorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WorkerScriptController.cpp; path = generic/WorkerScriptController.cpp; sourceTree = "<group>"; };
 		22B992A71729D5E900A0537B /* WorkerScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkerScriptController.h; path = generic/WorkerScriptController.h; sourceTree = "<group>"; };
 		22B992AE1729D60500A0537B /* JSWorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSWorkerScriptController.cpp; sourceTree = "<group>"; };
@@ -9491,7 +9478,6 @@
 		22FEA6B9170B4C4F00BAFA4B /* ScriptType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptType.h; sourceTree = "<group>"; };
 		22FEA6BC170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InjectedScriptManagerCustom.cpp; path = generic/InjectedScriptManagerCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBArrayBufferCustom.cpp; sourceTree = "<group>"; };
-		22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBArrayBufferCustom.h; sourceTree = "<group>"; };
 		22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBAudioBufferSourceNodeCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBAudioContextCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBBiquadFilterNodeCustom.cpp; sourceTree = "<group>"; };
@@ -18167,12 +18153,10 @@
 			isa = PBXGroup;
 			children = (
 				22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */,
-				22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */,
 				22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */,
 				22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */,
 				22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */,
 				22FEA6C5170B4C7500BAFA4B /* RBBlobCustom.cpp */,
-				22B9929E1725F9F900A0537B /* RBBlobCustom.h */,
 				22FEA6C6170B4C7500BAFA4B /* RBCanvasRenderingContext2DCustom.cpp */,
 				22FEA6C7170B4C7500BAFA4B /* RBCanvasRenderingContextCustom.cpp */,
 				22FEA6C8170B4C7500BAFA4B /* RBClipboardCustom.cpp */,
@@ -18193,10 +18177,6 @@
 				22FEA6D7170B4C7500BAFA4B /* RBElementCustom.cpp */,
 				22FEA6D8170B4C7500BAFA4B /* RBEventCustom.cpp */,
 				22C69100170B8E1F004D9E73 /* RBEventTargetCustom.cpp */,
-				22B9929A1725F4E900A0537B /* RBFileCustom.cpp */,
-				22B9929B1725F4E900A0537B /* RBFileCustom.h */,
-				22B992A01725FD1700A0537B /* RBFileListCustom.cpp */,
-				22B992A11725FD1700A0537B /* RBFileListCustom.h */,
 				22FEA6D9170B4C7500BAFA4B /* RBFileReaderCustom.cpp */,
 				22FEA6DA170B4C7500BAFA4B /* RBFloat32ArrayCustom.cpp */,
 				22FEA6DB170B4C7500BAFA4B /* RBFloat64ArrayCustom.cpp */,
@@ -18220,7 +18200,6 @@
 				22FEA6ED170B4C7500BAFA4B /* RBHTMLOptionsCollectionCustom.cpp */,
 				22FEA6EF170B4C7500BAFA4B /* RBHTMLSelectElementCustom.cpp */,
 				22FEA6F0170B4C7500BAFA4B /* RBImageDataCustom.cpp */,
-				22B992A41726004900A0537B /* RBImageDataCustom.h */,
 				22FEA6F1170B4C7500BAFA4B /* RBInitializationCustom.cpp */,
 				22FEA6F2170B4C7500BAFA4B /* RBInitializationCustom.h */,
 				22FEA6F3170B4C7500BAFA4B /* RBInjectedScriptHostCustom.cpp */,
@@ -30772,7 +30751,6 @@
 				22FEA6B5170B4C3800BAFA4B /* ScriptValue.h in Headers */,
 				22FEA6B7170B4C3800BAFA4B /* ScriptValueDelegate.h in Headers */,
 				22FEA6BB170B4C4F00BAFA4B /* ScriptType.h in Headers */,
-				22FEA747170B4C7500BAFA4B /* RBArrayBufferCustom.h in Headers */,
 				22FEA756170B4C7500BAFA4B /* RBDataViewCustom.h in Headers */,
 				22FEA778170B4C7500BAFA4B /* RBInitializationCustom.h in Headers */,
 				22FEA782170B4C7500BAFA4B /* RBMessagePortCustom.h in Headers */,
@@ -31381,10 +31359,6 @@
 				22ECF1E4170B965600FC0B56 /* RBSharedWorker.h in Headers */,
 				22ECF1E6170B965600FC0B56 /* RBSharedWorkerContext.h in Headers */,
 				22ECF1EA170B96B300FC0B56 /* RBDedicatedWorkerContext.h in Headers */,
-				22B9929D1725F4E900A0537B /* RBFileCustom.h in Headers */,
-				22B9929F1725F9F900A0537B /* RBBlobCustom.h in Headers */,
-				22B992A31725FD1700A0537B /* RBFileListCustom.h in Headers */,
-				22B992A51726004900A0537B /* RBImageDataCustom.h in Headers */,
 				22B992AB1729D5EA00A0537B /* WorkerScriptController.h in Headers */,
 				22B992B11729D60500A0537B /* JSWorkerScriptController.h in Headers */,
 				22B992B51729D65B00A0537B /* RBWorkerScriptController.h in Headers */,
@@ -35291,8 +35265,6 @@
 				22ECF1ED170B9BF200FC0B56 /* RBWorkerContextCustom.cpp in Sources */,
 				22ECF1EE170B9BF200FC0B56 /* RBWorkerCustom.cpp in Sources */,
 				22ECF1F2170B9C0B00FC0B56 /* RBDedicatedWorkerContextCustom.cpp in Sources */,
-				22B9929C1725F4E900A0537B /* RBFileCustom.cpp in Sources */,
-				22B992A21725FD1700A0537B /* RBFileListCustom.cpp in Sources */,
 				22B992AA1729D5EA00A0537B /* WorkerScriptController.cpp in Sources */,
 				22B992B01729D60500A0537B /* JSWorkerScriptController.cpp in Sources */,
 				22B992B41729D65B00A0537B /* RBWorkerScriptController.cpp in Sources */,

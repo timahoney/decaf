@@ -89,22 +89,4 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
     }
 }
 
-VALUE RBMessagePortCustom::marshal_load(VALUE, VALUE)
-{
-    // FIXME: Do we need to implement non-transferable MessagePorts?
-    return Qnil;
-}
-
-VALUE RBMessagePortCustom::marshal_dump(VALUE, VALUE)
-{
-    // FIXME: Do we need to implement non-transferable MessagePorts?
-    return rb_str_new2("");
-}
-
-void RBMessagePortCustom::Init_MessagePortCustom()
-{
-    rb_define_method(RBMessagePort::rubyClass(), "_dump", RUBY_METHOD_FUNC(&RBMessagePortCustom::marshal_dump), 1);
-    rb_define_module_function(RBMessagePort::rubyClass(), "_load", RUBY_METHOD_FUNC(&RBMessagePortCustom::marshal_load), 1);
-}
-
 } // namespace WebCore
