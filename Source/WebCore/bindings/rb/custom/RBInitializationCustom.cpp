@@ -30,15 +30,18 @@
 #include "RBBlobCustom.h"
 #include "RBConverters.h"
 #include "RBDataViewCustom.h"
+#include "RBDOMBinding.h"
 #include "RBFileCustom.h"
 #include "RBFileListCustom.h"
 #include "RBImageDataCustom.h"
 #include "RBMessagePortCustom.h"
 #include "RBWorker.h"
 
+using namespace RB;
+
 namespace WebCore {
 
-extern "C" VALUE worker_unimplemented(int, VALUE*, VALUE);
+extern "C" VALUE worker_new_custom(int, VALUE*, VALUE);
 
 void RBInitializationCustom::initializeCustomRubyClasses()
 {
@@ -50,13 +53,26 @@ void RBInitializationCustom::initializeCustomRubyClasses()
     RBImageDataCustom::Init_ImageDataCustom();
     RBMessagePortCustom::Init_MessagePortCustom();
     
-    // FIXME: Remove this when Workers are ready.
-    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(worker_unimplemented), -1);
+    // FIXME: Remove this when Ruby is ready for Workers.
+    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(worker_new_custom), -1);
 }
 
-VALUE worker_unimplemented(int, VALUE*, VALUE)
+VALUE worker_new_custom(int argc, VALUE* argv, VALUE self)
 {
-    rb_raise(rb_eNotImpError, "Workers do not work in Ruby at the moment.");
+    VALUE scriptName;
+    rb_scan_args(argc, argv, "10", &scriptName);
+    if (IS_RB_STRING(scriptName)) {
+        KURL url = currentContext()->completeURL(rbToString(scriptName));
+        ScriptType scriptType = scriptTypeFromUrl(url);
+        if (scriptType == RBScriptType) {
+            VALUE exception = rb_exc_new2(rb_eNotImpError, "Cannot currently run a Ruby script in a Worker.");
+            rb_funcall(exception, rb_intern("set_backtrace"), 1, rb_make_backtrace());
+            reportException(currentContext(), exception);
+            return Qnil;
+        }
+    }
+    
+    return RBWorker::rb_new(argc, argv, self);
 }
 
 } // namespace WebCore
