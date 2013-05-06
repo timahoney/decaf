@@ -113,7 +113,7 @@ void JSWorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
 
     ScriptValue exception;
     evaluate(sourceCode, &exception);
-    if (exception.jsValue()) {
+    if (!exception.hasNoValue()) {
         JSLockHolder lock(globalData());
         reportException(m_workerContextWrapper->globalExec(), exception.jsValue());
     }
