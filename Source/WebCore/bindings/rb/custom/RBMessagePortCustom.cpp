@@ -54,10 +54,6 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
     if (!IS_RB_ARRAY(sequence))
         return;
 
-    // FIXME: Should the transferrable indices be set 
-    // in SerializedScriptValue? It seems confusing to put it here, 
-    // but we don't have access to this Ruby array in SerializedScriptValue.
-
     unsigned length = RARRAY_LEN(sequence);
     for (unsigned i = 0 ; i < length; ++i) {
         VALUE value = rb_ary_entry(sequence, i);
