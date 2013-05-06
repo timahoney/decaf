@@ -43,6 +43,7 @@ RBScriptState::RBContextToGlobalStateMap* RBScriptState::s_contextGlobalStates;
 
 RBScriptState::RBScriptState(VALUE binding)
     : ScriptState(RBScriptType)
+    , ContextDestructionObserver(contextFromBinding(binding))
     , m_binding(binding)
     , m_evalEnabled(true)
 {
@@ -87,8 +88,9 @@ VALUE RBScriptState::binding() const
 
 ScriptExecutionContext* RBScriptState::scriptExecutionContext() const
 {
-    return contextFromBinding(m_binding);
+    return ContextDestructionObserver::scriptExecutionContext();
 }
+    
 
 bool RBScriptState::evalEnabled() const
 {
@@ -139,6 +141,13 @@ PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStack(size_t maxStack
 PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStackForConsole()
 {
     return RBScriptCallStackFactory::createScriptCallStackForConsole(this);
+}
+
+void RBScriptState::contextDestroyed()
+{
+    if (s_contextGlobalStates->contains(scriptExecutionContext()))
+        s_contextGlobalStates->remove(scriptExecutionContext());
+    delete this;
 }
 
 } // namespace WebCore

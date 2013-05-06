@@ -26,6 +26,7 @@
 #ifndef RBScriptState_h
 #define RBScriptState_h
 
+#include "ContextDestructionObserver.h"
 #include "ScriptState.h"
 #include <Ruby/ruby.h>
 #include <wtf/HashMap.h>
@@ -35,7 +36,7 @@ class DOMWindow;
 class Frame;
 class ScriptExecutionContext;
 
-class RBScriptState : public ScriptState {
+class RBScriptState : public ScriptState, private ContextDestructionObserver {
 public:
     // Returns the script state according to the current Ruby call frame.
     static RBScriptState* current();
@@ -65,6 +66,8 @@ public:
 private:
     RBScriptState(VALUE binding);
     virtual ~RBScriptState();
+    
+    virtual void contextDestroyed();
 
     VALUE m_binding;
     bool m_evalEnabled;
