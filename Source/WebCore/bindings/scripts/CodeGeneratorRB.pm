@@ -647,7 +647,7 @@ sub GenerateCallWith
     }
 
     if ($codeGenerator->ExtendedAttributeContains($callWith, "ScriptExecutionContext")) {
-        push(@$outputArray, "    ScriptExecutionContext* scriptContext = state->domWindow()->scriptExecutionContext();\n");
+        push(@$outputArray, "    ScriptExecutionContext* scriptContext = state->scriptExecutionContext();\n");
         push(@$outputArray, "    if (!scriptContext)\n");
         push(@$outputArray, "        return Qnil;\n\n");
         $implIncludes{"DOMWindow.h"} = 1;
