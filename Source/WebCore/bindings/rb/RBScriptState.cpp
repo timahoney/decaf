@@ -107,7 +107,6 @@ ScriptState* RBScriptState::globalScriptState(ScriptExecutionContext* context)
     if (!s_contextGlobalStates)
         s_contextGlobalStates = new RBContextToGlobalStateMap();
     
-    // FIXME: Delete these ScriptStates when the context is finished.
     RBScriptState* globalState = s_contextGlobalStates->get(context);
     if (!globalState) {
         VALUE binding = bindingFromContext(context);
