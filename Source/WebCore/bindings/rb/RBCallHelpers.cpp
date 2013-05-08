@@ -77,7 +77,9 @@ public:
 
     VALUE callFunction()
     {
-        VALUE result = rb_rescue(RUBY_METHOD_FUNC(&call), (VALUE) this, RUBY_METHOD_FUNC(&rescue), (VALUE) this);
+        VALUE result = rb_rescue2(RUBY_METHOD_FUNC(&call), (VALUE) this, 
+                                  RUBY_METHOD_FUNC(&rescue), (VALUE) this,
+                                  rb_eException, (VALUE)0);
         if (!NIL_P(m_exception))
             printException(m_exception);
     
