@@ -194,7 +194,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "RESOURCES_PATH=\"${BUILT_PRODUCTS_DIR}\"/\"${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\ncd \"${RESOURCES_PATH}\"\ncp ./decaf.icns ./MiniBrowser.app/Contents/Resources/\n\n# If the MiniBrowser already has a CFBundleIconFile, then 'Add' will fail.\n# If not, then 'Set' will fail.\n# Make sure it gets set by doing both 'Add' and 'Set'\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Add :CFBundleIconFile string decaf\"\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Set :CFBundleIconFile decaf\"\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Set :CFBundleName Decaf\"\n\n# Make sure we don't still have an old Decaf.app,\n# then copy our new one.\nrm -r ./Decaf.app\nmv ./MiniBrowser.app ./Decaf.app";
+			shellScript = "RESOURCES_PATH=\"${BUILT_PRODUCTS_DIR}\"/\"${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\ncd \"${RESOURCES_PATH}\"\ncp ./decaf.icns ./MiniBrowser.app/Contents/Resources/\n\n# If the MiniBrowser already has a CFBundleIconFile, then 'Add' will fail.\n# If not, then 'Set' will fail.\n# Make sure it gets set by doing both 'Add' and 'Set'\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Add :CFBundleIconFile string decaf\"\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Set :CFBundleIconFile decaf\"\n/usr/libexec/PlistBuddy ./MiniBrowser.app/Contents/Info.plist -c \"Set :CFBundleName Decaf\"\n\n# Make sure we don't still have an old Decaf.app,\n# then copy our new one.\nrm -rf ./Decaf.app\nmv ./MiniBrowser.app ./Decaf.app";
 		};
 /* End PBXShellScriptBuildPhase section */
 
