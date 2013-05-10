@@ -55,7 +55,7 @@ template <typename T>
 void rb_wrapper_free(RBImplWrapper<T>* wrapper)
 {
     wrapper->ptr = 0;
-    free(wrapper);
+    delete wrapper;
 }
 
 template <typename T>
@@ -65,7 +65,7 @@ VALUE toRB(VALUE klass, T* impl)
         return Qnil;
     
     RBImplWrapper<T>* wrapper;
-    wrapper = new RBImplWrapper<T>;
+    wrapper = new RBImplWrapper<T>();
     wrapper->ptr = RefPtr<T>(impl);
     VALUE instance = Data_Wrap_Struct(klass, 0, rb_wrapper_free<T>, wrapper);
     return instance;
