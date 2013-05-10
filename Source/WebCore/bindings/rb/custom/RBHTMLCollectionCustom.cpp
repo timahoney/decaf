@@ -33,18 +33,18 @@
 
 namespace WebCore {
 
-VALUE toRB(PassRefPtr<HTMLCollection> impl)
+VALUE toRB(HTMLCollection* impl)
 {
     if (!impl)
         return Qnil;
 
     switch (impl->type()) {
     case FormControls:
-        return toRB(static_cast<HTMLFormControlsCollection*>(impl.get()));
+        return toRB(static_cast<HTMLFormControlsCollection*>(impl));
     case SelectOptions:
-        return toRB(static_cast<HTMLOptionsCollection*>(impl.get()));
+        return toRB(static_cast<HTMLOptionsCollection*>(impl));
     case DocAll:
-        return toRB(static_cast<HTMLAllCollection*>(impl.get()));
+        return toRB(static_cast<HTMLAllCollection*>(impl));
     default:
         return toRB(RBHTMLCollection::rubyClass(), impl);
     }

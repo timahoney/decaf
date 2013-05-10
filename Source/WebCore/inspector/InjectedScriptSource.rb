@@ -78,8 +78,7 @@ class InjectedScript
     begin
       result = RemoteObject.new(self, object, object_group_name, force_value_type, generate_preview)
     rescue => e
-      backtrace_string = e.backtrace.join("\n\t")
-      puts "Failed to create RemoteObject. Backtrace:\n\t#{backtrace_string}"
+      p e.backtrace.join("\n\t")
       begin
         description = _describe($!)
       rescue
@@ -315,6 +314,7 @@ class InjectedScript
         begin
           descriptor[:value] = object.method(name).call
         rescue Exception => e
+          p e.backtrace
           descriptor[:value] = e
           descriptor[:wasThrown] = true
         end
@@ -395,7 +395,8 @@ class InjectedScript
 
       result = func.call(resolved_args)
       return { :wasThrown => false, :result => _wrap_object(result, object_group, return_by_value) }
-    rescue
+    rescue Exception => e
+      p e.backtrace
       return _create_thrown_value($!, object_group)
     end
   end
@@ -409,6 +410,7 @@ class InjectedScript
         :result    => _wrap_object(result, object_group, return_by_value, generate_preview) 
       }
     rescue Exception => e
+      p e.backtrace
       return _create_thrown_value(e, object_group)
     end
   end
@@ -538,6 +540,10 @@ class InjectedScript
     return nil if is_primitive_value(obj)
 
     return ":#{obj.to_s}" if obj.is_a? Symbol
+    if (obj.is_a? Module)
+      return obj.name if obj.name
+      return obj.to_s
+    end
 
     subtype = _subtype(obj)
     return obj.to_s if subtype == "regexp"
@@ -653,7 +659,7 @@ class InjectedScript
       elsif (injected_script.is_primitive_value(value))
         if (type == "string")
           value = _abbreviate_string(value, max_length, true)
-          value = "\"#{value.gsub(/\n/, "\u21B5")}\""
+          value = "#{value.gsub(/\n/, "\u21B5")}"
         end
         descriptor[:value] = value.to_s
 
@@ -685,10 +691,29 @@ class InjectedScript
       end
     end
 
+    def _generate_array_preview(object, elements_to_dump, injected_script)
+      if (elements_to_dump <= object.size)
+        @preview[:overflow] = true
+        @preview[:lossless] = false
+      end
+
+      elements_to_dump = [object.size, elements_to_dump].min
+      object[0..elements_to_dump].each_with_index do |value, i|
+        name = i.to_s
+        property = _generate_descriptor(name, value, injected_script)
+        @preview[:properties].push(property)
+      end
+    end
+
     def _generate_proto_preview(object, elements_to_dump, injected_script)
 
       if (object.is_a? Hash)
         _generate_hash_preview(object, elements_to_dump, injected_script)
+        return
+      end
+
+      if (object.is_a? Array)
+        _generate_array_preview(object, elements_to_dump, injected_script)
         return
       end
 
@@ -720,7 +745,8 @@ class InjectedScript
             value = object.method(name).call
             property = _generate_descriptor(name, value, injected_script)
             @preview[:properties].push(property)
-          rescue
+          rescue Exception => e
+            p e.backtrace
             next
           end
         end

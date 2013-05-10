@@ -42,6 +42,7 @@ class ScriptValueDelegate : public RefCounted<ScriptValueDelegate> {
 public:
     virtual ~ScriptValueDelegate() {}
 
+    virtual bool isString() const = 0;
     virtual bool getString(ScriptState*, String& result) const = 0;
     virtual String toString(ScriptState*) const = 0;
     virtual bool isEqual(ScriptState*, const ScriptValue&) const = 0;
@@ -50,8 +51,16 @@ public:
     virtual bool isObject() const = 0;
     virtual bool isFunction() const = 0;
     virtual bool hasNoValue() const = 0;
-
     virtual void clear() = 0;
+
+    virtual bool isNumber() const = 0;
+    virtual bool isInt32() const = 0;
+    virtual int32_t asInt32() const = 0;
+    virtual double asDouble() const = 0;
+    virtual bool isBoolean() const = 0;
+    virtual bool isTrue() const = 0;
+    virtual bool isCell() const = 0;
+    double asNumber() const { return isInt32() ? asInt32() : asDouble(); }
 
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, SerializationErrorMode = Throwing) = 0;
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, MessagePortArray*, ArrayBufferArray*, bool&) = 0;
@@ -61,6 +70,8 @@ public:
 #endif
 
     ScriptType scriptType() const { return m_type; }
+
+    virtual bool operator==(const ScriptValueDelegate& other) const = 0;
 
 protected:
     ScriptValueDelegate(ScriptType type) : m_type(type) { }
@@ -78,6 +89,7 @@ public:
 
     virtual ~EmptyScriptValueDelegate() {}
 
+    virtual bool isString() const { return false; }
     virtual bool getString(ScriptState*, String&) const { return false; }
     virtual String toString(ScriptState*) const { return String(); }
     virtual bool isEqual(ScriptState*, const ScriptValue&) const;
@@ -86,10 +98,17 @@ public:
     virtual bool isObject() const { return false; }
     virtual bool isFunction() const { return false; }
     virtual bool hasNoValue() const { return true; }
+    virtual bool isNumber() const { return false; }
+    virtual bool isInt32() const { return false; }
+    virtual int32_t asInt32() const { return 0; }
+    virtual double asDouble() const { return 0; }
+    virtual bool isBoolean() const { return false; }
+    virtual bool isTrue() const { return false; }
+    virtual bool isCell() const { return false; }
 
     virtual void clear() { }
 
-    virtual bool operator==(const ScriptValue& other) const;
+    virtual bool operator==(const ScriptValueDelegate& other) const;
 
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, SerializationErrorMode = Throwing) { return SerializedScriptValue::create(); }
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, MessagePortArray*, ArrayBufferArray*, bool&) { return SerializedScriptValue::create(); }
@@ -99,7 +118,7 @@ public:
 #endif
 
 private:
-    EmptyScriptValueDelegate() : ScriptValueDelegate(JSScriptType) { }
+    EmptyScriptValueDelegate() : ScriptValueDelegate(RBScriptType) { }
 };
 
 } // namespace WebCore

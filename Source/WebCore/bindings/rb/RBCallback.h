@@ -43,7 +43,7 @@ public:
     VALUE proc() const { return m_proc; }
 
 protected:
-    VALUE callProc(ScriptExecutionContext*, int argc = 0, VALUE* argv = 0);
+    VALUE call(ScriptExecutionContext*, int argc = 0, VALUE* argv = 0);
     VALUE m_proc;
 };
 

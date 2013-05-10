@@ -31,33 +31,52 @@
 #include "RBScriptValue.h"
 #include <wtf/text/WTFString.h>
 
+using namespace RB;
+
 namespace WebCore {
+
+RBScriptCallArgumentHandler::RBScriptCallArgumentHandler(ScriptState* state)
+    : ScriptCallArgumentHandlerDelegate(state)
+{
+}
+
+RBScriptCallArgumentHandler::~RBScriptCallArgumentHandler()
+{
+}
+
+inline void RBScriptCallArgumentHandler::appendRBArgument(VALUE argument)
+{
+    appendArgument(RBScriptValue::scriptValue(argument));
+}
 
 void RBScriptCallArgumentHandler::appendArgument(const ScriptObject& argument)
 {
-    m_arguments.append(static_cast<RBScriptValue*>(argument.delegate())->rbValue());
+    m_arguments.append(argument);
 }
 
 void RBScriptCallArgumentHandler::appendArgument(const ScriptValue& argument)
 {
-    m_arguments.append(static_cast<RBScriptValue*>(argument.delegate())->rbValue());
+    m_arguments.append(argument);
 }
 
-static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<VALUE>& arguments, bool& hadException, bool reportExceptions)
+static ScriptValue makeFunctionCall(ScriptState* scriptState, VALUE object, const String& functionName, const Vector<ScriptValue>& arguments, bool& hadException, bool reportExceptions)
 {
-    // FIXME: Call the function within the call frame of the script state.
-    VALUE previousException = rb_errinfo();
-    rb_set_errinfo(Qnil);
-    VALUE result = callFunctionProtected(object, functionName.utf8().data(), arguments.size(), arguments.data());
-
-    VALUE exception = rb_errinfo();
-    rb_set_errinfo(previousException);
+    // Make the function call within the binding of the script state.
+    RBScriptState* state = static_cast<RBScriptState*>(scriptState);
+    VALUE createProc = rb_str_new2("Proc.new { |object, function_name, arguments| object.method(function_name).call(*arguments) }");
+    VALUE proc = rb_funcall(state->binding(), rb_intern("eval"), 1, createProc);
+    VALUE functionNameRB = rb_str_new2(functionName.utf8().data());
+    VALUE argumentsRB = rb_ary_new2(arguments.size());
+    for (size_t i = 0; i < arguments.size(); i++) {
+        VALUE argument = static_cast<RBScriptValue*>(arguments[i].delegate())->rbValue();
+        rb_ary_push(argumentsRB, argument);
+    }
+    
+    VALUE exception;
+    VALUE result = callFunction(proc, "call", object, functionNameRB, argumentsRB, &exception);
     if (!NIL_P(exception)) {
-        rb_set_errinfo(Qnil);
-        if (reportExceptions) {
-            RBScriptState* state = static_cast<RBScriptState*>(scriptState);
-            RBDOMBinding::reportException(state->scriptExecutionContext(), exception);
-        }
+        if (reportExceptions)
+            reportException(state->scriptExecutionContext(), exception);
         
         hadException = true;
         return ScriptValue();

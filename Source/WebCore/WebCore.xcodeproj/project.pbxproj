@@ -695,11 +695,23 @@
 		209B456B16796A7E00E54E4E /* JSCryptoCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 209B456A16796A7E00E54E4E /* JSCryptoCustom.cpp */; };
 		20D629261253690B00081543 /* InspectorInstrumentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20D629241253690B00081543 /* InspectorInstrumentation.cpp */; };
 		20D629271253690B00081543 /* InspectorInstrumentation.h in Headers */ = {isa = PBXBuildFile; fileRef = 20D629251253690B00081543 /* InspectorInstrumentation.h */; };
+		224A9CD9173333F300817209 /* SerializationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 224A9CD8173333F200817209 /* SerializationDelegate.h */; };
+		224A9CDC1733341100817209 /* JSSerializationDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224A9CDA1733341000817209 /* JSSerializationDelegate.cpp */; };
+		224A9CDD1733341100817209 /* JSSerializationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 224A9CDB1733341000817209 /* JSSerializationDelegate.h */; };
+		224A9CDF1733419700817209 /* SerializationTags.h in Headers */ = {isa = PBXBuildFile; fileRef = 224A9CDE1733419700817209 /* SerializationTags.h */; };
+		224A9CE617359EE600817209 /* RBSerializationDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224A9CE417359EDE00817209 /* RBSerializationDelegate.cpp */; };
+		224A9CE717359EE600817209 /* RBSerializationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 224A9CE517359EE100817209 /* RBSerializationDelegate.h */; };
 		227777601345DEA9008EA455 /* InspectorFrontendChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2277775F1345DEA9008EA455 /* InspectorFrontendChannel.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		22885E641301AE4C00526E68 /* JSDOMImplementationCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22885E631301AE4C00526E68 /* JSDOMImplementationCustom.cpp */; };
 		228C284510D82500009D0D0E /* ScriptWrappable.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C284410D82500009D0D0E /* ScriptWrappable.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2292B27C1356669400CF11EF /* ImageBufferDataCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */; };
 		22A7232F170C822D0086B67F /* libRuby.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A7232E170C822D0086B67F /* libRuby.a */; };
+		22B992AA1729D5EA00A0537B /* WorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992A61729D5E900A0537B /* WorkerScriptController.cpp */; };
+		22B992AB1729D5EA00A0537B /* WorkerScriptController.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992A71729D5E900A0537B /* WorkerScriptController.h */; };
+		22B992B01729D60500A0537B /* JSWorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992AE1729D60500A0537B /* JSWorkerScriptController.cpp */; };
+		22B992B11729D60500A0537B /* JSWorkerScriptController.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992AF1729D60500A0537B /* JSWorkerScriptController.h */; };
+		22B992B41729D65B00A0537B /* RBWorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B992B21729D65B00A0537B /* RBWorkerScriptController.cpp */; };
+		22B992B51729D65B00A0537B /* RBWorkerScriptController.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B992B31729D65B00A0537B /* RBWorkerScriptController.h */; };
 		22BD9F7F1353625C009BD102 /* ImageBufferData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F7D1353625C009BD102 /* ImageBufferData.h */; };
 		22BD9F81135364FE009BD102 /* ImageBufferDataCG.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */; };
 		22C690F8170B6387004D9E73 /* RBMutationCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */; };
@@ -777,7 +789,6 @@
 		22FEA6BB170B4C4F00BAFA4B /* ScriptType.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FEA6B9170B4C4F00BAFA4B /* ScriptType.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		22FEA6BD170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6BC170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp */; };
 		22FEA746170B4C7500BAFA4B /* RBArrayBufferCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */; };
-		22FEA747170B4C7500BAFA4B /* RBArrayBufferCustom.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */; };
 		22FEA748170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */; };
 		22FEA749170B4C7500BAFA4B /* RBAudioContextCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */; };
 		22FEA74A170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */; };
@@ -7556,8 +7567,6 @@
 		E1A3162E134BC32D007C9A4F /* WebNSAttributedStringExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A3162C134BC32D007C9A4F /* WebNSAttributedStringExtras.mm */; };
 		E1A31663134BCAE8007C9A4F /* HTMLConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = C5392D331326AD0100043D35 /* HTMLConverter.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E1A5F99B0E7EAA2500AF85EA /* JSMessageChannelCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1A5F99A0E7EAA2500AF85EA /* JSMessageChannelCustom.cpp */; };
-		E1A643F20EC0972500779668 /* WorkerScriptController.h in Headers */ = {isa = PBXBuildFile; fileRef = E1A643F10EC0972500779668 /* WorkerScriptController.h */; };
-		E1A643FD0EC097A000779668 /* WorkerScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1A643FC0EC097A000779668 /* WorkerScriptController.cpp */; };
 		E1ACAF4C0E791AAF0087D12B /* DOMMessagePort.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1ACAF4A0E791AAF0087D12B /* DOMMessagePort.mm */; };
 		E1ACAF4D0E791AAF0087D12B /* DOMMessagePort.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ACAF4B0E791AAF0087D12B /* DOMMessagePort.h */; };
 		E1AD12D61295D0BD00ACA989 /* JSProcessingInstructionCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1AD12D51295D0BD00ACA989 /* JSProcessingInstructionCustom.cpp */; };
@@ -9375,11 +9384,23 @@
 		209B456A16796A7E00E54E4E /* JSCryptoCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSCryptoCustom.cpp; sourceTree = "<group>"; };
 		20D629241253690B00081543 /* InspectorInstrumentation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InspectorInstrumentation.cpp; sourceTree = "<group>"; };
 		20D629251253690B00081543 /* InspectorInstrumentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorInstrumentation.h; sourceTree = "<group>"; };
+		224A9CD8173333F200817209 /* SerializationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SerializationDelegate.h; path = generic/SerializationDelegate.h; sourceTree = "<group>"; };
+		224A9CDA1733341000817209 /* JSSerializationDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSSerializationDelegate.cpp; sourceTree = "<group>"; };
+		224A9CDB1733341000817209 /* JSSerializationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSSerializationDelegate.h; sourceTree = "<group>"; };
+		224A9CDE1733419700817209 /* SerializationTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SerializationTags.h; path = generic/SerializationTags.h; sourceTree = "<group>"; };
+		224A9CE417359EDE00817209 /* RBSerializationDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBSerializationDelegate.cpp; sourceTree = "<group>"; };
+		224A9CE517359EE100817209 /* RBSerializationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBSerializationDelegate.h; sourceTree = "<group>"; };
 		2277775F1345DEA9008EA455 /* InspectorFrontendChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorFrontendChannel.h; sourceTree = "<group>"; };
 		22885E631301AE4C00526E68 /* JSDOMImplementationCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSDOMImplementationCustom.cpp; sourceTree = "<group>"; };
 		228C284410D82500009D0D0E /* ScriptWrappable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptWrappable.h; sourceTree = "<group>"; };
 		2292B27B1356669400CF11EF /* ImageBufferDataCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageBufferDataCG.cpp; sourceTree = "<group>"; };
 		22A7232E170C822D0086B67F /* libRuby.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRuby.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		22B992A61729D5E900A0537B /* WorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WorkerScriptController.cpp; path = generic/WorkerScriptController.cpp; sourceTree = "<group>"; };
+		22B992A71729D5E900A0537B /* WorkerScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WorkerScriptController.h; path = generic/WorkerScriptController.h; sourceTree = "<group>"; };
+		22B992AE1729D60500A0537B /* JSWorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSWorkerScriptController.cpp; sourceTree = "<group>"; };
+		22B992AF1729D60500A0537B /* JSWorkerScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSWorkerScriptController.h; sourceTree = "<group>"; };
+		22B992B21729D65B00A0537B /* RBWorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBWorkerScriptController.cpp; sourceTree = "<group>"; };
+		22B992B31729D65B00A0537B /* RBWorkerScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBWorkerScriptController.h; sourceTree = "<group>"; };
 		22BD9F7D1353625C009BD102 /* ImageBufferData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferData.h; sourceTree = "<group>"; };
 		22BD9F80135364FE009BD102 /* ImageBufferDataCG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageBufferDataCG.h; sourceTree = "<group>"; };
 		22C690F6170B637F004D9E73 /* RBMutationCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBMutationCallback.cpp; sourceTree = "<group>"; };
@@ -9457,7 +9478,6 @@
 		22FEA6B9170B4C4F00BAFA4B /* ScriptType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptType.h; sourceTree = "<group>"; };
 		22FEA6BC170B4C6500BAFA4B /* InjectedScriptManagerCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InjectedScriptManagerCustom.cpp; path = generic/InjectedScriptManagerCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBArrayBufferCustom.cpp; sourceTree = "<group>"; };
-		22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RBArrayBufferCustom.h; sourceTree = "<group>"; };
 		22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBAudioBufferSourceNodeCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBAudioContextCustom.cpp; sourceTree = "<group>"; };
 		22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RBBiquadFilterNodeCustom.cpp; sourceTree = "<group>"; };
@@ -16577,8 +16597,6 @@
 		E1A3162B134BC32D007C9A4F /* WebNSAttributedStringExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebNSAttributedStringExtras.h; sourceTree = "<group>"; };
 		E1A3162C134BC32D007C9A4F /* WebNSAttributedStringExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebNSAttributedStringExtras.mm; sourceTree = "<group>"; };
 		E1A5F99A0E7EAA2500AF85EA /* JSMessageChannelCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSMessageChannelCustom.cpp; sourceTree = "<group>"; };
-		E1A643F10EC0972500779668 /* WorkerScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerScriptController.h; sourceTree = "<group>"; };
-		E1A643FC0EC097A000779668 /* WorkerScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerScriptController.cpp; sourceTree = "<group>"; };
 		E1AB1EA814E9E27D00449E13 /* FileList.idl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = FileList.idl; path = fileapi/FileList.idl; sourceTree = "<group>"; };
 		E1AB1EAB14E9E2EF00449E13 /* DirectoryEntry.idl */ = {isa = PBXFileReference; lastKnownFileType = text; name = DirectoryEntry.idl; path = Modules/filesystem/DirectoryEntry.idl; sourceTree = "<group>"; };
 		E1AB1EAC14E9E2F800449E13 /* DirectoryEntrySync.idl */ = {isa = PBXFileReference; lastKnownFileType = text; name = DirectoryEntrySync.idl; path = Modules/filesystem/DirectoryEntrySync.idl; sourceTree = "<group>"; };
@@ -18121,6 +18139,10 @@
 				22FEA741170B4C7500BAFA4B /* RBScriptValue.h */,
 				22FEA742170B4C7500BAFA4B /* RBSecurityMeasures.cpp */,
 				22FEA743170B4C7500BAFA4B /* RBSecurityMeasures.h */,
+				224A9CE417359EDE00817209 /* RBSerializationDelegate.cpp */,
+				224A9CE517359EE100817209 /* RBSerializationDelegate.h */,
+				22B992B21729D65B00A0537B /* RBWorkerScriptController.cpp */,
+				22B992B31729D65B00A0537B /* RBWorkerScriptController.h */,
 				22FEA744170B4C7500BAFA4B /* RBWrapperCache.cpp */,
 				22FEA745170B4C7500BAFA4B /* RBWrapperCache.h */,
 			);
@@ -18131,7 +18153,6 @@
 			isa = PBXGroup;
 			children = (
 				22FEA6C0170B4C7500BAFA4B /* RBArrayBufferCustom.cpp */,
-				22FEA6C1170B4C7500BAFA4B /* RBArrayBufferCustom.h */,
 				22FEA6C2170B4C7500BAFA4B /* RBAudioBufferSourceNodeCustom.cpp */,
 				22FEA6C3170B4C7500BAFA4B /* RBAudioContextCustom.cpp */,
 				22FEA6C4170B4C7500BAFA4B /* RBBiquadFilterNodeCustom.cpp */,
@@ -24996,6 +25017,10 @@
 				22FEA690170B4C3800BAFA4B /* ScriptValue.h */,
 				22FEA691170B4C3800BAFA4B /* ScriptValueDelegate.cpp */,
 				22FEA692170B4C3800BAFA4B /* ScriptValueDelegate.h */,
+				224A9CD8173333F200817209 /* SerializationDelegate.h */,
+				224A9CDE1733419700817209 /* SerializationTags.h */,
+				22B992A61729D5E900A0537B /* WorkerScriptController.cpp */,
+				22B992A71729D5E900A0537B /* WorkerScriptController.h */,
 			);
 			name = generic;
 			sourceTree = "<group>";
@@ -25093,6 +25118,10 @@
 				22FEA7E8170B4EC900BAFA4B /* JSScriptState.h */,
 				22FEA7E9170B4EC900BAFA4B /* JSScriptValue.cpp */,
 				22FEA7EA170B4EC900BAFA4B /* JSScriptValue.h */,
+				224A9CDA1733341000817209 /* JSSerializationDelegate.cpp */,
+				224A9CDB1733341000817209 /* JSSerializationDelegate.h */,
+				22B992AE1729D60500A0537B /* JSWorkerScriptController.cpp */,
+				22B992AF1729D60500A0537B /* JSWorkerScriptController.h */,
 				41F1D21E0EF35C2A00DA8753 /* ScriptCachedFrameData.cpp */,
 				41F1D21D0EF35C2A00DA8753 /* ScriptCachedFrameData.h */,
 				A83E1C720E49042B00140B9C /* ScriptControllerMac.mm */,
@@ -25112,8 +25141,6 @@
 				A75E497510752ACB00C9B896 /* SerializedScriptValue.cpp */,
 				A75E497410752ACB00C9B896 /* SerializedScriptValue.h */,
 				BC53D910114310CC000D817E /* WebCoreJSClientData.h */,
-				E1A643FC0EC097A000779668 /* WorkerScriptController.cpp */,
-				E1A643F10EC0972500779668 /* WorkerScriptController.h */,
 				F34742E61343635000531BC2 /* WorkerScriptDebugServer.cpp */,
 				F34742E71343635000531BC2 /* WorkerScriptDebugServer.h */,
 			);
@@ -30653,7 +30680,6 @@
 				416E29A6102FA962007FC14E /* WorkerReportingProxy.h in Headers */,
 				2E4346530F546A8200B0F1BA /* WorkerRunLoop.h in Headers */,
 				F3820899147D35F90010BC06 /* WorkerRuntimeAgent.h in Headers */,
-				E1A643F20EC0972500779668 /* WorkerScriptController.h in Headers */,
 				F34742E91343635000531BC2 /* WorkerScriptDebugServer.h in Headers */,
 				A7D6B3490F61104500B79FD1 /* WorkerScriptLoader.h in Headers */,
 				2EA768040FE7126400AB9C8A /* WorkerScriptLoaderClient.h in Headers */,
@@ -30725,7 +30751,6 @@
 				22FEA6B5170B4C3800BAFA4B /* ScriptValue.h in Headers */,
 				22FEA6B7170B4C3800BAFA4B /* ScriptValueDelegate.h in Headers */,
 				22FEA6BB170B4C4F00BAFA4B /* ScriptType.h in Headers */,
-				22FEA747170B4C7500BAFA4B /* RBArrayBufferCustom.h in Headers */,
 				22FEA756170B4C7500BAFA4B /* RBDataViewCustom.h in Headers */,
 				22FEA778170B4C7500BAFA4B /* RBInitializationCustom.h in Headers */,
 				22FEA782170B4C7500BAFA4B /* RBMessagePortCustom.h in Headers */,
@@ -31334,6 +31359,13 @@
 				22ECF1E4170B965600FC0B56 /* RBSharedWorker.h in Headers */,
 				22ECF1E6170B965600FC0B56 /* RBSharedWorkerContext.h in Headers */,
 				22ECF1EA170B96B300FC0B56 /* RBDedicatedWorkerContext.h in Headers */,
+				22B992AB1729D5EA00A0537B /* WorkerScriptController.h in Headers */,
+				22B992B11729D60500A0537B /* JSWorkerScriptController.h in Headers */,
+				22B992B51729D65B00A0537B /* RBWorkerScriptController.h in Headers */,
+				224A9CD9173333F300817209 /* SerializationDelegate.h in Headers */,
+				224A9CDD1733341100817209 /* JSSerializationDelegate.h in Headers */,
+				224A9CDF1733419700817209 /* SerializationTags.h in Headers */,
+				224A9CE717359EE600817209 /* RBSerializationDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34478,7 +34510,6 @@
 				E1271A140EEEC80400F61213 /* WorkerNavigator.cpp in Sources */,
 				2E4346520F546A8200B0F1BA /* WorkerRunLoop.cpp in Sources */,
 				F3820898147D35F90010BC06 /* WorkerRuntimeAgent.cpp in Sources */,
-				E1A643FD0EC097A000779668 /* WorkerScriptController.cpp in Sources */,
 				F34742E81343635000531BC2 /* WorkerScriptDebugServer.cpp in Sources */,
 				A7D6B34A0F61104500B79FD1 /* WorkerScriptLoader.cpp in Sources */,
 				2E4346540F546A8200B0F1BA /* WorkerThread.cpp in Sources */,
@@ -35234,6 +35265,11 @@
 				22ECF1ED170B9BF200FC0B56 /* RBWorkerContextCustom.cpp in Sources */,
 				22ECF1EE170B9BF200FC0B56 /* RBWorkerCustom.cpp in Sources */,
 				22ECF1F2170B9C0B00FC0B56 /* RBDedicatedWorkerContextCustom.cpp in Sources */,
+				22B992AA1729D5EA00A0537B /* WorkerScriptController.cpp in Sources */,
+				22B992B01729D60500A0537B /* JSWorkerScriptController.cpp in Sources */,
+				22B992B41729D65B00A0537B /* RBWorkerScriptController.cpp in Sources */,
+				224A9CDC1733341100817209 /* JSSerializationDelegate.cpp in Sources */,
+				224A9CE617359EE600817209 /* RBSerializationDelegate.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

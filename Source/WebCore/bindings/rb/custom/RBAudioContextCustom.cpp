@@ -59,7 +59,7 @@ VALUE RBAudioContext::rb_new(int argc, VALUE* argv, VALUE)
         ExceptionCode ec = 0;
         audioContext = AudioContext::create(document, ec);
         if (ec) {
-            rbDOMRaiseError(ec);
+            RB::setDOMException(ec);
             return Qnil;
         }
         if (!audioContext.get()) {
@@ -94,7 +94,7 @@ VALUE RBAudioContext::rb_new(int argc, VALUE* argv, VALUE)
         ExceptionCode ec = 0;
         audioContext = OfflineAudioContext::create(document, numberOfChannels, numberOfFrames, sampleRate, ec);
         if (ec) {
-            rbDOMRaiseError(ec);
+            RB::setDOMException(ec);
             rb_raise(rb_eRuntimeError, "Error creating OfflineAudioContext");
             return Qnil;
         }

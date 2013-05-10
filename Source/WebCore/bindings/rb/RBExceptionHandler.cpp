@@ -29,27 +29,17 @@
 #include "ExceptionCodeDescription.h"
 #include "ExceptionHeaders.h"
 #include "ExceptionInterfaces.h"
-#include "RBDOMCoreException.h"
-#include "RBEventException.h"
-#include "RBFileException.h"
-#include "RBRangeException.h"
-#include "RBXMLHttpRequestException.h"
-#if ENABLE(SQL_DATABASE)
-#include "RBSQLException.h"
-#endif
-#if ENABLE(SVG)
-#include "RBSVGException.h"
-#endif
-#include "RBXPathException.h"
 
-namespace WebCore {
+using namespace WebCore;
+
+namespace RB {
 
 #define TRY_TO_CREATE_EXCEPTION(interfaceName) \
     case interfaceName##Type: \
         errorObject = toRB(interfaceName::create(description)); \
         break;
 
-void rbDOMRaiseError(ExceptionCode ec)
+void setDOMException(ExceptionCode ec)
 {
     if (!ec)
         return;
@@ -70,4 +60,4 @@ void rbDOMRaiseError(ExceptionCode ec)
     rb_exc_raise(errorObject);
 }
 
-} // namespace WebCore
+} // namespace RB

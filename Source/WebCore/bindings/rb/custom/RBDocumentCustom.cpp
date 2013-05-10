@@ -60,16 +60,16 @@ VALUE RBDocument::location_setter(VALUE self, VALUE newValue)
     return newValue;
 }
 
-VALUE toRB(PassRefPtr<Document> impl)
+VALUE toRB(Document* impl)
 {
     if (!impl)
         return Qnil;
 
     if (impl->isHTMLDocument())
-        return toRB(static_cast<HTMLDocument*>(impl.get()));
+        return toRB(static_cast<HTMLDocument*>(impl));
 #if ENABLE(SVG)
     else if (impl->isSVGDocument())
-        return toRB(static_cast<SVGDocument*>(impl.get()));
+        return toRB(static_cast<SVGDocument*>(impl));
 #endif
     else
         return toRB(RBDocument::rubyClass(), impl);

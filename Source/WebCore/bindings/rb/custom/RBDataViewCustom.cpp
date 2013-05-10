@@ -56,7 +56,7 @@ VALUE RBDataViewCustom::get_int8(VALUE self, VALUE byteOffset)
     ExceptionCode ec = 0;
     unsigned long byteOffsetImpl = NUM2ULONG(byteOffset);
     int8_t result = selfImpl->getInt8(byteOffsetImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return toRB(result);
 }
 
@@ -66,7 +66,7 @@ VALUE RBDataViewCustom::get_uint8(VALUE self, VALUE byteOffset)
     ExceptionCode ec = 0;
     unsigned long byteOffsetImpl = NUM2ULONG(byteOffset);
     uint8_t result = selfImpl->getUint8(byteOffsetImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return toRB(result);
 }
 
@@ -77,7 +77,7 @@ VALUE RBDataViewCustom::set_int8(VALUE self, VALUE byteOffset, VALUE value)
     unsigned long byteOffsetImpl = NUM2ULONG(byteOffset);
     int8_t valueImpl = NUM2INT(value);
     selfImpl->setInt8(byteOffsetImpl, valueImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 
@@ -88,11 +88,11 @@ VALUE RBDataViewCustom::set_uint8(VALUE self, VALUE byteOffset, VALUE value)
     unsigned long byteOffsetImpl = NUM2ULONG(byteOffset);
     uint8_t valueImpl = NUM2UINT(value);
     selfImpl->setUint8(byteOffsetImpl, valueImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 
-VALUE toRB(PassRefPtr<DataView> impl)
+VALUE toRB(DataView* impl)
 {
     // The JS custom implementation of this is nothing special.
     // FIXME: Should the IDL for DataView not have CustomToJSObject?

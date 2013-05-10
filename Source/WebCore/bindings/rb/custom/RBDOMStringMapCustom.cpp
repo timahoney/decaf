@@ -27,7 +27,7 @@ VALUE RBDOMStringMap::named_setter(VALUE self, VALUE name, VALUE value)
 {
     ExceptionCode ec = 0;
     impl<DOMStringMap>(self)->setItem(String(StringValueCStr(name)), String(StringValueCStr(value)), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return value;
 }
 

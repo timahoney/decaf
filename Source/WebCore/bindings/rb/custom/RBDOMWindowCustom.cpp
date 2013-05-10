@@ -31,6 +31,8 @@
 #include "RBMessagePortCustom.h"
 #include "RBScheduledAction.h"
 #include "RBScriptState.h"
+#include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include <wtf/Vector.h>
 
 namespace WebCore {
@@ -113,12 +115,14 @@ static VALUE handlePostMessage(int argc, VALUE* argv, VALUE self)
         fillMessagePortArray(rbTransferables, messagePorts, arrayBuffers);
     }
 
-    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(rbMessage, &messagePorts, &arrayBuffers);
+    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                          RBScriptValue::scriptValue(rbMessage),
+                                                                          &messagePorts, &arrayBuffers);
     String targetOrigin = StringValueCStr(rbTargetOrigin);
     ExceptionCode ec = 0;
     RBScriptState* state = RBScriptState::current();
     selfImpl->postMessage(message.release(), &messagePorts, targetOrigin, activeDOMWindow(state), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }
@@ -150,7 +154,7 @@ VALUE RBDOMWindow::set_timeout(int argc, VALUE* argv, VALUE self)
     OwnPtr<ScheduledAction> action = RBScheduledAction::create(handler);
     ExceptionCode ec = 0;
     int result = selfImpl->setTimeout(action.release(), timeout, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return INT2FIX(result);
 }
 
@@ -176,7 +180,7 @@ VALUE RBDOMWindow::set_interval(int argc, VALUE* argv, VALUE self)
     OwnPtr<ScheduledAction> action = RBScheduledAction::create(handler);
     int timeout = NUM2INT(timeoutRB);
     int result = selfImpl->setInterval(action.release(), timeout, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return INT2FIX(result);
 }
 

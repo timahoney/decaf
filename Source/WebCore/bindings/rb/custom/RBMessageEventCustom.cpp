@@ -31,6 +31,7 @@
 #include "RBConverters.h"
 #include "RBDOMWindow.h"
 #include "RBMessagePortCustom.h"
+#include "RBSerializationDelegate.h"
 #include "RBScriptValue.h"
 #include "ScriptValue.h"
 #include "SerializedScriptValue.h"
@@ -57,10 +58,12 @@ VALUE RBMessageEvent::data_getter(VALUE self)
     }
 
     case MessageEvent::DataTypeSerializedScriptValue:
-        if (RefPtr<SerializedScriptValue> serializedValue = event->dataAsSerializedScriptValue())
-            result = serializedValue->deserializeRB(event->ports());
-        else
+        if (RefPtr<SerializedScriptValue> serializedValue = event->dataAsSerializedScriptValue()) {
+            ScriptValue deserialized = serializedValue->deserialize(RBSerializationDelegate::create(), event->ports());
+            result = deserialized.rbValue();
+        } else {
             result = Qnil;
+        }
         break;
 
     case MessageEvent::DataTypeString:

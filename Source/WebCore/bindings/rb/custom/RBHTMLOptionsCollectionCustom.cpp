@@ -34,7 +34,7 @@ VALUE RBHTMLOptionsCollection::indexed_setter(VALUE self, VALUE index, VALUE val
     HTMLOptionsCollection *collection = impl<HTMLOptionsCollection>(self);
     HTMLSelectElement *select = toHTMLSelectElement(collection->ownerNode());
     select->setOption(NUM2UINT(index), impl<HTMLOptionElement>(value), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return value;
 }
 
@@ -51,7 +51,7 @@ VALUE RBHTMLOptionsCollection::length_setter(VALUE self, VALUE rbNewLength)
         newLength = static_cast<unsigned>(lengthValue);
     if (!ec)
         impl<HTMLOptionsCollection>(self)->setLength(newLength, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return rbNewLength;
 }
 
@@ -85,7 +85,7 @@ VALUE RBHTMLOptionsCollection::add(int argc, VALUE* argv, VALUE self)
         collection->add(option, ec);
     else
         collection->add(option, NUM2UINT(rbIndex), ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 

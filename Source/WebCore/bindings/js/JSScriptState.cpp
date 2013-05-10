@@ -36,11 +36,11 @@
 #include "JSDOMWindowBase.h"
 #include "JSScriptCallStackFactory.h"
 #include "JSScriptController.h"
+#include "JSWorkerScriptController.h"
 #include "Node.h"
 #include "Page.h"
 #include "ScriptArguments.h"
 #include "WorkerContext.h"
-#include "WorkerScriptController.h"
 #include <heap/StrongInlines.h>
 #include <interpreter/CallFrame.h>
 #include <runtime/JSGlobalObject.h>
@@ -52,8 +52,8 @@
 namespace WebCore {
 
 JSScriptState::JSScriptState(JSC::ExecState* execState)
-: ScriptState(JSScriptType)
-, m_execState(execState)
+    : ScriptState(JSScriptType)
+    , m_execState(execState)
 {
 }
 
@@ -97,13 +97,21 @@ void JSScriptState::setEvalEnabled(bool enabled)
     return globalObject->setEvalEnabled(enabled);
 }
     
-JSScriptState* JSScriptState::mainWorldScriptState(Frame* frame)
+ScriptState* JSScriptState::mainWorldScriptState(Frame* frame)
 {
     if (!frame)
         return 0;
     JSDOMWindowShell* shell = static_cast<JSScriptController*>(frame->script(JSScriptType))->windowShell(mainThreadNormalWorld());
     return JSScriptState::forExecState(shell->window()->globalExec());
 }
+
+#if ENABLE(WORKERS)
+ScriptState* JSScriptState::scriptStateFromWorkerContext(WorkerContext* workerContext)
+{
+    JSWorkerScriptController* script = static_cast<JSWorkerScriptController*>(workerContext->script());
+    return JSScriptState::forExecState(script->workerContextWrapper()->globalExec());
+}
+#endif
 
 ScriptState* scriptStateFromNode(DOMWrapperWorld* world, Node* node)
 {
@@ -129,14 +137,6 @@ ScriptState* scriptStateFromPage(DOMWrapperWorld* world, Page* page)
     JSScriptController* controller = static_cast<JSScriptController*>(page->mainFrame()->script(JSScriptType));
     return JSScriptState::forExecState(controller->globalObject(world)->globalExec());
 }
-
-#if ENABLE(WORKERS)
-ScriptState* scriptStateFromWorkerContext(WorkerContext* workerContext)
-{
-    // FIXME: Make generic.
-    return JSScriptState::forExecState(workerContext->script()->workerContextWrapper()->globalExec());
-}
-#endif
 
 PassRefPtr<ScriptCallStack> JSScriptState::createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed)
 {

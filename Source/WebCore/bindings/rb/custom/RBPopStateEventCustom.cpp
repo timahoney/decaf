@@ -28,6 +28,7 @@
 
 #include "RBHistory.h"
 #include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 
 namespace WebCore {
 
@@ -63,7 +64,8 @@ VALUE RBPopStateEvent::state_getter(VALUE self)
         VALUE rbHistory = toRB(history);
         result = RBHistory::state_getter(rbHistory);
     } else {
-        result = event->serializedState()->deserializeRB();
+        ScriptValue deserialized = event->serializedState()->deserialize(RBSerializationDelegate::create(), 0);
+        result = deserialized.rbValue();
     }
 
     rb_iv_set(self, "@state", result);

@@ -34,6 +34,7 @@
 #include "DOMWrapperWorld.h"
 #include "JSDedicatedWorkerContext.h"
 #include "JSWorkerContext.h"
+#include "JSWorkerScriptController.h"
 #include "WorkerContext.h"
 
 #if ENABLE(SHARED_WORKERS)
@@ -77,7 +78,7 @@ JSValue toJS(ExecState*, WorkerContext* workerContext)
 {
     if (!workerContext)
         return jsNull();
-    WorkerScriptController* script = workerContext->script();
+    JSWorkerScriptController* script = static_cast<JSWorkerScriptController*>(workerContext->script());
     if (!script)
         return jsNull();
     JSWorkerContext* contextWrapper = script->workerContextWrapper();

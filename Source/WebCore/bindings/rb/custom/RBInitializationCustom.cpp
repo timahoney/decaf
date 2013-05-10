@@ -26,32 +26,41 @@
 #include "config.h"
 #include "RBInitializationCustom.h"
 
-#include "RBArrayBufferCustom.h"
 #include "RBConverters.h"
 #include "RBDataViewCustom.h"
-#include "RBMessagePortCustom.h"
+#include "RBDOMBinding.h"
 #include "RBWorker.h"
+
+using namespace RB;
 
 namespace WebCore {
 
-extern "C" VALUE unimplemented(VALUE);
+extern "C" VALUE worker_new_custom(int, VALUE*, VALUE);
 
 void RBInitializationCustom::initializeCustomRubyClasses()
 {
-    RBArrayBufferCustom::Init_ArrayBufferCustom();
     RBDataViewCustom::Init_DataViewCustom();
-    RBMessagePortCustom::Init_MessagePortCustom();
     
-    // Workers aren't implemented yet.
-    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(unimplemented), 0);
+    // FIXME: Remove this when Ruby is ready for Workers.
+    rb_define_singleton_method(RBWorker::rubyClass(), "new", RUBY_METHOD_FUNC(worker_new_custom), -1);
 }
 
-VALUE unimplemented(VALUE self)
+VALUE worker_new_custom(int argc, VALUE* argv, VALUE self)
 {
-    rb_raise(rb_eNotImpError,
-             "%s.%s is not implemented in Decaf at the moment.",
-             rbToString(self).utf8().data(),
-             rb_id2name(rb_frame_this_func()));
+    VALUE scriptName;
+    rb_scan_args(argc, argv, "10", &scriptName);
+    if (IS_RB_STRING(scriptName)) {
+        KURL url = currentContext()->completeURL(rbToString(scriptName));
+        ScriptType scriptType = scriptTypeFromUrl(url);
+        if (scriptType == RBScriptType) {
+            VALUE exception = rb_exc_new2(rb_eNotImpError, "Cannot currently run a Ruby script in a Worker.");
+            rb_funcall(exception, rb_intern("set_backtrace"), 1, rb_make_backtrace());
+            reportException(currentContext(), exception);
+            return Qnil;
+        }
+    }
+    
+    return RBWorker::rb_new(argc, argv, self);
 }
 
 } // namespace WebCore

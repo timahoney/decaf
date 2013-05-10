@@ -45,7 +45,7 @@ VALUE RBSQLTransactionSync::execute_sql(VALUE self, VALUE sqlStatementRB, VALUE 
     Vector<SQLValue> sqlValues;
     if (!NIL_P(argumentsRB)) {
         if (!IS_RB_ARRAY(argumentsRB)) {
-            rbDOMRaiseError(TYPE_MISMATCH_ERR);
+            RB::setDOMException(TYPE_MISMATCH_ERR);
             return Qnil;
         }        
 
@@ -63,7 +63,7 @@ VALUE RBSQLTransactionSync::execute_sql(VALUE self, VALUE sqlStatementRB, VALUE 
 
     ExceptionCode ec = 0;
     RefPtr<SQLResultSet> result = selfImpl->executeSQL(sqlStatement, sqlValues, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return toRB(result.release());
 }

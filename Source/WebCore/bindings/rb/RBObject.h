@@ -48,26 +48,25 @@ public:
 
 template <typename T>
 struct RBImplWrapper {
-    T* ptr;
+    RefPtr<T> ptr;
 };
 
 template <typename T>
 void rb_wrapper_free(RBImplWrapper<T>* wrapper)
 {
-    wrapper->ptr->deref();
+    wrapper->ptr = 0;
     free(wrapper);
 }
 
 template <typename T>
-VALUE toRB(VALUE klass, PassRefPtr<T> impl)
+VALUE toRB(VALUE klass, T* impl)
 {
-    if (!impl.get())
+    if (!impl)
         return Qnil;
     
-    T* ptr = impl.leakRef();
     RBImplWrapper<T>* wrapper;
-    wrapper = ALLOC(RBImplWrapper<T>);
-    wrapper->ptr = ptr;
+    wrapper = new RBImplWrapper<T>;
+    wrapper->ptr = RefPtr<T>(impl);
     VALUE instance = Data_Wrap_Struct(klass, 0, rb_wrapper_free<T>, wrapper);
     return instance;
 }
@@ -80,7 +79,7 @@ inline T* impl(VALUE instance)
     
     RBImplWrapper<T>* wrapper;
     Data_Get_Struct(instance, RBImplWrapper<T>, wrapper);
-    return wrapper->ptr;
+    return wrapper->ptr.get();
 }
 
 } // namespace WebCore

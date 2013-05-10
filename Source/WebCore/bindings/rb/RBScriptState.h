@@ -26,15 +26,17 @@
 #ifndef RBScriptState_h
 #define RBScriptState_h
 
+#include "ContextDestructionObserver.h"
 #include "ScriptState.h"
 #include <Ruby/ruby.h>
+#include <wtf/HashMap.h>
 
 namespace WebCore {
 class DOMWindow;
 class Frame;
 class ScriptExecutionContext;
 
-class RBScriptState : public ScriptState {
+class RBScriptState : public ScriptState, private ContextDestructionObserver {
 public:
     // Returns the script state according to the current Ruby call frame.
     static RBScriptState* current();
@@ -49,18 +51,28 @@ public:
     virtual bool evalEnabled() const;
     virtual void setEvalEnabled(bool);
     
-    static RBScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* mainWorldScriptState(Frame*);
+    static ScriptState* scriptStateFromWorkerContext(WorkerContext*);
+
+    // Returns the ScriptState for an execution context.
+    static ScriptState* globalScriptState(ScriptExecutionContext*);
+
     static PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStack(size_t maxStackSize);
     virtual PassRefPtr<ScriptCallStack> createScriptCallStackForConsole();
+    
+    typedef HashMap<ScriptExecutionContext*, RBScriptState*> RBContextToGlobalStateMap;
 
 private:
-    RBScriptState(VALUE binding, VALUE window);
+    RBScriptState(VALUE binding);
     virtual ~RBScriptState();
+    
+    virtual void contextDestroyed();
 
     VALUE m_binding;
-    VALUE m_window;
     bool m_evalEnabled;
+
+    static RBContextToGlobalStateMap* s_contextGlobalStates;
 };
 
 } // namespace WebCore

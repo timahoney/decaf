@@ -148,7 +148,7 @@ static VALUE getObjectParameter(int argc, VALUE* argv, VALUE self, ObjectType ob
         break;
     }
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -204,7 +204,7 @@ VALUE RBWebGLRenderingContext::get_attached_shaders(VALUE self, VALUE programRB)
     Vector<RefPtr<WebGLShader> > shaders;
     bool succeed = context->getAttachedShaders(program, shaders, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     if (!succeed)
@@ -242,7 +242,7 @@ VALUE RBWebGLRenderingContext::get_framebuffer_attachment_parameter(int argc, VA
     unsigned pname = NUM2UINT(pnameRB);
     WebGLGetInfo info = context->getFramebufferAttachmentParameter(target, attachment, pname, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -258,7 +258,7 @@ VALUE RBWebGLRenderingContext::get_parameter(int argc, VALUE* argv, VALUE self)
     unsigned pname = NUM2UINT(pnameRB);
     WebGLGetInfo info = context->getParameter(pname, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -279,7 +279,7 @@ VALUE RBWebGLRenderingContext::get_program_parameter(int argc, VALUE* argv, VALU
     unsigned pname = NUM2UINT(pnameRB);
     WebGLGetInfo info = context->getProgramParameter(program, pname, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -305,7 +305,7 @@ VALUE RBWebGLRenderingContext::get_shader_parameter(int argc, VALUE* argv, VALUE
     unsigned pname = NUM2UINT(pnameRB);
     WebGLGetInfo info = context->getShaderParameter(shader, pname, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -347,7 +347,7 @@ VALUE RBWebGLRenderingContext::get_uniform(int argc, VALUE* argv, VALUE self)
     WebGLUniformLocation* location = impl<WebGLUniformLocation>(locationRB);
     WebGLGetInfo info = context->getUniform(program, location, ec);
     if (ec) {
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
     return toRB(info);
@@ -428,7 +428,7 @@ static VALUE dataFunctionf(DataFunctionToCall f, VALUE locationRB, VALUE arrayRB
             break;
         }
         
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 
@@ -465,7 +465,7 @@ static VALUE dataFunctionf(DataFunctionToCall f, VALUE locationRB, VALUE arrayRB
         break;
     }
     
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 
@@ -498,7 +498,7 @@ static VALUE dataFunctioni(DataFunctionToCall f, VALUE locationRB, VALUE arrayRB
             break;
         }
         
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 
@@ -525,7 +525,7 @@ static VALUE dataFunctioni(DataFunctionToCall f, VALUE locationRB, VALUE arrayRB
         break;
     }
     
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 
@@ -555,7 +555,7 @@ static VALUE dataFunctionMatrix(DataFunctionMatrixToCall f, VALUE locationRB, VA
             break;
         }
         
-        rbDOMRaiseError(ec);
+        RB::setDOMException(ec);
         return Qnil;
     }
 
@@ -577,7 +577,7 @@ static VALUE dataFunctionMatrix(DataFunctionMatrixToCall f, VALUE locationRB, VA
         break;
     }
 
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
 

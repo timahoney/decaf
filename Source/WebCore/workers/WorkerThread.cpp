@@ -179,7 +179,9 @@ void WorkerThread::workerThread()
 
     ThreadIdentifier threadID = m_threadID;
 
-    ASSERT(m_workerContext->hasOneRef());
+    // FIXME: Uncomment this when Ruby clears its objects
+    // immediately when destructing the worker context.
+    // ASSERT(m_workerContext->hasOneRef());
 
     // The below assignment will destroy the context, which will in turn notify messaging proxy.
     // We cannot let any objects survive past thread exit, because no other thread will run GC or otherwise destroy them.

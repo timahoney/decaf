@@ -39,23 +39,23 @@
 #include "RBScriptValue.h"
 #include "ScriptObject.h"
 
+using namespace RB;
+
 namespace WebCore {
 
 ScriptObject rbCreateInjectedScript(const String& source, ScriptState* state, int id, InjectedScriptHost* host)
 {
-    VALUE windowRB = toRB(state->domWindow());
     VALUE injectedScriptSource = rb_str_new2(source.utf8().data());
-    VALUE binding = rb_funcall(windowRB, rb_intern("instance_eval"), 1, rb_str_new2("binding"));
-    VALUE argv[2];
-    argv[0] = injectedScriptSource;
-    argv[1] = rb_str_new2("InjectedScriptSource.rb");
-    callFunctionProtected(binding, "eval", 2, argv);
-    VALUE injectedScript = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("InjectedScript.new"));
+    VALUE binding = static_cast<RBScriptState*>(state)->binding();
+    VALUE rb_cInjectedScript = callFunction(binding, "eval", injectedScriptSource, rb_str_new2("InjectedScriptSource.rb"));
+
+    // FIXME: We shouldn't need to use @inspected_window.
+    // It's only used in RBInjectedScriptHost::evaluate.
+    // See the comment there and try to remove this instance variable.
     VALUE hostRB = toRB(host);
+    VALUE windowRB = toRB(state->domWindow());
     rb_iv_set(hostRB, "@inspected_window", windowRB);
-    rb_iv_set(injectedScript, "@injected_script_host", hostRB);
-    rb_iv_set(injectedScript, "@inspected_window", windowRB);
-    rb_iv_set(injectedScript, "@injected_script_id", toRB(id));
+    VALUE injectedScript = rb_funcall(rb_cInjectedScript, rb_intern("new"), 3, hostRB, windowRB, toRB(id));
 
     if (NIL_P(injectedScript))
         return ScriptObject();

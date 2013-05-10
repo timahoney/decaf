@@ -1174,8 +1174,8 @@ static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}El
 {
     Settings* settings = element->document()->settings();
     if (!MediaPlayer::isAvailable() || (settings && !settings->mediaEnabled()))
-        return toRB(RB$parameters{namespace}Element::rubyClass(), element);
-    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+        return toRB(RB$parameters{namespace}Element::rubyClass(), element.get());
+    return toRB(RB${JSInterfaceName}::rubyClass(), element.get());
 }
 
 END
@@ -1187,10 +1187,10 @@ static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}El
 {
     if (!ContextFeatures::${contextConditional}Enabled(element->document())) {
         ASSERT(!element || element->is$parameters{fallbackInterfaceName}());
-        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element.get());
     }
 
-    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+    return toRB(RB${JSInterfaceName}::rubyClass(), element.get());
 }
 END
 ;
@@ -1201,10 +1201,10 @@ static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}El
 {
     if (!RuntimeEnabledFeatures::${runtimeConditional}Enabled()) {
         ASSERT(!element || element->is$parameters{fallbackInterfaceName}());
-        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+        return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element.get());
     }
 
-    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+    return toRB(RB${JSInterfaceName}::rubyClass(), element.get());
 }
 END
 ;
@@ -1212,7 +1212,7 @@ END
                 print F <<END
 static VALUE create${JSInterfaceName}Wrapper(PassRefPtr<$parameters{namespace}Element> element)
 {
-    return toRB(RB${JSInterfaceName}::rubyClass(), element);
+    return toRB(RB${JSInterfaceName}::rubyClass(), element.get());
 }
 
 END
@@ -1414,7 +1414,7 @@ END
     } elsif ($wrapperFactoryType eq "RB") {
         print F <<END
         return createWrapperFunction(element);
-    return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element);
+    return toRB(RB$parameters{fallbackInterfaceName}::rubyClass(), element.get());
 END
 ;
     }

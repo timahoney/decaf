@@ -33,6 +33,8 @@
 #include <wtf/text/CString.h>
 #include <wtf/text/WTFString.h>
 
+using namespace RB;
+
 namespace WebCore {
     
 RBScriptCallFrame::RBScriptCallFrame(VALUE binding, PassRefPtr<JavaScriptCallFrame> caller, intptr_t sourceID, const TextPosition& textPosition)
@@ -44,8 +46,7 @@ RBScriptCallFrame::RBScriptCallFrame(VALUE binding, PassRefPtr<JavaScriptCallFra
 
 RBScriptCallFrame::~RBScriptCallFrame()
 {
-    // FIXME: Add this back in?
-    // rb_gc_unregister_address(&m_binding);
+    rb_gc_unregister_address(&m_binding);
 }
 
 void RBScriptCallFrame::update(VALUE binding, intptr_t sourceID, const TextPosition& textPosition)
@@ -80,9 +81,7 @@ VALUE RBScriptCallFrame::thisObject() const
 VALUE RBScriptCallFrame::evaluate(const String& script) const
 {
     VALUE scriptString = rb_str_new2(script.utf8().data());
-    VALUE argv[1];
-    argv[0] = scriptString;
-    return callFunctionProtected(m_binding, "eval", 1, argv);
+    return callFunction(m_binding, "eval", scriptString);
 }
 
 } // namespace WebCore

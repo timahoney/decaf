@@ -40,9 +40,11 @@
 #include "Event.h"
 #include "EventException.h"
 #include "InspectorConsoleInstrumentation.h"
+#include "JSWorkerScriptController.h"
 #include "KURL.h"
 #include "MessagePort.h"
 #include "NotImplemented.h"
+#include "RBWorkerScriptController.h"
 #include "ScheduledAction.h"
 #include "ScriptCallStack.h"
 #include "ScriptSourceCode.h"
@@ -89,7 +91,6 @@ WorkerContext::WorkerContext(const KURL& url, const String& userAgent, PassOwnPt
     : m_url(url)
     , m_userAgent(userAgent)
     , m_groupSettings(settings)
-    , m_script(adoptPtr(new WorkerScriptController(this)))
     , m_thread(thread)
 #if ENABLE(INSPECTOR)
     , m_workerInspectorController(adoptPtr(new WorkerInspectorController(this)))
@@ -98,6 +99,16 @@ WorkerContext::WorkerContext(const KURL& url, const String& userAgent, PassOwnPt
     , m_eventQueue(WorkerEventQueue::create(this))
     , m_topOrigin(topOrigin)
 {
+    ScriptType scriptType = scriptTypeFromUrl(url);
+    switch (scriptType) {
+    case JSScriptType:
+        m_script = adoptPtr(new JSWorkerScriptController(this));
+        break;
+    case RBScriptType:
+        m_script = adoptPtr(new RBWorkerScriptController(this));
+        break;
+    }
+    
     setSecurityOrigin(SecurityOrigin::create(url));
 }
 

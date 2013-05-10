@@ -27,7 +27,9 @@
 #include "ScriptState.h"
 
 #include "JSScriptState.h"
+#include "RBDOMBinding.h"
 #include "RBScriptState.h"
+#include "WorkerContext.h"
 #include <heap/Strong.h>
 #include <heap/StrongInlines.h>
 #include <interpreter/CallFrame.h>
@@ -55,7 +57,7 @@ static ScriptState* getScriptStateForProtectedPtr(ScriptState* scriptState)
         }
             
         case RBScriptType:
-            return scriptState;
+            return RBScriptState::globalScriptState(scriptState->scriptExecutionContext());
     }
 }
 
@@ -91,11 +93,24 @@ void setEvalEnabled(ScriptState* state, bool set)
 ScriptState* mainWorldScriptState(Frame* frame, ScriptType type)
 {
     switch (type) {
-        case JSScriptType:
-            return JSScriptState::mainWorldScriptState(frame);
-        case RBScriptType:
-            return RBScriptState::mainWorldScriptState(frame);
+    case JSScriptType:
+        return JSScriptState::mainWorldScriptState(frame);
+    case RBScriptType:
+        return RBScriptState::mainWorldScriptState(frame);
     }
 }
+
+#if ENABLE(WORKERS)
+ScriptState* scriptStateFromWorkerContext(WorkerContext* workerContext)
+{
+    ScriptType type = workerContext->script()->scriptType();
+    switch (type) {
+    case JSScriptType:
+            return JSScriptState::scriptStateFromWorkerContext(workerContext);
+    case RBScriptType:
+        return RBScriptState::scriptStateFromWorkerContext(workerContext);
+    }
+}
+#endif
 
 } // namespace WebCore

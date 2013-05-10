@@ -42,7 +42,7 @@ VALUE RBSQLResultSetRowList::item(VALUE self, VALUE rbIndex)
     SQLResultSetRowList* list = impl<SQLResultSetRowList>(self);
     int index = NUM2INT(rbIndex);
     if (index < 0 || (unsigned) index >= list->length()) {
-        rbDOMRaiseError(INDEX_SIZE_ERR);
+        RB::setDOMException(INDEX_SIZE_ERR);
         return Qnil;
     }
 

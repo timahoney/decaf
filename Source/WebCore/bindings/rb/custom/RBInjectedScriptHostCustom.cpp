@@ -41,6 +41,8 @@
 #include "RBScriptState.h"
 #include "RBScriptValue.h"
 
+using namespace RB;
+
 namespace WebCore {
 
 VALUE RBInjectedScriptHost::inspect(VALUE self, VALUE objectId, VALUE rbHints)
@@ -76,8 +78,8 @@ VALUE RBInjectedScriptHost::internal_constructor_name(VALUE, VALUE object)
     if (NIL_P(object))
         return Qnil;
 
-    VALUE klass = CLASS_OF(object);
-    VALUE klassName = rb_funcall(klass, rb_intern("name"), 0);
+    VALUE klass = rb_funcall(object, rb_intern("class"), 0);
+    VALUE klassName = rb_funcall(klass, rb_intern("name"), 0);    
     String className = rbToString(klassName);
     return rb_str_new2(className.utf8().data());
 }
@@ -107,6 +109,8 @@ VALUE RBInjectedScriptHost::type(VALUE, VALUE object)
         return Qnil;
     if (TYPE(object) == T_REGEXP)
         return rb_str_new2("regexp");
+    if (CLASS_OF(object) == rb_cTime)
+        return rb_str_new2("date");
     if (IS_RB_KIND(object, Node))
         return rb_str_new2("node");
     if (IS_RB_KIND(object, NodeList))
@@ -131,7 +135,7 @@ VALUE RBInjectedScriptHost::function_details(VALUE, VALUE value)
         return Qnil;
     VALUE fileName = rb_ary_entry(sourceLocation, 0);
     VALUE lineNumber = rb_ary_entry(sourceLocation, 1);
-    intptr_t sourceID = RBDOMBinding::sourceIDFromFileName(rbToString(fileName).utf8().data());
+    intptr_t sourceID = sourceIDFromFileName(rbToString(fileName).utf8().data());
     VALUE location = rb_hash_new();
     rb_hash_aset(location, ID2SYM(rb_intern("lineNumber")), lineNumber);
     rb_hash_aset(location, ID2SYM(rb_intern("scriptId")), toRB(String::number(sourceID)));
@@ -239,9 +243,11 @@ VALUE RBInjectedScriptHost::evaluate(VALUE self, VALUE expression)
     if (rbToString(expression) == "this")
         expression = rb_str_new2("self");
     
+    // FIXME: Can we get by without using the instance variable here?
+    // We might be able to just use currentContext() and bindingFromContext().
     VALUE windowRB = rb_iv_get(self, "@inspected_window");
     DOMWindow* window = impl<DOMWindow>(windowRB);
-    VALUE binding = RBDOMBinding::bindingFromWindow(window);
+    VALUE binding = bindingFromContext(window->document());
     
     VALUE result = rb_funcall(binding, rb_intern("eval"), 2, expression, rb_str_new2(""));
     return result;

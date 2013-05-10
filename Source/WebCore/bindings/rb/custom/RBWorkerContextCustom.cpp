@@ -29,6 +29,7 @@
 #include "RBConverters.h"
 #include "RBExceptionHandler.h"
 #include "RBScheduledAction.h"
+#include "RBWorkerScriptController.h"
 
 namespace WebCore {
 
@@ -88,8 +89,20 @@ VALUE RBWorkerContext::import_scripts(int argc, VALUE* argv, VALUE self)
     ExceptionCode ec = 0;
     WorkerContext* selfImpl = impl<WorkerContext>(self);
     selfImpl->importScripts(urls, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
+}
+
+VALUE toRB(WorkerContext* impl)
+{
+    if (!impl)
+        return Qnil;
+    RBWorkerScriptController* script = static_cast<RBWorkerScriptController*>(impl->script());
+    if (!script)
+        return Qnil;
+    VALUE contextWrapper = script->workerContextWrapper();
+    ASSERT(contextWrapper);
+    return contextWrapper;
 }
 
 } // namespace WebCore

@@ -30,6 +30,8 @@
 #include "RBDOMBinding.h"
 #include <wtf/text/CString.h>
 
+using namespace RB;
+
 namespace WebCore {
 
 RBCallback::RBCallback(VALUE proc)
@@ -45,22 +47,24 @@ RBCallback::RBCallback(VALUE proc)
 
 RBCallback::~RBCallback()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_proc);
+    rb_gc_unregister_address(&m_proc);
 }
 
-VALUE RBCallback::callProc(ScriptExecutionContext* scriptExecutionContext, int argc, VALUE* argv)
+VALUE RBCallback::call(ScriptExecutionContext* scriptExecutionContext, int argc, VALUE* argv)
 {
     if (NIL_P(m_proc))
         return Qnil;
     
-    VALUE result = callFunctionProtected(m_proc, "call", argc, argv);
+    // FIXME: Right now, a Proc can take less than
+    // the number of arguments called here, but a Method
+    // will crash. For example, window.onload = Proc.new {} works,
+    // but window.onload = method(:a) will crash if 'a' takes no arguments.
+    // Do we want to allow Methods to specify less arguments?
+    VALUE exception;
+    VALUE result = callFunction(m_proc, "call", argc, argv, &exception);
 
-    VALUE exception = rb_errinfo();
-    if (!NIL_P(exception)) {
-        rb_set_errinfo(Qnil);
-        RBDOMBinding::reportException(scriptExecutionContext, exception);
-    }
+    if (!NIL_P(exception))
+        reportException(scriptExecutionContext, exception);
 
     return result;
 }

@@ -34,8 +34,9 @@ namespace WebCore {
 
 TrackBase* rbToTrack(VALUE track);
 
-VALUE toRB(PassRefPtr<TrackBase>);
-inline VALUE toRB(TrackBase* impl) { return toRB(PassRefPtr<TrackBase>(impl)); }
+VALUE toRB(TrackBase*);
+inline VALUE toRB(PassRefPtr<TrackBase> refPtr) { return toRB(refPtr.get()); }
+
 
 } // namespace WebCore
 

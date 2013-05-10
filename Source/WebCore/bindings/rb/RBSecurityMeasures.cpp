@@ -57,38 +57,60 @@ void undefineClassesGlobalsMethods()
     // process.c
     rb_const_remove(rb_cObject, rb_intern("Process"));
     rb_undef_method(rb_mKernel, "exec");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "exec");
     rb_undef_method(rb_mKernel, "fork");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "fork");
     rb_undef_method(rb_mKernel, "exit!");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "exit!");
     rb_undef_method(rb_mKernel, "system");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "system");
     rb_undef_method(rb_mKernel, "spawn");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "spawn");
     // FIXME: Should we allow sleep?
     // rb_undef_method(rb_mKernel, "sleep");
+    // rb_undef_method(rb_singleton_class(rb_mKernel), "sleep");
     rb_undef_method(rb_mKernel, "exit");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "exit");
     rb_undef_method(rb_mKernel, "abort");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "abort");
     rb_define_virtual_variable("$?", 0, 0);
     rb_define_virtual_variable("$$", 0, 0);
     
     // file.c
     rb_const_remove(rb_cObject, rb_intern("File"));
     rb_undef_method(rb_mKernel, "test");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "test");
     
     // io.c
     rb_const_remove(rb_cObject, rb_intern("IO"));
     rb_undef_method(rb_mKernel, "syscall");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "syscall");
     rb_undef_method(rb_mKernel, "open");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "open");
     rb_undef_method(rb_mKernel, "printf");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "printf");
     rb_undef_method(rb_mKernel, "print");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "print");
     rb_undef_method(rb_mKernel, "putc");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "putc");
     // FIXME: Uncomment this when releasing.
     // rb_undef_method(rb_mKernel, "puts");
+    // rb_undef_method(rb_singleton_class(rb_mKernel), "puts");
     rb_undef_method(rb_mKernel, "gets");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "gets");
     rb_undef_method(rb_mKernel, "readline");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "readline");
     rb_undef_method(rb_mKernel, "select");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "select");
     rb_undef_method(rb_mKernel, "readlines");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "readlines");
     rb_undef_method(rb_mKernel, "`");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "`");
     // FIXME: Uncomment this when releasing.
     // rb_undef_method(rb_mKernel, "p");
+    // rb_undef_method(rb_singleton_class(rb_mKernel), "p");
     rb_undef_method(rb_mKernel, "display");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "display");
     rb_const_remove(rb_cObject, rb_intern("ARGF"));
     rb_const_remove(rb_cObject, rb_intern("STDIN"));
     // FIXME: For some reason, if we undefine STDOUT, then we get crashes. Why?
@@ -117,12 +139,19 @@ void undefineClassesGlobalsMethods()
     rb_define_virtual_variable("$\"", 0, 0);
     rb_define_virtual_variable("$LOADED_FEATURES", 0, 0);
     rb_undef_method(rb_mKernel, "load");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "load");
     rb_undef_method(rb_mKernel, "require");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "require");
     rb_undef_method(rb_mKernel, "require_relative");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "require_relative");
     rb_undef_method(rb_cModule, "autoload");
+    rb_undef_method(rb_singleton_class(rb_cModule), "autoload");
     rb_undef_method(rb_cModule, "autoload?");
+    rb_undef_method(rb_singleton_class(rb_cModule), "autoload?");
     rb_undef_method(rb_mKernel, "autoload");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "autoload");
     rb_undef_method(rb_mKernel, "autoload?");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "autoload?");
     
     // ruby.c
     rb_define_virtual_variable("$VERBOSE", 0, 0);
@@ -141,17 +170,22 @@ void undefineClassesGlobalsMethods()
     
     // error.c
     rb_undef_method(rb_mKernel, "warn");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "warn");
     
     // signal.c
     rb_const_remove(rb_cObject, rb_intern("Signal"));
     rb_undef_method(rb_mKernel, "trap");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "trap");
     
     // eval_jump.c
     rb_undef_method(rb_mKernel, "at_exit");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "at_exit");
     
     // vm_trace.c
     rb_undef_method(rb_mKernel, "set_trace_func");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "set_trace_func");
     rb_undef_method(rb_mKernel, "add_trace_func");
+    rb_undef_method(rb_singleton_class(rb_mKernel), "add_trace_func");
     
     // vm.c
     rb_const_remove(rb_cObject, rb_intern("TOPLEVEL_BINDING"));

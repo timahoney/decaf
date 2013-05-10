@@ -30,7 +30,7 @@ VALUE RBStorage::named_setter(VALUE self, VALUE name, VALUE value)
     String nameImpl = StringValueCStr(name);
     String valueImpl = StringValueCStr(value);
     selfImpl->setItem(nameImpl, valueImpl, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return value;
 }
 

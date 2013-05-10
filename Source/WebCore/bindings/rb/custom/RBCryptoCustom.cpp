@@ -42,7 +42,7 @@ VALUE RBCrypto::get_random_values(VALUE self, VALUE array)
    impl<Crypto>(self)->getRandomValues(arrayBufferView, ec);
 
    if (ec) {
-       rbDOMRaiseError(ec);
+       RB::setDOMException(ec);
        return Qnil;
    }
 

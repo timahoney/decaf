@@ -44,7 +44,7 @@ VALUE RBHTMLElement::item_value_setter(VALUE self, VALUE newItemValue)
     String value = NIL_P(newItemValue) ? String() : StringValueCStr(newItemValue);
     ExceptionCode ec = 0;
     selfImpl->setItemValue(value, ec);
-    rbDOMRaiseError(exec, ec);
+    RB::setDOMException(exec, ec);
     return newItemValue;
 }
 #endif

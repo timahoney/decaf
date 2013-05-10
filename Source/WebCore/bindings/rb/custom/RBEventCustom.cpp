@@ -58,12 +58,12 @@ namespace WebCore {
     if (eventNames().interfaceFor##interfaceName == desiredInterface) \
         return toRB(RB##interfaceName::rubyClass(), event);
 
-VALUE toRB(PassRefPtr<Event> event)
+VALUE toRB(Event* event)
 {
-    if (!event || !event.get())
+    if (!event)
         return Qnil;
 
-    String desiredInterface = event.get()->interfaceName();
+    String desiredInterface = event->interfaceName();
     DOM_EVENT_INTERFACES_FOR_EACH(TRY_TO_WRAP_WITH_INTERFACE)
 
     return toRB(RBEvent::rubyClass(), event);

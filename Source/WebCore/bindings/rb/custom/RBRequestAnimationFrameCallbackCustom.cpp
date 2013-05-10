@@ -37,7 +37,7 @@ bool RBRequestAnimationFrameCallback::handleEvent(double highResTime)
 {
     VALUE argv[1];
     argv[0] = toRB(highResTime);
-    VALUE result = callProc(scriptExecutionContext(), 1, argv);
+    VALUE result = call(scriptExecutionContext(), 1, argv);
     return RTEST(result);
 }
 

@@ -28,6 +28,8 @@
 
 #include "MessagePort.h"
 #include "RBExceptionHandler.h"
+#include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include <Ruby/ruby.h>
 #include <wtf/Forward.h>
 
@@ -46,23 +48,17 @@ inline VALUE handlePostMessage(int argc, VALUE* argv, T* impl)
     MessagePortArray portArray;
     ArrayBufferArray arrayBufferArray;
     fillMessagePortArray(rbTransferables, portArray, arrayBufferArray);
-    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(rbMessage, &portArray, &arrayBufferArray);
+    RefPtr<SerializedScriptValue> message = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                          RBScriptValue::scriptValue(rbMessage),
+                                                                          &portArray, &arrayBufferArray);
     if (!NIL_P(rb_errinfo()))
         return Qnil;
 
     ExceptionCode ec = 0;
     impl->postMessage(message.release(), &portArray, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return Qnil;
 }
-
-class RBMessagePortCustom {
-public:
-    static VALUE marshal_load(VALUE klass, VALUE data);
-    static VALUE marshal_dump(VALUE self, VALUE level);
-    
-    static void Init_MessagePortCustom();
-};
 
 } // namespace WebCore
 

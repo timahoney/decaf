@@ -53,7 +53,7 @@ my @implCustomContent = ();
 
 # Constants
 my $exceptionInit = "ExceptionCode ec = 0;";
-my $exceptionRaiseOnError = "rbDOMRaiseError(ec);";
+my $exceptionRaiseOnError = "RB::setDOMException(ec);";
 my $notImplementedFixme = "// FIXME: Implement this custom function.";
 my $notImplementedRaise = "rb_raise(rb_eNotImpError, \"This function is not currently implemented for Ruby in WebKit. Sorry!\");";
 
@@ -365,6 +365,8 @@ sub RBToNativeConverter
         return "rbToString($argName)";
     }
 
+    return "rbToDate($argName)" if $type eq "Date";
+
     # Check if this signature is Optional.
     my $option = $extendedAttributes->{"Optional"};
     return "rbStringOrNullString($argName)" if $option and $option eq "DefaultIsNullString";
@@ -387,7 +389,7 @@ sub RBToNativeConverter
     if ($extendedAttributes->{"Callback"}) {
         $implIncludes{"DOMWindow.h"} = 1;
         $implIncludes{"RBDOMBinding.h"} = 1;
-        return "RB${type}::create($argName, RBDOMBinding::currentWindow()->scriptExecutionContext())";
+        return "RB${type}::create($argName, RB::currentContext())";
     }
     
 
@@ -645,7 +647,7 @@ sub GenerateCallWith
     }
 
     if ($codeGenerator->ExtendedAttributeContains($callWith, "ScriptExecutionContext")) {
-        push(@$outputArray, "    ScriptExecutionContext* scriptContext = state->domWindow()->scriptExecutionContext();\n");
+        push(@$outputArray, "    ScriptExecutionContext* scriptContext = state->scriptExecutionContext();\n");
         push(@$outputArray, "    if (!scriptContext)\n");
         push(@$outputArray, "        return Qnil;\n\n");
         $implIncludes{"DOMWindow.h"} = 1;
@@ -716,20 +718,6 @@ sub GenerateCallbackHeader
     push(@headerContent, "#endif\n");
 }
 
-sub GenerateSVGImplConverter
-{
-    my $type = shift;
-    my $svgType = $codeGenerator->GetSVGTypeNeedingTearOff($type);
-    my @converterContent = ();
-
-    # push(@converterContent, "template<>\n");
-    # push(@converterContent, "inline $type* impl(VALUE instance)\n");
-    # push(@converterContent, "{\n");
-    # push(@converterContent, "    \n");
-    # FIXME: Do we need this?
-    return @converterContent;
-}
-
 sub GenerateCallbackImplementation
 {
     my $object = shift;
@@ -750,8 +738,8 @@ sub GenerateCallbackImplementation
     push(@implContent, "namespace WebCore {\n\n");
 
     push(@implContent, "${className}::${className}(VALUE proc, ScriptExecutionContext* context)\n");
-    push(@implContent, ": RBCallback(proc)\n");
-    push(@implContent, ", ActiveDOMCallback(context)\n");
+    push(@implContent, "    : RBCallback(proc)\n");
+    push(@implContent, "    , ActiveDOMCallback(context)\n");
     push(@implContent, "{\n");
     push(@implContent, "}\n\n");
 
@@ -783,9 +771,9 @@ sub GenerateCallbackImplementation
                 push(@functionContent, "    argv[${paramI}] = toRB(" . $param->name . ");\n");
                 $paramI++;
             }
-            push(@functionContent, "    VALUE result = callProc(scriptExecutionContext(), $paramCount, argv);\n");
+            push(@functionContent, "    VALUE result = call(scriptExecutionContext(), $paramCount, argv);\n");
         } else {
-            push(@functionContent, "    VALUE result = callProc(scriptExecutionContext());\n");
+            push(@functionContent, "    VALUE result = call(scriptExecutionContext());\n");
         }
 
         my $implGetter = RBToNative("result", $function->signature);
@@ -929,6 +917,11 @@ sub GenerateHeader
     push(@rbInitFunction, "        $rbClassVariable = rb_define_class(\"$rubyClassName\", $rbParentClass);\n");
     push(@rbInitFunction, "        rb_extend_object($rbClassVariable, RBDOMBindingAttributes::rubyClass());\n\n");
 
+    # The Ruby DOM objects should not be able to use 'dup' and 'clone'
+    push(@rbInitFunction, "        // DOM objects do not implement 'dup' or 'clone'\n");
+    push(@rbInitFunction, "        rb_undef_method($rbClassVariable, \"dup\");\n");
+    push(@rbInitFunction, "        rb_undef_method($rbClassVariable, \"clone\");\n\n");
+
     # - CONSTRUCTORS -
     # A single constructor with 0 arguments get a zero argument method.
     # A constructor template gets a fixed number of arguments.
@@ -938,9 +931,9 @@ sub GenerateHeader
     my $customConstructor = $dataNode->extendedAttributes->{"CustomConstructor"};
     my $constructorTemplate = $dataNode->extendedAttributes->{"ConstructorTemplate"};
     if ($constructorTemplate and $constructorTemplate eq "Event") {
-        push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), 2);\n\n");
+        push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), -1);\n\n");
         push(@headerContent, "    static void fillEventInit(${interfaceName}Init&, VALUE options);\n");
-        push(@headerContent, "    static VALUE rb_new(VALUE self, VALUE type, VALUE options);\n");
+        push(@headerContent, "    static VALUE rb_new(int argc, VALUE* argv, VALUE self);\n");
     } elsif ($constructorTemplate and $constructorTemplate eq "TypedArray") {
         push(@rbInitFunction, "        rb_define_singleton_method(${rbClassVariable}, \"new\", RUBY_METHOD_FUNC(&${className}::rb_new), -1);\n\n");
         push(@headerContent, "    static VALUE rb_new(int argc, VALUE* argv, VALUE self);\n");
@@ -1127,16 +1120,14 @@ sub GenerateHeader
     push(@headerContent, "};\n\n");
     
     # Add the function to convert to Ruby.
+    my $pointerType = $interfaceName;
+    my $passRefPtrType = "PassRefPtr<${interfaceName}>";
     if ($codeGenerator->IsSVGTypeNeedingTearOff($interfaceName)) {
-        push(@headerContent, GenerateSVGImplConverter($interfaceName));
-        my $svgType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
-        my $wrappedType = $codeGenerator->GetSVGWrappedTypeNeedingTearOff($interfaceName);
-        push(@headerContent, "VALUE toRB(PassRefPtr<$svgType >);\n");
-        push(@headerContent, "inline VALUE toRB($svgType* impl) { return toRB(PassRefPtr<$svgType >(impl)); }\n\n");
-    } else {
-        push(@headerContent, "VALUE toRB(PassRefPtr<$interfaceName>);\n");
-        push(@headerContent, "inline VALUE toRB($interfaceName* impl) { return toRB(PassRefPtr<$interfaceName>(impl)); }\n\n");
+        $pointerType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
+        $passRefPtrType = "PassRefPtr<${pointerType} >";
     }
+    push(@headerContent, "VALUE toRB($pointerType*);\n");
+    push(@headerContent, "inline VALUE toRB($passRefPtrType refPtr) { return toRB(refPtr.get()); }\n\n");
 
     push(@headerContent, "} // namespace WebCore\n\n");
     push(@headerContent, "#endif // ${conditionalString}\n\n") if $conditionalString;    
@@ -1276,6 +1267,8 @@ sub GenerateFunctionImplementation
 
                 if ($codeGenerator->IsSVGTypeNeedingTearOff($function->signature->type)) {
                     $earlyCall = WrapWithSVGConverter($function->signature, $earlyCall);
+                } elsif ($function->signature->type eq "Date") {
+                    $earlyCall .= ", Date";
                 }
 
                 $earlyCall = "VALUE result = toRB(${earlyCall})" if $function->signature->type ne "void";
@@ -1342,6 +1335,7 @@ sub GenerateFunctionImplementation
     } else {
         if ($function->signature->type ne "void") {
             $content .= ", false" if $function->signature->extendedAttributes->{"TreatReturnedNullStringAs"};
+            $content .= ", Date" if $function->signature->type eq "Date";
             $content = "VALUE result = toRB(${content})";
         }
         
@@ -1523,19 +1517,28 @@ sub GenerateEventConstructorImplementation
     my @constructorContent = ();
 
     # Constructor
-    push(@constructorContent, "VALUE ${className}::rb_new(VALUE, VALUE type, VALUE options)\n");
+    push(@constructorContent, "VALUE ${className}::rb_new(int argc, VALUE* argv, VALUE)\n");
     push(@constructorContent, "{\n");
+    push(@constructorContent, "    VALUE type, options;\n");
+    push(@constructorContent, "    rb_scan_args(argc, argv, \"11\", &type, &options);\n\n");
     push(@constructorContent, "    ${interfaceName}Init eventInit;\n");
     push(@constructorContent, "    fillEventInit(eventInit, options);\n");
-    push(@constructorContent, "    return toRB(${interfaceName}::create(StringValueCStr(type), eventInit));\n");
+    push(@constructorContent, "    String typeString = rbToString(type);\n");
+    push(@constructorContent, "    return toRB(${interfaceName}::create(typeString, eventInit));\n");
     push(@constructorContent, "}\n\n");
 
     # EventInit filler
     push(@constructorContent, "void RB${interfaceName}::fillEventInit(${interfaceName}Init& eventInit, VALUE options)\n");
     push(@constructorContent, "{\n");
+    push(@constructorContent, "    if (NIL_P(options))\n");
+    push(@constructorContent, "        return;\n\n");
+
     foreach my $interfaceBase (@{$dataNode->parents}) {
         push(@constructorContent, "    RB${interfaceBase}::fillEventInit(eventInit, options);\n");
     }
+    push(@constructorContent, "\n") if @{$dataNode->parents};
+    
+
     foreach my $attribute (@{$dataNode->attributes}) {
         if ($attribute->signature->extendedAttributes->{"InitializedByEventConstructor"}) {
             my $attributeName = $attribute->signature->name;
@@ -1815,6 +1818,10 @@ sub SuppressToRBImplementation
     return 0 if $dataNode->extendedAttributes->{"TypedArray"};
     return 1 if $dataNode->name eq "Element";
     return 1 if $dataNode->extendedAttributes->{"CustomToJSObject"};
+
+    # FIXME: JS has a custom base class for WorkerContext, and V8 specifies V8CustomToJSObject.
+    # Rather than add to the IDL, fix it here.
+    return 1 if $dataNode->name eq "WorkerContext";
     return 0;
 }
 
@@ -1872,7 +1879,6 @@ sub GenerateImplementation
     $implIncludes{"<Ruby/ruby.h>"} = 1;
     AddIncludesForType($interfaceName);
     @implContent = ();
-
     push(@implContent, "namespace WebCore {\n\n");
     
     # Declare the static class variable
@@ -1959,7 +1965,10 @@ sub GenerateImplementation
                     $functionCall .= ".get()";
                 } elsif ($attribute->signature->extendedAttributes->{"TreatReturnedNullStringAs"}) {
                     $functionCall .= ", false";
+                } elsif ($attribute->signature->type eq "Date") {
+                    $functionCall .= ", Date";
                 }
+
                 push(@getterContent, "    $exceptionInit\n") if $hasGetterException;
                 push(@getterContent, "    bool isNull = false;\n") if $isNullable;
                 push(@getterContent, "    VALUE result = toRB($functionCall);\n");
@@ -2084,9 +2093,9 @@ sub GenerateImplementation
     if (!SuppressToRBImplementation($dataNode)) {
         my $converterType = $interfaceName;
         if ($codeGenerator->IsSVGTypeNeedingTearOff($interfaceName)) {
-            $converterType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName) . " ";
+            $converterType = $codeGenerator->GetSVGTypeNeedingTearOff($interfaceName);
         }
-        push(@implContent, "VALUE toRB(PassRefPtr<$converterType> impl)\n");
+        push(@implContent, "VALUE toRB($converterType* impl)\n");
         push(@implContent, "{\n");
         push(@implContent, "    return toRB(${className}::rubyClass(), impl);\n");
         push(@implContent, "}\n");

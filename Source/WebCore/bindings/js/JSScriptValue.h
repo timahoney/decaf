@@ -56,6 +56,7 @@ public:
 
     JSC::JSValue jsValue() const { return m_value.get(); }
 
+    virtual bool isString() const;
     virtual bool getString(ScriptState*, String& result) const;
     virtual String toString(ScriptState*) const;
     virtual bool isEqual(ScriptState*, const ScriptValue&) const;
@@ -64,14 +65,20 @@ public:
     virtual bool isObject() const;
     virtual bool isFunction() const;
     virtual bool hasNoValue() const { return !m_value; }
+    virtual bool isNumber() const;
+    virtual bool isInt32() const;
+    virtual int32_t asInt32() const;
+    virtual double asDouble() const;
+    virtual bool isBoolean() const;
+    virtual bool isTrue() const;
+    virtual bool isCell() const;
 
     virtual void clear() { m_value.clear(); }
 
-    virtual bool operator==(const JSScriptValue& other) const { return m_value == other.m_value; }
+    virtual bool operator==(const ScriptValueDelegate& other) const;
 
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, SerializationErrorMode = Throwing);
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, MessagePortArray*, ArrayBufferArray*, bool&);
-    static ScriptValue deserialize(ScriptState*, SerializedScriptValue*, SerializationErrorMode = Throwing);
 
 #if ENABLE(INSPECTOR)
     virtual PassRefPtr<InspectorValue> toInspectorValue(ScriptState*) const;

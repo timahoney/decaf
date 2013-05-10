@@ -54,17 +54,13 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
     if (!IS_RB_ARRAY(sequence))
         return;
 
-    // FIXME: Should the transferrable indices be set 
-    // in SerializedScriptValue? It seems confusing to put it here, 
-    // but we don't have access to this Ruby array in SerializedScriptValue.
-
     unsigned length = RARRAY_LEN(sequence);
     for (unsigned i = 0 ; i < length; ++i) {
         VALUE value = rb_ary_entry(sequence, i);
 
         // Validation of non-null objects, per HTML5 spec 10.3.3.
         if (NIL_P(value)) {
-            rbDOMRaiseError(INVALID_STATE_ERR);
+            RB::setDOMException(INVALID_STATE_ERR);
             return;
         }
 
@@ -74,7 +70,7 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
 
             // Check for duplicate ports.
             if (portArray.contains(port)) {
-                rbDOMRaiseError(INVALID_STATE_ERR);
+                RB::setDOMException(INVALID_STATE_ERR);
                 return;
             }
             portArray.append(port.release());
@@ -87,24 +83,6 @@ void fillMessagePortArray(VALUE sequence, MessagePortArray& portArray, ArrayBuff
             return;
         }
     }
-}
-
-VALUE RBMessagePortCustom::marshal_load(VALUE, VALUE)
-{
-    // FIXME: Do we need to implement non-transferable MessagePorts?
-    return Qnil;
-}
-
-VALUE RBMessagePortCustom::marshal_dump(VALUE, VALUE)
-{
-    // FIXME: Do we need to implement non-transferable MessagePorts?
-    return rb_str_new2("");
-}
-
-void RBMessagePortCustom::Init_MessagePortCustom()
-{
-    rb_define_method(RBMessagePort::rubyClass(), "_dump", RUBY_METHOD_FUNC(&RBMessagePortCustom::marshal_dump), 1);
-    rb_define_module_function(RBMessagePort::rubyClass(), "_load", RUBY_METHOD_FUNC(&RBMessagePortCustom::marshal_load), 1);
 }
 
 } // namespace WebCore

@@ -37,9 +37,29 @@
 
 namespace WebCore {
 
-ScriptValue::ScriptValue(JSC::JSGlobalData& globalData, JSC::JSValue value)
-: ScriptValue(JSScriptValue::create(globalData, value))
+ScriptValue::ScriptValue()
+    : m_delegate(EmptyScriptValueDelegate::create())
 {
+}
+
+ScriptValue::ScriptValue(PassRefPtr<ScriptValueDelegate> delegate)
+    : m_delegate(delegate)
+{
+}
+
+ScriptValue::ScriptValue(JSC::JSGlobalData& globalData, JSC::JSValue value)
+    : ScriptValue(JSScriptValue::create(globalData, value))
+{
+}
+
+ScriptValue::ScriptValue(VALUE value)
+    : m_delegate(RBScriptValue::create(value))
+{
+}
+
+bool ScriptValue::isString() const
+{
+    return m_delegate->isString();
 }
 
 bool ScriptValue::getString(ScriptState* scriptState, String& result) const
@@ -93,15 +113,63 @@ bool ScriptValue::hasNoValue() const
     
 JSC::JSValue ScriptValue::jsValue() const
 {
+    ASSERT(scriptType() == JSScriptType);
     if (scriptType() != JSScriptType)
         return JSC::jsNull();
-    
     return static_cast<JSScriptValue*>(delegate())->jsValue();
+}
+
+VALUE ScriptValue::rbValue() const
+{
+    ASSERT(scriptType() == RBScriptType);
+    if (scriptType() != RBScriptType)
+        return Qnil;
+    return static_cast<RBScriptValue*>(delegate())->rbValue();
 }
 
 void ScriptValue::clear()
 {
     m_delegate->clear();
+}
+
+bool ScriptValue::isNumber() const
+{
+    return m_delegate->isNumber();
+}
+
+bool ScriptValue::isInt32() const
+{
+    return m_delegate->isInt32();
+}
+
+int32_t ScriptValue::asInt32() const
+{
+    return m_delegate->asInt32();
+}
+
+double ScriptValue::asDouble() const
+{
+    return m_delegate->asDouble();
+}
+
+double ScriptValue::asNumber() const
+{
+    return m_delegate->asNumber();
+}
+
+bool ScriptValue::isBoolean() const
+{
+    return m_delegate->isBoolean();
+}
+
+bool ScriptValue::isTrue() const
+{
+    return m_delegate->isTrue();
+}
+
+bool ScriptValue::isCell() const
+{
+    return m_delegate->isCell();
 }
 
 PassRefPtr<SerializedScriptValue> ScriptValue::serialize(ScriptState* scriptState, SerializationErrorMode throwExceptions)
@@ -120,22 +188,9 @@ PassRefPtr<SerializedScriptValue> ScriptValue::serialize(ScriptState* scriptStat
     return m_delegate->serialize(scriptState, messagePorts, arrayBuffers, didThrow);
 }
 
-ScriptValue ScriptValue::deserialize(ScriptState* scriptState, SerializedScriptValue* value, SerializationErrorMode throwExceptions)
-{
-    switch (scriptState->scriptType()) {
-    case JSScriptType:
-        return JSScriptValue::deserialize(scriptState, value, throwExceptions);
-    case RBScriptType:
-        return RBScriptValue::deserialize(scriptState, value, throwExceptions);
-    }
-}
-
 bool ScriptValue::operator==(const ScriptValue& other) const
 {
-    if (other.scriptType() != scriptType())
-        return false;
-
-    return m_delegate == other.m_delegate;
+    return *m_delegate == *other.m_delegate;
 }
 
 #if ENABLE(INSPECTOR)

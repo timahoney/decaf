@@ -43,12 +43,12 @@ inline VALUE createRBElementWrapper(Element* element)
         return createRBSVGWrapper(static_cast<SVGElement*>(element));
 #endif
     
-    return toRB(RBElement::rubyClass(), PassRefPtr<Element>(element));
+    return toRB(RBElement::rubyClass(), element);
 }
 
-VALUE toRB(PassRefPtr<Element> impl)
+VALUE toRB(Element* impl)
 {
-    return createRBElementWrapper(impl.get());
+    return createRBElementWrapper(impl);
 }
 
 } // namespace WebCore

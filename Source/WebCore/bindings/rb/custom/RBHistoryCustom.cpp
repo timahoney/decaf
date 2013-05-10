@@ -21,6 +21,8 @@
 
 #include "BindingSecurity.h"
 #include "RBConverters.h"
+#include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include "RBExceptionHandler.h"
 
 namespace WebCore {
@@ -35,8 +37,12 @@ VALUE RBHistory::state_getter(VALUE self)
     if (!NIL_P(cachedValue) && !history->stateChanged())
         return cachedValue;
 
-    RefPtr<SerializedScriptValue> serialized = history->state();
-    VALUE result = serialized ? serialized->deserializeRB() : Qnil;
+    RefPtr<SerializedScriptValue> serializedValue = history->state();
+    VALUE result = Qnil;
+    if (serializedValue) {
+        ScriptValue value = serializedValue->deserialize(RBSerializationDelegate::create(), 0);
+        result = value.rbValue();
+    }
     rb_iv_set(self, "@state", result);
     return result;
 }
@@ -47,12 +53,14 @@ VALUE RBHistory::push_state(int argc, VALUE* argv, VALUE self)
     VALUE data, titleRB, urlRB;
     rb_scan_args(argc, argv, "21", &data, &titleRB, &urlRB);
 
-    RefPtr<SerializedScriptValue> historyState = SerializedScriptValue::create(data);
+    RefPtr<SerializedScriptValue> historyState = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                               RBScriptValue::scriptValue(data), 0, 0);
+    
     String title = rbStringOrNullString(titleRB);
     String url = rbStringOrNullString(urlRB);
     ExceptionCode ec = 0;
     selfImpl->stateObjectAdded(historyState.release(), title, url, History::StateObjectPush, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }
@@ -63,12 +71,13 @@ VALUE RBHistory::replace_state(int argc, VALUE* argv, VALUE self)
     VALUE data, titleRB, urlRB;
     rb_scan_args(argc, argv, "21", &data, &titleRB, &urlRB);
     
-    RefPtr<SerializedScriptValue> historyState = SerializedScriptValue::create(data);
+    RefPtr<SerializedScriptValue> historyState = SerializedScriptValue::create(RBSerializationDelegate::create(),
+                                                                               RBScriptValue::scriptValue(data), 0, 0);
     String title = rbStringOrNullString(titleRB);
     String url = rbStringOrNullString(urlRB);
     ExceptionCode ec = 0;
     selfImpl->stateObjectAdded(historyState.release(), title, url, History::StateObjectReplace, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
 
     return Qnil;
 }

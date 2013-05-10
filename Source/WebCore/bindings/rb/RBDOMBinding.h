@@ -33,28 +33,31 @@ namespace WebCore {
 
 class CachedScript;
 class DOMWindow;
-
-class RBDOMBinding {
-public:
-    static void reportException(ScriptExecutionContext*, VALUE exception, CachedScript* = 0);
-    static void reportCurrentException(RBScriptState*, CachedScript* = 0);
-
-    // Returns the window for the current Ruby VM state.
-    static DOMWindow* currentWindow();
-    static VALUE currentWindowRB();
-
-    // Gets the binding for execution in a Window.
-    // Always use this when executing top-level code for a Window.
-    // If you use a different binding than this one, 
-    // then it will likely not have any of the previously user-defined code.
-    static VALUE bindingFromWindow(DOMWindow*);
-
-    static intptr_t sourceIDFromFileName(const char* fileName);
-
-private:
-    static DOMWindow* windowFromModule(VALUE module);
-};
+class ScriptExecutionContext;
 
 } // namespace WebCore
+
+namespace RB {
+
+void reportException(WebCore::ScriptExecutionContext*, VALUE exception, WebCore::CachedScript* = 0);
+void reportCurrentException(WebCore::RBScriptState*, WebCore::CachedScript* = 0);
+
+// Returns the window for the current Ruby VM state.
+WebCore::DOMWindow* currentWindow();
+VALUE currentWindowRB();
+
+intptr_t sourceIDFromFileName(const char* fileName);
+
+WebCore::ScriptExecutionContext* currentContext();
+
+// Gets the binding for execution.
+// Always evaluate any code from the user in this binding.
+// If you use a different binding than this one, 
+// then it will likely not have any of the previously user-defined code.
+VALUE bindingFromContext(WebCore::ScriptExecutionContext* context);
+
+WebCore::ScriptExecutionContext* contextFromBinding(VALUE binding);
+
+} // namespace RB
 
 #endif // RBDOMBinding_h

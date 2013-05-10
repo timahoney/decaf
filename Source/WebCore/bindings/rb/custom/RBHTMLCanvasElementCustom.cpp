@@ -47,7 +47,7 @@ VALUE RBHTMLCanvasElement::to_data_url(int argc, VALUE* argv, VALUE self)
     double quality = 0;
     ExceptionCode ec = 0;
     String result = selfImpl->toDataURL(type, &quality, ec);
-    rbDOMRaiseError(ec);
+    RB::setDOMException(ec);
     return toRB(result);
 }
 

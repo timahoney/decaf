@@ -27,6 +27,7 @@
 #include "RBImageData.h"
 
 #include "RBConverters.h"
+#include "RBObject.h"
 #include "RBUint8ClampedArray.h"
 
 namespace WebCore {
@@ -34,37 +35,26 @@ namespace WebCore {
 extern "C" VALUE imagedata_get_data(VALUE self);
 VALUE imagedata_get_data(VALUE self)
 {
-    VALUE dataWrapper = rb_iv_get(self, "@data");
-    return dataWrapper;
+    ImageData* selfImpl = impl<ImageData>(self);
+    Uint8ClampedArray* data = selfImpl->data();
+    return toRB(data);
 }
 
-VALUE toRB(PassRefPtr<ImageData> prpImpl)
+VALUE toRB(ImageData* impl)
 {
-    RefPtr<ImageData> impl = prpImpl;
-    
     if (!impl)
         return Qnil;
 
-    // The JS bindings cache the data array directly on the JS object.
-    // That way, they don't always call into the C++ function to access this heavy object.
-    // I guess that makes sense, so let's do it for Ruby too.
-
-    // FIXME: This may have to change once we start caching the Ruby objects.
-    // The array may have already been wrapped,
-    // and the 'data' function may have already been mapped to the array.
-    Uint8ClampedArray* data = impl->data();
-    VALUE dataWrapper = toRB(data);
-    VALUE wrapper = toRB(RBImageData::rubyClass(), impl.release());
-    rb_iv_set(wrapper, "@data", dataWrapper);
-
-    static bool didRedefineMethod = false;
-    if (!didRedefineMethod) {
-        didRedefineMethod = true;
-        rb_undef_method(RBImageData::rubyClass(), "data");
+    // FIXME: The JS bindings cache the data array directly on the JS object.
+    // We can't do this at the moment because Ruby's Marshal module
+    // will try to serialize it. Instead, just define the 'data' getter.
+    static bool didDefineGetter = false;
+    if (!didDefineGetter) {
+        didDefineGetter = true;
         rb_define_method(RBImageData::rubyClass(), "data", RUBY_METHOD_FUNC(&imagedata_get_data), 0);
     }
     
-    return wrapper;
+    return toRB(RBImageData::rubyClass(), impl);
 }
 
 } // namespace WebCore

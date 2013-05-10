@@ -10,34 +10,57 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY APPLE, INC. ``AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE, INC. OR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef RBArrayBufferCustom_h
-#define RBArrayBufferCustom_h
+#ifndef WorkerScriptControllerDelegate_h
+#define WorkerScriptControllerDelegate_h
 
-#include <Ruby/ruby.h>
+#if ENABLE(WORKERS)
+#include <wtf/Forward.h>
+#include <wtf/Threading.h>
 
 namespace WebCore {
 
-class RBArrayBufferCustom {
+class ScriptSourceCode;
+class ScriptValue;
+
+class WorkerScriptControllerDelegate {
+    WTF_MAKE_NONCOPYABLE(WorkerScriptControllerDelegate); WTF_MAKE_FAST_ALLOCATED;
 public:
-    static VALUE marshal_load(VALUE klass, VALUE data);
-    static VALUE marshal_dump(VALUE self, VALUE level);
-    
-    static void Init_ArrayBufferCustom();
+    virtual ~WorkerScriptControllerDelegate();
+
+    virtual void evaluate(const ScriptSourceCode&) = 0;
+    virtual void evaluate(const ScriptSourceCode&, ScriptValue* exception) = 0;
+
+    virtual void setException(const ScriptValue&) = 0;
+
+    virtual void scheduleExecutionTermination() = 0;
+    virtual bool isExecutionTerminating() const = 0;
+
+    virtual void disableEval(const String& errorMessage) = 0;
+
+    WorkerContext* workerContext() const { return m_workerContext; }
+
+protected:
+    WorkerScriptControllerDelegate(WorkerContext*);
+
+private:
+    WorkerContext* m_workerContext;
 };
 
 } // namespace WebCore
 
-#endif // RBArrayBufferCustom_h
+#endif // ENABLE(WORKERS)
+
+#endif // WorkerScriptControllerDelegate_h

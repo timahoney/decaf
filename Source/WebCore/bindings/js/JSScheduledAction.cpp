@@ -33,6 +33,7 @@
 #include "JSDOMWindow.h"
 #include "JSMainThreadExecState.h"
 #include "JSScriptState.h"
+#include "JSWorkerScriptController.h"
 #include "ScriptController.h"
 #include "ScriptExecutionContext.h"
 #include "ScriptSourceCode.h"
@@ -133,7 +134,7 @@ void JSScheduledAction::execute(WorkerContext* workerContext)
     // In a Worker, the execution should always happen on a worker thread.
     ASSERT(workerContext->thread()->threadID() == currentThread());
 
-    WorkerScriptController* scriptController = workerContext->script();
+    JSWorkerScriptController* scriptController = static_cast<JSWorkerScriptController*>(workerContext->script());
 
     if (m_function) {
         JSWorkerContext* contextWrapper = scriptController->workerContextWrapper();

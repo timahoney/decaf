@@ -42,7 +42,7 @@
 
 namespace WebCore {
 
-VALUE toRB(PassRefPtr<CSSValue> impl)
+VALUE toRB(CSSValue* impl)
 {
     if (!impl)
         return Qnil;
@@ -55,21 +55,21 @@ VALUE toRB(PassRefPtr<CSSValue> impl)
         return Qnil;
 
     if (impl->isWebKitCSSTransformValue())
-        return toRB(static_cast<WebKitCSSTransformValue*>(impl.get()));
+        return toRB(static_cast<WebKitCSSTransformValue*>(impl));
 #if ENABLE(CSS_FILTERS)
     else if (impl->isWebKitCSSFilterValue())
-        return toRB(static_cast<WebKitCSSFilterValue*>(impl.get()));
+        return toRB(static_cast<WebKitCSSFilterValue*>(impl));
 #endif
     else if (impl->isValueList())
-        return toRB(static_cast<CSSValueList*>(impl.get()));
+        return toRB(static_cast<CSSValueList*>(impl));
 #if ENABLE(SVG)
     else if (impl->isSVGPaint())
-        return toRB(static_cast<SVGPaint*>(impl.get()));
+        return toRB(static_cast<SVGPaint*>(impl));
     else if (impl->isSVGColor())
-        return toRB(static_cast<SVGColor*>(impl.get()));
+        return toRB(static_cast<SVGColor*>(impl));
 #endif
     else if (impl->isPrimitiveValue())
-        return toRB(static_cast<CSSPrimitiveValue*>(impl.get()));
+        return toRB(static_cast<CSSPrimitiveValue*>(impl));
     else
         return toRB(RBCSSValue::rubyClass(), impl);
 }

@@ -33,24 +33,26 @@
 #include "RBObject.h"
 #include "RBScriptCallStackFactory.h"
 #include "ScriptArguments.h"
+#include "WorkerContext.h"
+
+using namespace RB;
 
 namespace WebCore {
 
-RBScriptState::RBScriptState(VALUE binding, VALUE window)
+RBScriptState::RBContextToGlobalStateMap* RBScriptState::s_contextGlobalStates;
+
+RBScriptState::RBScriptState(VALUE binding)
     : ScriptState(RBScriptType)
+    , ContextDestructionObserver(contextFromBinding(binding))
     , m_binding(binding)
-    , m_window(window)
     , m_evalEnabled(true)
 {
     rb_gc_register_address(&m_binding);
-    rb_gc_register_address(&m_window);
 }
 
 RBScriptState::~RBScriptState()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_binding);
-    // rb_gc_unregister_address(&m_window);
+    rb_gc_unregister_address(&m_binding);
 }
 
 RBScriptState* RBScriptState::current()
@@ -60,8 +62,8 @@ RBScriptState* RBScriptState::current()
 
 RBScriptState* RBScriptState::forBinding(VALUE binding)
 {
-    VALUE window = rb_funcall(binding, rb_intern("eval"), 1, rb_str_new2("$window"));
-    return new RBScriptState(binding, window);
+    // FIXME: Do we really need this? Can't we just use 'new'?
+    return new RBScriptState(binding);
 }
     
 bool RBScriptState::hadException()
@@ -72,8 +74,11 @@ bool RBScriptState::hadException()
 
 DOMWindow* RBScriptState::domWindow() const
 {
-    DOMWindow* window = impl<DOMWindow>(m_window);
-    return window;
+    ScriptExecutionContext* context = scriptExecutionContext();
+    if (!context || !context->isDocument())
+        return 0;
+
+    return static_cast<Document*>(context)->domWindow();
 }
 
 VALUE RBScriptState::binding() const
@@ -83,8 +88,9 @@ VALUE RBScriptState::binding() const
 
 ScriptExecutionContext* RBScriptState::scriptExecutionContext() const
 {
-    return domWindow()->scriptExecutionContext();
+    return ContextDestructionObserver::scriptExecutionContext();
 }
+    
 
 bool RBScriptState::evalEnabled() const
 {
@@ -95,15 +101,30 @@ void RBScriptState::setEvalEnabled(bool enabled)
 {
     m_evalEnabled = enabled;
 }
-    
-RBScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
-{
-    DOMWindow* window = frame->document()->domWindow();
-    VALUE windowRB = toRB(window);
-    VALUE binding = RBDOMBinding::bindingFromWindow(window);
 
-    // FIXME: This will get leaked...I think. V8 just returns a new one, can we as well?
-    return new RBScriptState(binding, windowRB);
+ScriptState* RBScriptState::globalScriptState(ScriptExecutionContext* context)
+{
+    if (!s_contextGlobalStates)
+        s_contextGlobalStates = new RBContextToGlobalStateMap();
+    
+    RBScriptState* globalState = s_contextGlobalStates->get(context);
+    if (!globalState) {
+        VALUE binding = bindingFromContext(context);
+        globalState = new RBScriptState(binding);
+        s_contextGlobalStates->set(context, globalState);
+    }
+    
+    return globalState;
+}
+    
+ScriptState* RBScriptState::mainWorldScriptState(Frame* frame)
+{
+    return globalScriptState(frame->document());
+}
+
+ScriptState* RBScriptState::scriptStateFromWorkerContext(WorkerContext* workerContext)
+{
+    return globalScriptState(workerContext);
 }
 
 PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStack(size_t maxStackSize, bool emptyStackIsAllowed)
@@ -119,6 +140,13 @@ PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStack(size_t maxStack
 PassRefPtr<ScriptCallStack> RBScriptState::createScriptCallStackForConsole()
 {
     return RBScriptCallStackFactory::createScriptCallStackForConsole(this);
+}
+
+void RBScriptState::contextDestroyed()
+{
+    if (s_contextGlobalStates->contains(scriptExecutionContext()))
+        s_contextGlobalStates->remove(scriptExecutionContext());
+    delete this;
 }
 
 } // namespace WebCore

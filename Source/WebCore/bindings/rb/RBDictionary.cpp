@@ -35,6 +35,7 @@
 #include "RBConverters.h"
 #include "RBObject.h"
 #include "RBScriptValue.h"
+#include "RBSerializationDelegate.h"
 #include "SerializedScriptValue.h"
 #include "Storage.h"
 #include "TrackBase.h"
@@ -57,8 +58,7 @@ RBDictionary::RBDictionary(VALUE rubyHash)
 
 RBDictionary::~RBDictionary()
 {
-    // FIXME: Should we put this back in?
-    // rb_gc_unregister_address(&m_hash);
+    rb_gc_unregister_address(&m_hash);
 }
 
 bool RBDictionary::getWithUndefinedOrNullCheck(const String& propertyName, String& value) const
@@ -155,7 +155,7 @@ void RBDictionary::convertValue(VALUE value, Vector<String>& result)
 
 void RBDictionary::convertValue(VALUE value, RefPtr<SerializedScriptValue>& result)
 {
-    result = SerializedScriptValue::create(value);
+    result = SerializedScriptValue::create(RBSerializationDelegate::create(), RBScriptValue::scriptValue(value), 0, 0);
 }
 
 void RBDictionary::convertValue(VALUE value, RefPtr<DOMWindow>& result)

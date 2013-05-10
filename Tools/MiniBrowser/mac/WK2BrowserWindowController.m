@@ -830,4 +830,9 @@ static void runOpenPanel(WKPageRef page, WKFrameRef frame, WKOpenPanelParameters
     // FIXME: Implement this.
 }
 
+- (IBAction)showConsole:(id)sender
+{
+    // FIXME: Implement this.
+}
+
 @end
