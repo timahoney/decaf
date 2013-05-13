@@ -44,6 +44,9 @@
     [_webView setFrameLoadDelegate:self];
     [_webView setUIDelegate:self];
     [_webView setResourceLoadDelegate:self];
+    
+    // We want to be notified on pushState/replaceState/popState
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(historyChanged) name:WebHistoryItemChangedNotification object:nil];
 
     [containerView addSubview:_webView];
 }
@@ -54,6 +57,8 @@
     [_webView setUIDelegate:nil];
     [_webView setResourceLoadDelegate:nil];
     [_webView release];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     [super dealloc];
 }
@@ -291,6 +296,12 @@
 
     [alert runModal];
     [alert release];
+}
+
+- (void)historyChanged
+{
+    if ([_webView mainFrameURL])
+        [urlText setStringValue:[_webView mainFrameURL]];
 }
 
 @end
