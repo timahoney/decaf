@@ -46,7 +46,7 @@ RBEventListener::~RBEventListener()
 bool RBEventListener::operator==(const EventListener& listener)
 {
     if (const RBEventListener* rbEventListener = RBEventListener::cast(&listener))
-        return m_proc == rbEventListener->m_proc;
+        return RTEST(rb_equal(m_proc, rbEventListener->m_proc));
     return false;
 }
 

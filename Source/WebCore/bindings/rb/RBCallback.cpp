@@ -71,7 +71,7 @@ VALUE RBCallback::call(ScriptExecutionContext* scriptExecutionContext, int argc,
 
 bool RBCallback::operator==(const RBCallback& other)
 {
-    return m_proc == other.m_proc;
+    return RTEST(rb_equal(m_proc, other.m_proc));
 }
 
 } // namespace WebCore
