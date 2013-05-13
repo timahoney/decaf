@@ -60,8 +60,8 @@ public:
     virtual bool hasNoValue() const { return NIL_P(m_value); }
 
     virtual bool isNumber() const { return IS_RB_NUM(m_value); };
-    virtual bool isInt32() const { return IS_RB_INT(m_value); };
-    virtual int32_t asInt32() const { return NUM2DBL(m_value); };
+    virtual bool isInt64() const { return IS_RB_INT(m_value); };
+    virtual int64_t asInt64() const { return NUM2LL(m_value); };
     virtual double asDouble() const { return NUM2DBL(m_value); };
     virtual bool isBoolean() const { return TYPE(m_value) == T_TRUE || TYPE(m_value) == T_FALSE; };
     virtual bool isTrue() const { return RTEST(m_value); };

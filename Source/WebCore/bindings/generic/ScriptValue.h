@@ -73,8 +73,8 @@ public:
 
     // Methods for serialization.
     bool isNumber() const;
-    bool isInt32() const;
-    int32_t asInt32() const;
+    bool isInt64() const;
+    int64_t asInt64() const;
     double asDouble() const;
     double asNumber() const;
     bool isBoolean() const;

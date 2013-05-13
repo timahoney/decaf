@@ -228,7 +228,7 @@ ScriptValue RBSerializationDelegate::toScriptValue(double d)
     return toRB(d);
 }
 
-ScriptValue RBSerializationDelegate::toScriptValue(int32_t i)
+ScriptValue RBSerializationDelegate::toScriptValue(int64_t i)
 {
     return toRB(i);
 }

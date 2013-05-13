@@ -137,7 +137,7 @@ static const unsigned NonIndexPropertiesTag = 0xFFFFFFFD;
  * Terminal :-
  *      UndefinedTag
  *    | NullTag
- *    | IntTag <value:int32_t>
+ *    | IntTag <value:int64_t>
  *    | ZeroTag
  *    | OneTag
  *    | FalseTag
@@ -427,14 +427,14 @@ private:
         else if (value.isUndefined())
             write(UndefinedTag);
         else if (value.isNumber()) {
-            if (value.isInt32()) {
-                if (!value.asInt32())
+            if (value.isInt64()) {
+                if (!value.asInt64())
                     write(ZeroTag);
-                else if (value.asInt32() == 1)
+                else if (value.asInt64() == 1)
                     write(OneTag);
                 else {
                     write(IntTag);
-                    write(static_cast<uint32_t>(value.asInt32()));
+                    write(value.asInt64());
                 }
             } else {
                 write(DoubleTag);
@@ -682,6 +682,11 @@ private:
     }
 
     void write(uint32_t i)
+    {
+        writeLittleEndian(m_buffer, i);
+    }
+    
+    void write(int64_t i)
     {
         writeLittleEndian(m_buffer, i);
     }
@@ -1104,6 +1109,11 @@ private:
     {
         return readLittleEndian(*reinterpret_cast<uint32_t*>(&i));
     }
+    
+    bool read(int64_t& i)
+    {
+        return readLittleEndian(i);
+    }
 
     bool read(uint16_t& i)
     {
@@ -1341,15 +1351,15 @@ private:
         case NullTag:
             return m_delegate->null();
         case IntTag: {
-            int32_t i;
+            int64_t i;
             if (!read(i))
                 return ScriptValue();
             return m_delegate->toScriptValue(i);
         }
         case ZeroTag:
-            return m_delegate->toScriptValue(0);
+            return m_delegate->toScriptValue(static_cast<int64_t>(0));
         case OneTag:
-            return m_delegate->toScriptValue(1);
+            return m_delegate->toScriptValue(static_cast<int64_t>(1));
         case FalseTag:
             return m_delegate->toScriptValue(false);
         case TrueTag:

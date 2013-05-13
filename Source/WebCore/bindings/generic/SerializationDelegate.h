@@ -73,7 +73,7 @@ public:
     virtual ScriptValue toScriptValue(Float32Array*) = 0;
     virtual ScriptValue toScriptValue(Float64Array*) = 0;
     virtual ScriptValue toScriptValue(double d) = 0;
-    virtual ScriptValue toScriptValue(int32_t i) = 0;
+    virtual ScriptValue toScriptValue(int64_t i) = 0;
     virtual ScriptValue toScriptValue(bool value) = 0;
     virtual ScriptValue toScriptValue(const String&) = 0;
     virtual ScriptValue toRegExpScriptValue(const String& flags, const String& pattern) = 0;

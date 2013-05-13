@@ -66,8 +66,8 @@ public:
     virtual bool isFunction() const;
     virtual bool hasNoValue() const { return !m_value; }
     virtual bool isNumber() const;
-    virtual bool isInt32() const;
-    virtual int32_t asInt32() const;
+    virtual bool isInt64() const;
+    virtual int64_t asInt64() const;
     virtual double asDouble() const;
     virtual bool isBoolean() const;
     virtual bool isTrue() const;

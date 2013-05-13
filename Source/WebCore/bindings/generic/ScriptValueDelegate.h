@@ -54,13 +54,13 @@ public:
     virtual void clear() = 0;
 
     virtual bool isNumber() const = 0;
-    virtual bool isInt32() const = 0;
-    virtual int32_t asInt32() const = 0;
+    virtual bool isInt64() const = 0;
+    virtual int64_t asInt64() const = 0;
     virtual double asDouble() const = 0;
     virtual bool isBoolean() const = 0;
     virtual bool isTrue() const = 0;
     virtual bool isCell() const = 0;
-    double asNumber() const { return isInt32() ? asInt32() : asDouble(); }
+    double asNumber() const { return isInt64() ? asInt64() : asDouble(); }
 
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, SerializationErrorMode = Throwing) = 0;
     virtual PassRefPtr<SerializedScriptValue> serialize(ScriptState*, MessagePortArray*, ArrayBufferArray*, bool&) = 0;
@@ -99,8 +99,8 @@ public:
     virtual bool isFunction() const { return false; }
     virtual bool hasNoValue() const { return true; }
     virtual bool isNumber() const { return false; }
-    virtual bool isInt32() const { return false; }
-    virtual int32_t asInt32() const { return 0; }
+    virtual bool isInt64() const { return false; }
+    virtual int64_t asInt64() const { return 0; }
     virtual double asDouble() const { return 0; }
     virtual bool isBoolean() const { return false; }
     virtual bool isTrue() const { return false; }

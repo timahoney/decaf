@@ -281,7 +281,7 @@ ScriptValue JSSerializationDelegate::toScriptValue(double d)
     return JSScriptValue::scriptValue(m_exec->globalData(), jsNumber(d));
 }
 
-ScriptValue JSSerializationDelegate::toScriptValue(int32_t i)
+ScriptValue JSSerializationDelegate::toScriptValue(int64_t i)
 {
     return JSScriptValue::scriptValue(m_exec->globalData(), jsNumber(i));
 }

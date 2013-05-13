@@ -137,14 +137,14 @@ bool ScriptValue::isNumber() const
     return m_delegate->isNumber();
 }
 
-bool ScriptValue::isInt32() const
+bool ScriptValue::isInt64() const
 {
-    return m_delegate->isInt32();
+    return m_delegate->isInt64();
 }
 
-int32_t ScriptValue::asInt32() const
+int64_t ScriptValue::asInt64() const
 {
-    return m_delegate->asInt32();
+    return m_delegate->asInt64();
 }
 
 double ScriptValue::asDouble() const

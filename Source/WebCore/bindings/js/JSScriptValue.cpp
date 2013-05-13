@@ -126,14 +126,14 @@ bool JSScriptValue::isNumber() const
     return m_value.get().isNumber();
 }
 
-bool JSScriptValue::isInt32() const
+bool JSScriptValue::isInt64() const
 {
     if (!m_value)
         return false;
     return m_value.get().isInt32();
 }
 
-int32_t JSScriptValue::asInt32() const
+int64_t JSScriptValue::asInt64() const
 {
     if (!m_value)
         return 0;
