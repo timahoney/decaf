@@ -126,7 +126,7 @@
 								<nil key="NSToolbarItemTarget"/>
 								<nil key="NSToolbarItemAction"/>
 								<string key="NSToolbarItemMinSize">{200, 22}</string>
-								<string key="NSToolbarItemMaxSize">{800, 22}</string>
+								<string key="NSToolbarItemMaxSize">{9996, 22}</string>
 								<bool key="NSToolbarItemEnabled">YES</bool>
 								<bool key="NSToolbarItemAutovalidates">YES</bool>
 								<int key="NSToolbarItemTag">0</int>
@@ -142,7 +142,7 @@
 								<nil key="NSToolbarItemToolTip"/>
 								<object class="NSProgressIndicator" key="NSToolbarItemView" id="128750774">
 									<reference key="NSNextResponder"/>
-									<int key="NSvFlags">1289</int>
+									<int key="NSvFlags">1292</int>
 									<string key="NSFrame">{{19, 14}, {16, 16}}</string>
 									<reference key="NSSuperview"/>
 									<reference key="NSWindow"/>
@@ -153,8 +153,8 @@
 								<nil key="NSToolbarItemImage"/>
 								<nil key="NSToolbarItemTarget"/>
 								<nil key="NSToolbarItemAction"/>
-								<string key="NSToolbarItemMinSize">{16, 12}</string>
-								<string key="NSToolbarItemMaxSize">{16, 16}</string>
+								<string key="NSToolbarItemMinSize">{12, 12}</string>
+								<string key="NSToolbarItemMaxSize">{12, 16}</string>
 								<bool key="NSToolbarItemEnabled">YES</bool>
 								<bool key="NSToolbarItemAutovalidates">YES</bool>
 								<int key="NSToolbarItemTag">-1</int>
@@ -298,7 +298,7 @@
 							</object>
 						</object>
 					</object>
-					<object class="NSArray" key="NSToolbarIBAllowedItems">
+					<object class="NSMutableArray" key="NSToolbarIBAllowedItems">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<reference ref="332491395"/>
 						<reference ref="928383107"/>
@@ -339,7 +339,7 @@
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="877383975"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<string key="NSFrameAutosaveName">Main Window</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
@@ -428,7 +428,7 @@
 					</object>
 					<string key="NSFrameSize">{452, 62}</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
