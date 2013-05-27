@@ -27,6 +27,7 @@
 #include "RBScriptCallStackFactory.h"
 
 #include "InspectorInstrumentation.h"
+#include "RBCallHelpers.h"
 #include "RBScriptState.h"
 #include "RBScriptValue.h"
 #include "ScriptArguments.h"
@@ -34,6 +35,8 @@
 #include "ScriptCallStack.h"
 #include "ScriptValue.h"
 #include <wtf/text/WTFString.h>
+
+using namespace RB;
 
 namespace WebCore {
 
@@ -87,7 +90,7 @@ PassRefPtr<ScriptCallStack> RBScriptCallStackFactory::createScriptCallStack(size
 
 PassRefPtr<ScriptCallStack> RBScriptCallStackFactory::createScriptCallStack(RBScriptState* state, size_t maxStackSize)
 {
-    VALUE backtrace = rb_funcall(state->binding(), rb_intern("eval"), 1, rb_str_new2("caller"));
+    VALUE backtrace = callFunction(state->binding(), "eval", rb_str_new2("caller"));
     Vector<ScriptCallFrame> frames;
     createFramesFromBacktrace(backtrace, maxStackSize, frames);
     return ScriptCallStack::create(frames);
